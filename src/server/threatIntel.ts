@@ -50,11 +50,13 @@ export async function inspectWebRisk(rawInput: string): Promise<Evidence> {
   try {
     const endpoint = new URL('https://webrisk.googleapis.com/v1/uris:search');
     endpoint.searchParams.set('uri', url.href);
-    endpoint.searchParams.set('key', process.env.WEB_RISK_API_KEY);
     for (const threatType of THREAT_TYPES) endpoint.searchParams.append('threatTypes', threatType);
 
     const response = await fetch(endpoint, {
-      headers: { Accept: 'application/json' },
+      headers: {
+        Accept: 'application/json',
+        'X-Goog-Api-Key': process.env.WEB_RISK_API_KEY
+      },
       signal: AbortSignal.timeout(TIMEOUT_MS)
     });
 
