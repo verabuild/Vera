@@ -91,7 +91,7 @@ export async function inspectWebRisk(rawInput: string): Promise<Evidence> {
       return {
         id: 'threat-intel-unavailable',
         title: 'Threat-intelligence lookup unavailable',
-        detail: `Google Web Risk did not return a usable result. ${category} VERA treats this as unknown, not as a clean result.`,
+        detail: `Google Web Risk did not return a usable result. ${category} ${providerReason ? `Provider: ${providerReason}. ` : ''}VERA treats this as unknown, not as a clean result.`,
         severity: 'info',
         source: 'Google Web Risk Lookup API',
         state: 'UNKNOWN',
