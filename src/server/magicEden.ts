@@ -1,4 +1,4 @@
-import type { Evidence, Network } from '../lib/types';
+import type { Evidence, Network } from '../lib/types.js';
 
 export async function inspectMagicEdenWallet(address: string, network: Network): Promise<Evidence[]> {
   const base = network === 'devnet'
