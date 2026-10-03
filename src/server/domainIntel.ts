@@ -65,14 +65,61 @@ async function inspectDns(hostname: string, observedAt: string): Promise<Evidenc
   }
 }
 
+type RdapBootstrap = { services?: Array<[string[], string[]]> };
+
+async function fetchJson(url: string, timeoutMs = 5000): Promise<Response> {
+  return fetch(url, {
+    headers: { Accept: 'application/rdap+json, application/json' },
+    signal: AbortSignal.timeout(timeoutMs)
+  });
+}
+
+async function findRdapResponse(domain: string): Promise<{ response: Response; provider: string }> {
+  const attempts: Array<{ url: string; provider: string }> = [];
+
+  // IANA's bootstrap file maps each top-level domain to its authoritative RDAP service.
+  // This avoids relying solely on rdap.org's redirect/aggregator.
+  try {
+    const bootstrapResponse = await fetchJson('https://data.iana.org/rdap/dns.json', 4000);
+    if (bootstrapResponse.ok) {
+      const bootstrap = await bootstrapResponse.json() as RdapBootstrap;
+      const tld = domain.split('.').pop()?.toLowerCase();
+      const service = bootstrap.services?.find(([tlds]) => tlds.some((item) => item.toLowerCase() === tld));
+      const base = service?.[1]?.[0];
+      if (base) attempts.push({
+        url: `${base.replace(/\/$/, '')}/domain/${encodeURIComponent(domain)}`,
+        provider: new URL(base).hostname
+      });
+    }
+  } catch {
+    // Continue to the independent fallback below.
+  }
+
+  attempts.push({
+    url: `https://rdap.org/domain/${encodeURIComponent(domain)}`,
+    provider: 'rdap.org'
+  });
+
+  let lastError = 'No RDAP provider returned a usable response';
+  for (const attempt of attempts) {
+    try {
+      const response = await fetchJson(attempt.url, 5000);
+      if (response.ok) return { response, provider: attempt.provider };
+      lastError = `${attempt.provider} returned HTTP ${response.status}`;
+    } catch (error) {
+      lastError = `${attempt.provider} request failed: ${error instanceof Error ? error.name : 'network error'}`;
+    }
+  }
+  throw new Error(lastError);
+}
+
 export async function inspectDomainRegistration(rawUrl: string): Promise<Evidence[]> {
   const observedAt = new Date().toISOString();
+  let hostname = '';
 
   try {
     const url = normalizeUrlInput(rawUrl);
-    const hostname = url.hostname.toLowerCase().replace(/\.$/, '');
-
-    // Add live DNS evidence independently of registration-data availability.
+    hostname = url.hostname.toLowerCase().replace(/\.$/, '');
     const dnsEvidence = await inspectDns(hostname, observedAt);
 
     if (!hostname || hostname === 'localhost' || /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname) || hostname.includes(':')) {
@@ -87,36 +134,8 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
       }];
     }
 
-    // RDAP is a domain-registration service, not a subdomain lookup. A common
-    // pasted hostname such as www.google.com must be checked as google.com.
     const lookupHost = hostname.startsWith('www.') ? hostname.slice(4) : hostname;
-    const lookup = async (domain: string) => fetch(
-      `https://rdap.org/domain/${encodeURIComponent(domain)}`,
-      {
-        headers: { Accept: 'application/rdap+json, application/json' },
-        signal: AbortSignal.timeout(RDAP_TIMEOUT_MS)
-      }
-    );
-    let response = await lookup(lookupHost);
-    if (response.status === 404 && lookupHost !== hostname) {
-      response = await lookup(hostname);
-    }
-
-    if (response.status === 404) {
-      return [dnsEvidence, {
-        id: 'domain-rdap-not-found',
-        title: 'No domain registration record returned',
-        detail: `The public RDAP lookup did not return a registration record for ${lookupHost}. This may reflect an unsupported domain, lookup limitation, or missing record; it is not proof of maliciousness.`,
-        severity: 'medium',
-        source: 'Public RDAP domain lookup',
-        state: 'UNKNOWN',
-        observedAt,
-        metadata: { hostname, lookupHost, httpStatus: 404 }
-      }];
-    }
-
-    if (!response.ok) throw new Error(`RDAP responded with HTTP ${response.status}`);
-
+    const { response, provider } = await findRdapResponse(lookupHost);
     const data = await response.json() as RdapResponse;
     const registrationEvent = data.events?.find((event) =>
       ['registration', 'registered'].includes((event.eventAction || '').toLowerCase())
@@ -126,17 +145,28 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
       return [dnsEvidence, {
         id: 'domain-registration-date-unavailable',
         title: 'Registration date unavailable',
-        detail: `RDAP returned domain data for ${lookupHost}, but no registration date was available to VERA.`,
+        detail: `${provider} returned domain data for ${lookupHost}, but no registration date was available. Domain registration details may be redacted or omitted by the registry.`,
         severity: 'info',
-        source: 'Public RDAP domain lookup',
+        source: `RDAP registry: ${provider}`,
         state: 'UNKNOWN',
         observedAt,
-        metadata: { hostname, lookupHost }
+        metadata: { hostname, lookupHost, provider }
       }];
     }
 
     const registeredAt = new Date(registrationEvent.eventDate);
-    if (Number.isNaN(registeredAt.getTime())) throw new Error('RDAP returned an invalid registration date');
+    if (Number.isNaN(registeredAt.getTime())) {
+      return [dnsEvidence, {
+        id: 'domain-registration-date-invalid',
+        title: 'Registration date could not be verified',
+        detail: `${provider} returned a registration date that VERA could not interpret reliably.`,
+        severity: 'info',
+        source: `RDAP registry: ${provider}`,
+        state: 'UNKNOWN',
+        observedAt,
+        metadata: { hostname, lookupHost, provider }
+      }];
+    }
 
     const ageDays = Math.max(0, Math.floor((Date.now() - registeredAt.getTime()) / 86_400_000));
     const isNew = ageDays < NEW_DOMAIN_DAYS;
@@ -146,24 +176,25 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
       title: isNew ? 'Recently registered domain' : 'Domain registration date found',
       detail: isNew
         ? `${lookupHost} appears to have been registered ${ageDays} day(s) ago. Newly registered domains can deserve extra scrutiny, but domain age alone does not establish maliciousness.`
-        : `RDAP reports a registration date of ${registeredAt.toISOString().slice(0, 10)} for ${lookupHost} (approximately ${ageDays} days ago). Domain age alone does not establish legitimacy.`,
+        : `The registry reports a registration date of ${registeredAt.toISOString().slice(0, 10)} for ${lookupHost} (approximately ${ageDays} days ago). Domain age alone does not establish legitimacy.`,
       severity: isNew ? 'medium' : 'info',
-      source: 'Public RDAP domain lookup (rdap.org)',
+      source: `RDAP registry: ${provider}`,
       state: 'SUPPORTED',
       observedAt,
-      metadata: { hostname, lookupHost, registeredAt: registeredAt.toISOString(), ageDays, lookupUrl: `https://rdap.org/domain/${encodeURIComponent(lookupHost)}` }
+      metadata: { hostname, lookupHost, provider, registeredAt: registeredAt.toISOString(), ageDays, lookupUrl: `https://rdap.org/domain/${encodeURIComponent(lookupHost)}` }
     }];
-  } catch {
-    const urlEvidence = (() => { try { return normalizeUrlInput(rawUrl); } catch { return null; } })();
-    const fallbackDnsEvidence = urlEvidence ? await inspectDns(urlEvidence.hostname.toLowerCase(), observedAt) : null;
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : 'Unknown RDAP lookup failure';
+    const fallbackDnsEvidence = hostname ? await inspectDns(hostname, observedAt) : null;
     return [...(fallbackDnsEvidence ? [fallbackDnsEvidence] : []), {
       id: 'domain-intelligence-unavailable',
-      title: 'Domain intelligence unavailable',
-      detail: 'VERA could not retrieve a reliable public domain registration record during this scan. No conclusion about the domain’s safety can be drawn from this lookup.',
+      title: 'Domain registration lookup unavailable',
+      detail: `VERA could not retrieve domain registration data: ${detail}. DNS evidence, if present, is reported separately and does not establish trustworthiness.`,
       severity: 'info',
-      source: 'Public RDAP domain lookup',
+      source: 'IANA RDAP bootstrap and registry fallback',
       state: 'UNKNOWN',
-      observedAt
+      observedAt,
+      metadata: { hostname: hostname || undefined, lookupFailed: true }
     }];
   }
 }
