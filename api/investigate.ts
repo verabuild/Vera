@@ -43,6 +43,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(204).end();
   }
 
+  if (req.method === 'GET') {
+    return json(res, 200, {
+      ok: true,
+      service: 'vera-investigate',
+      databaseConfigured: Boolean(process.env.DATABASE_URL),
+      geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
+      solanaConfigured: Boolean(process.env.SOLANA_MAINNET_RPC_URL),
+      timestamp: new Date().toISOString()
+    });
+  }
+
   if (req.method !== 'POST') {
     return json(res, 405, { error: 'Method not allowed' });
   }
