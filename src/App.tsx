@@ -140,7 +140,7 @@ export default function App() {
 
   return <main onMouseMove={(event) => { const r = event.currentTarget.getBoundingClientRect(); setCursor({ x: ((event.clientX-r.left)/r.width)*100, y: ((event.clientY-r.top)/r.height)*100 }); }} style={{ "--mx": `${cursor.x}%`, "--my": `${cursor.y}%` } as React.CSSProperties}>
     <nav className="nav">
-      <div className="brand"><div className="brand-mark">V</div><span>VERA</span></div>
+      <div className="brand"><img className="brand-logo" src="/vera-logo.jpg" alt="VERA" /></div>
       <div className="nav-center"><span className="nav-live" /><strong>DECISION INTELLIGENCE</strong></div>
       <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span><button className="ghost-button">How it works <ChevronRight size={14} /></button></div>
     </nav>
@@ -191,7 +191,7 @@ export default function App() {
       {history.length === 0 ? <div className="empty"><FileSearch size={20} /><div><strong>No investigations yet</strong><p>Your recent checks will appear here after you investigate something.</p></div></div> : <div className="history-list">{history.map((scan) => <button className="history-row" key={scan.id} onClick={() => restore(scan)}><span className="history-type">{scan.type}</span><span className="history-input">{scan.input}</span><StateBadge state={scan.assessment.state} /><ChevronRight size={16} /></button>)}</div>}
     </section>
 
-    <footer><div className="brand"><div className="brand-mark">V</div><span>VERA</span></div><p>Know before you act.</p><small>Hackathon build · No financial execution · Read-only</small></footer>
+    <footer><div className="brand"><img className="brand-logo" src="/vera-logo.jpg" alt="VERA" /></div><p>Know before you act.</p><small>Hackathon build · No financial execution · Read-only</small></footer>
     <Analytics />
   </main>;
 }
