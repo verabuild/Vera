@@ -1,4 +1,4 @@
-import type { Assessment, Evidence, InputType } from './types';
+import type { Assessment, Evidence, InputType } from './types.js';
 
 const highRiskPhrases = ['seed phrase', 'private key', 'recovery phrase', 'send crypto', 'verification code', 'claim now', 'connect your wallet'];
 const suspiciousHostTerms = ['airdrop', 'claim', 'verify', 'wallet-connect', 'free'];
