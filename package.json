@@ -27,5 +27,8 @@
     "@vitejs/plugin-react": "latest",
     "typescript": "latest",
     "vite": "latest"
+  },
+  "overrides": {
+    "rpc-websockets": "9.0.4"
   }
 }
