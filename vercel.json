@@ -1,6 +1,7 @@
 {
   "functions": {
-    "api/investigate.ts": { "maxDuration": 30 }
+    "api/investigate.ts": { "maxDuration": 30,
+      "includeFiles": "src/**" }
   },
   "headers": [
     {
