@@ -52,33 +52,55 @@ export async function inspectWebRisk(rawInput: string): Promise<Evidence> {
     endpoint.searchParams.set('uri', url.href);
     for (const threatType of THREAT_TYPES) endpoint.searchParams.append('threatTypes', threatType);
 
-    // Web Risk's Lookup API documents the `key` query parameter for REST
-    // authentication. Keep this call server-side so the API key is never
-    // exposed to the browser. Do not log the constructed URL.
-    endpoint.searchParams.set('key', process.env.WEB_RISK_API_KEY);
-
+    // Keep authentication in a request header. Google recommends the
+    // x-goog-api-key header for API-key authentication because query-string
+    // keys can be exposed by URL logging and tracing infrastructure.
     const response = await fetch(endpoint, {
       headers: {
-        Accept: 'application/json'
+        Accept: 'application/json',
+        'x-goog-api-key': process.env.WEB_RISK_API_KEY
       },
       signal: AbortSignal.timeout(TIMEOUT_MS)
     });
 
     if (!response.ok) {
-      const category = response.status === 400 || response.status === 403
-        ? 'API key, API enablement, or request configuration needs attention'
-        : response.status === 429
-          ? 'The provider rate limit was reached'
-          : `The provider returned HTTP ${response.status}`;
+      // Preserve the provider's machine-readable error reason for server-side
+      // diagnostics, but never return the API key or request URL.
+      let providerReason = '';
+      try {
+        const errorBody = await response.json() as {
+          error?: { status?: string; message?: string; details?: Array<{ reason?: string }> };
+        };
+        providerReason = [
+          errorBody.error?.status,
+          errorBody.error?.details?.map((detail) => detail.reason).filter(Boolean).join(', '),
+          errorBody.error?.message
+        ].filter(Boolean).join(' — ');
+      } catch {
+        // The provider may return a non-JSON error body.
+      }
+
+      const category = response.status === 400
+        ? 'Google rejected the request as invalid. Check the Web Risk request parameters.'
+        : response.status === 403
+          ? 'Google rejected the credentials or API-key restrictions. Confirm Web Risk is enabled for the key’s Google Cloud project and that the key is allowed to call Web Risk.'
+          : response.status === 429
+            ? 'The provider rate limit was reached.'
+            : `The provider returned HTTP ${response.status}.`;
+
       return {
         id: 'threat-intel-unavailable',
         title: 'Threat-intelligence lookup unavailable',
-        detail: `Google Web Risk did not return a usable result. ${category}. VERA treats this as unknown, not as a clean result.`,
+        detail: `Google Web Risk did not return a usable result. ${category} VERA treats this as unknown, not as a clean result.`,
         severity: 'info',
         source: 'Google Web Risk Lookup API',
         state: 'UNKNOWN',
         observedAt,
-        metadata: { provider: 'Google Web Risk', httpStatus: response.status }
+        metadata: {
+          provider: 'Google Web Risk',
+          httpStatus: response.status,
+          providerStatus: providerReason || undefined
+        }
       };
     }
 
