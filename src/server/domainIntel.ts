@@ -35,7 +35,7 @@ async function inspectDns(hostname: string, observedAt: string): Promise<Evidenc
         detail: `${hostname} currently resolves to ${[...new Set(addresses)].slice(0, 4).join(', ')} according to Cloudflare DNS-over-HTTPS. DNS resolution confirms the hostname has address records; it does not establish that the website is trustworthy.`,
         severity: 'info',
         source: 'Cloudflare DNS-over-HTTPS',
-        state: 'VERIFIED',
+        state: 'SUPPORTED',
         observedAt,
         metadata: { hostname, addresses: [...new Set(addresses)], resolver: 'Cloudflare' }
       };
