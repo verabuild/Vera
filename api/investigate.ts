@@ -94,7 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           ...assessment,
           evidence,
           headline: 'Newly registered domain needs extra scrutiny',
-          explanation: 'VERA found a recent domain registration date. Newness is a caution signal, not proof of a scam; this lookup does not establish the operator’s identity or the site’s intent.',
+          explanation: 'VERA found a recent domain registration date. Newness is a caution signal, not proof of a scam. VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.',
           action: 'Pause before entering credentials, connecting a wallet, or sending funds. Reach the service through its independently verified official website instead.',
           confidence: 'MEDIUM'
         };
@@ -113,12 +113,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           ...assessment,
           evidence,
           headline: 'Domain resolves, but trust evidence is incomplete',
-          explanation: 'VERA confirmed DNS address records, but could not verify a reliable domain registration date. DNS resolution only shows that the hostname resolves; it does not establish the operator’s identity or trustworthiness.',
+          explanation: 'VERA confirmed DNS address records, but could not verify a reliable domain registration date. DNS resolution only shows that the hostname resolves. VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.',
           action: 'Confirm the exact hostname through an independent official source before entering credentials, connecting a wallet, or signing a transaction.',
           confidence: 'LOW'
         };
       } else {
-        assessment = { ...assessment, evidence };
+        assessment = {
+          ...assessment,
+          evidence,
+          explanation: assessment.explanation + ' VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.'
+        };
       }
     }
 
