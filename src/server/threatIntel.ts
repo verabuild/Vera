@@ -52,10 +52,14 @@ export async function inspectWebRisk(rawInput: string): Promise<Evidence> {
     endpoint.searchParams.set('uri', url.href);
     for (const threatType of THREAT_TYPES) endpoint.searchParams.append('threatTypes', threatType);
 
+    // Web Risk's Lookup API documents the `key` query parameter for REST
+    // authentication. Keep this call server-side so the API key is never
+    // exposed to the browser. Do not log the constructed URL.
+    endpoint.searchParams.set('key', process.env.WEB_RISK_API_KEY);
+
     const response = await fetch(endpoint, {
       headers: {
-        Accept: 'application/json',
-        'X-Goog-Api-Key': process.env.WEB_RISK_API_KEY
+        Accept: 'application/json'
       },
       signal: AbortSignal.timeout(TIMEOUT_MS)
     });
