@@ -7,6 +7,64 @@ const NEW_DOMAIN_DAYS = 30;
 type RdapEvent = { eventAction?: string; eventDate?: string };
 type RdapResponse = { events?: RdapEvent[]; ldhName?: string };
 
+
+type DnsJsonResponse = {
+  Status?: number;
+  Answer?: Array<{ name?: string; type?: number; data?: string; TTL?: number }>;
+};
+
+async function inspectDns(hostname: string, observedAt: string): Promise<Evidence> {
+  try {
+    const query = new URL('https://cloudflare-dns.com/dns-query');
+    query.searchParams.set('name', hostname);
+    query.searchParams.set('type', 'A');
+    const response = await fetch(query, {
+      headers: { Accept: 'application/dns-json' },
+      signal: AbortSignal.timeout(5000)
+    });
+    if (!response.ok) throw new Error(`DNS-over-HTTPS returned HTTP ${response.status}`);
+    const data = await response.json() as DnsJsonResponse;
+    const addresses = (data.Answer || [])
+      .filter((answer) => answer.type === 1 && answer.data)
+      .map((answer) => answer.data as string);
+
+    if (addresses.length) {
+      return {
+        id: 'domain-dns-resolves',
+        title: 'Domain DNS records found',
+        detail: `${hostname} currently resolves to ${[...new Set(addresses)].slice(0, 4).join(', ')} according to Cloudflare DNS-over-HTTPS. DNS resolution confirms the hostname has address records; it does not establish that the website is trustworthy.`,
+        severity: 'info',
+        source: 'Cloudflare DNS-over-HTTPS',
+        state: 'VERIFIED',
+        observedAt,
+        metadata: { hostname, addresses: [...new Set(addresses)], resolver: 'Cloudflare' }
+      };
+    }
+
+    return {
+      id: 'domain-dns-no-a-record',
+      title: 'No IPv4 DNS answer returned',
+      detail: `Cloudflare DNS-over-HTTPS did not return an IPv4 address for ${hostname}. The domain may use IPv6, may not resolve, or the lookup may be inconclusive.`,
+      severity: 'info',
+      source: 'Cloudflare DNS-over-HTTPS',
+      state: 'UNKNOWN',
+      observedAt,
+      metadata: { hostname, dnsStatus: data.Status }
+    };
+  } catch {
+    return {
+      id: 'domain-dns-unavailable',
+      title: 'DNS lookup unavailable',
+      detail: 'VERA could not retrieve DNS evidence during this scan. This is a lookup limitation, not a trust verdict.',
+      severity: 'info',
+      source: 'Cloudflare DNS-over-HTTPS',
+      state: 'UNKNOWN',
+      observedAt,
+      metadata: { hostname }
+    };
+  }
+}
+
 export async function inspectDomainRegistration(rawUrl: string): Promise<Evidence[]> {
   const observedAt = new Date().toISOString();
 
@@ -15,7 +73,7 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
     const hostname = url.hostname.toLowerCase().replace(/\.$/, '');
 
     if (!hostname || hostname === 'localhost' || /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname) || hostname.includes(':')) {
-      return [{
+      return [dnsEvidence, {
         id: 'domain-registration-not-applicable',
         title: 'Domain registration lookup not applicable',
         detail: 'This address does not contain a public DNS hostname that VERA can check through RDAP.',
@@ -25,6 +83,10 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
         observedAt
       }];
     }
+
+    // Add a separate live DNS signal so the scan can still return useful
+    // infrastructure evidence when the RDAP service is unavailable.
+    const dnsEvidence = await inspectDns(hostname, observedAt);
 
     // RDAP is a domain-registration service, not a subdomain lookup. A common
     // pasted hostname such as www.google.com must be checked as google.com.
@@ -42,7 +104,7 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
     }
 
     if (response.status === 404) {
-      return [{
+      return [dnsEvidence, {
         id: 'domain-rdap-not-found',
         title: 'No domain registration record returned',
         detail: `The public RDAP lookup did not return a registration record for ${lookupHost}. This may reflect an unsupported domain, lookup limitation, or missing record; it is not proof of maliciousness.`,
@@ -62,7 +124,7 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
     );
 
     if (!registrationEvent?.eventDate) {
-      return [{
+      return [dnsEvidence, {
         id: 'domain-registration-date-unavailable',
         title: 'Registration date unavailable',
         detail: `RDAP returned domain data for ${lookupHost}, but no registration date was available to VERA.`,
@@ -80,7 +142,7 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
     const ageDays = Math.max(0, Math.floor((Date.now() - registeredAt.getTime()) / 86_400_000));
     const isNew = ageDays < NEW_DOMAIN_DAYS;
 
-    return [{
+    return [dnsEvidence, {
       id: isNew ? 'domain-recent-registration' : 'domain-registration-age',
       title: isNew ? 'Recently registered domain' : 'Domain registration date found',
       detail: isNew
@@ -93,7 +155,9 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
       metadata: { hostname, lookupHost, registeredAt: registeredAt.toISOString(), ageDays, lookupUrl: `https://rdap.org/domain/${encodeURIComponent(lookupHost)}` }
     }];
   } catch {
-    return [{
+    const urlEvidence = (() => { try { return normalizeUrlInput(rawUrl); } catch { return null; } })();
+    const fallbackDnsEvidence = urlEvidence ? await inspectDns(urlEvidence.hostname.toLowerCase(), observedAt) : null;
+    return [...(fallbackDnsEvidence ? [fallbackDnsEvidence] : []), {
       id: 'domain-intelligence-unavailable',
       title: 'Domain intelligence unavailable',
       detail: 'VERA could not retrieve a reliable public domain registration record during this scan. No conclusion about the domain’s safety can be drawn from this lookup.',
