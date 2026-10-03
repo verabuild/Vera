@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { InputType, Network } from '../src/lib/types';
-import { localSignals } from '../src/lib/investigator';
-import { inspectWallet } from '../src/server/solana';
-import { inspectMagicEdenWallet } from '../src/server/magicEden';
-import { explainWithGemini } from '../src/server/gemini';
-import { persistScan } from '../src/server/db';
+import type { InputType, Network } from '../src/lib/types.js';
+import { localSignals } from '../src/lib/investigator.js';
+import { inspectWallet } from '../src/server/solana.js';
+import { inspectMagicEdenWallet } from '../src/server/magicEden.js';
+import { explainWithGemini } from '../src/server/gemini.js';
+import { persistScan } from '../src/server/db.js';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
 const allowedNetworks = new Set<Network>(['mainnet', 'devnet']);
