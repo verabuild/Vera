@@ -5,6 +5,7 @@ import { inspectWallet } from '../src/server/solana.js';
 import { inspectMagicEdenWallet } from '../src/server/magicEden.js';
 import { explainWithGemini } from '../src/server/gemini.js';
 import { persistScan } from '../src/server/db.js';
+import { inspectDomainRegistration } from '../src/server/domainIntel.js';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
 const allowedNetworks = new Set<Network>(['mainnet', 'devnet']);
@@ -75,6 +76,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     let assessment = localSignals(inputType, input.trim());
+
+    if (inputType === 'URL') {
+      const domainEvidence = await inspectDomainRegistration(input.trim());
+      const evidence = [...assessment.evidence, ...domainEvidence];
+      const recentlyRegistered = domainEvidence.some((item) => item.id === 'domain-recent-registration');
+
+      assessment = {
+        ...assessment,
+        evidence,
+        headline: recentlyRegistered ? 'Domain is newly registered; verify independently' : assessment.headline,
+        explanation: recentlyRegistered
+          ? 'VERA found a recent domain registration date. Newness is a caution signal, not proof of a scam; the lookup does not establish the operator’s identity or the site’s intent.'
+          : assessment.explanation,
+        action: recentlyRegistered
+          ? 'Do not enter credentials, connect a wallet, or send funds until you verify the exact domain through an independent official source.'
+          : assessment.action,
+        confidence: recentlyRegistered ? 'MEDIUM' : assessment.confidence
+      };
+    }
 
     if (inputType === 'WALLET') {
       const [solanaEvidence, meEvidence] = await Promise.all([
