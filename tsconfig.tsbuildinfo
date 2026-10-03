@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/lib/investigator.ts","./src/lib/types.ts","./src/server/db.ts","./src/server/gemini.ts","./src/server/magicEden.ts","./src/server/solana.ts","./api/investigate.ts"],"version":"5.9.3"}

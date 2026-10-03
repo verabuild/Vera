@@ -5,6 +5,7 @@ import {
   MessageSquareText, Radar, RefreshCw, ScanSearch, ShieldCheck, Sparkles,
   TriangleAlert, WalletCards, X, Zap
 } from "lucide-react";
+import { Analytics } from "@vercel/analytics/react";
 import type { Network, Assessment, InputType, Scan } from "./lib/types";
 
 const modes: { id: InputType; label: string; icon: typeof Link2; description: string }[] = [
@@ -191,5 +192,6 @@ export default function App() {
     </section>
 
     <footer><div className="brand"><div className="brand-mark">V</div><span>VERA</span></div><p>Know before you act.</p><small>Hackathon build · No financial execution · Read-only</small></footer>
+    <Analytics />
   </main>;
 }
