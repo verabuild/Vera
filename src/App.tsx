@@ -90,6 +90,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [network, setNetwork] = useState<Network>("mainnet");
   const [error, setError] = useState<string | null>(null);
+  const [cursor, setCursor] = useState({ x: 50, y: 50 });
 
   useEffect(() => setHistory(loadScans()), []);
   const placeholder = useMemo(() => ({
@@ -121,16 +122,16 @@ export default function App() {
   function clear() { setInput(""); setAssessment(null); setError(null); }
   function restore(scan: Scan) { setMode(scan.type); setInput(scan.input); setAssessment(scan.assessment); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
-  return <main>
+  return <main onMouseMove={(event) => { const r = event.currentTarget.getBoundingClientRect(); setCursor({ x: ((event.clientX-r.left)/r.width)*100, y: ((event.clientY-r.top)/r.height)*100 }); }} style={{ "--mx": `${cursor.x}%`, "--my": `${cursor.y}%` } as React.CSSProperties}>
     <nav className="nav">
       <div className="brand"><div className="brand-mark">V</div><span>VERA</span></div>
-      <div className="nav-center"><span className="nav-live" />DECISION INTELLIGENCE</div>
+      <div className="nav-center"><span className="nav-live" /><strong>DECISION INTELLIGENCE</strong></div>
       <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span><button className="ghost-button">How it works <ChevronRight size={14} /></button></div>
     </nav>
 
     <section className="hero">
       <div className="hero-copy">
-        <div className="pill"><Sparkles size={14} /> Evidence before action</div>
+        <div className="pill"><span className="pill-live" /><strong>EVIDENCE BEFORE ACTION</strong></div>
         <h1>Know <em>before</em><br />you act.</h1>
         <p>VERA turns technical signals into a clear decision before you <strong>click, connect, sign or pay.</strong></p>
         <div className="hero-proof"><span><ShieldCheck size={14} /> Evidence-led</span><span><LockKeyhole size={14} /> No wallet connection</span><span><Zap size={14} /> Read-only by design</span></div>
@@ -139,7 +140,7 @@ export default function App() {
       <div className="scanner-shell">
         <div className="scanner-head">
           <div><p className="eyebrow">INVESTIGATION CONSOLE</p><h2>What are you about to do?</h2><p className="scanner-sub">Give VERA the thing you're unsure about. We'll show you what the evidence says.</p></div>
-          <div className="scanner-orbit"><Radar size={20} /></div>
+          <div className="scanner-orbit"><div className="orbit-ring" /><Radar size={20} /></div>
         </div>
 
         <div className="mode-row">{modes.map(({ id, label, icon: Icon, description }) => <button className={`mode ${mode === id ? "active" : ""}`} onClick={() => setMode(id)} key={id} title={description}><Icon size={15} /><span>{label}</span></button>)}</div>
