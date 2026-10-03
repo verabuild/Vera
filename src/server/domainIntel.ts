@@ -1,4 +1,5 @@
 import type { Evidence } from '../lib/types.js';
+import { normalizeUrlInput } from '../lib/investigator.js';
 
 const RDAP_TIMEOUT_MS = 4500;
 const NEW_DOMAIN_DAYS = 30;
@@ -10,7 +11,7 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
   const observedAt = new Date().toISOString();
 
   try {
-    const url = new URL(rawUrl);
+    const url = normalizeUrlInput(rawUrl);
     const hostname = url.hostname.toLowerCase().replace(/\.$/, '');
 
     if (!hostname || hostname === 'localhost' || /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname) || hostname.includes(':')) {
