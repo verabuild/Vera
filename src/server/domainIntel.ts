@@ -1,7 +1,7 @@
 import type { Evidence } from '../lib/types.js';
 import { normalizeUrlInput } from '../lib/investigator.js';
 
-const RDAP_TIMEOUT_MS = 4500;
+const RDAP_TIMEOUT_MS = 8000;
 const NEW_DOMAIN_DAYS = 30;
 
 type RdapEvent = { eventAction?: string; eventDate?: string };
@@ -26,21 +26,31 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
       }];
     }
 
-    const response = await fetch(`https://rdap.org/domain/${encodeURIComponent(hostname)}`, {
-      headers: { Accept: 'application/rdap+json, application/json' },
-      signal: AbortSignal.timeout(RDAP_TIMEOUT_MS)
-    });
+    // RDAP is a domain-registration service, not a subdomain lookup. A common
+    // pasted hostname such as www.google.com must be checked as google.com.
+    const lookupHost = hostname.startsWith('www.') ? hostname.slice(4) : hostname;
+    const lookup = async (domain: string) => fetch(
+      `https://rdap.org/domain/${encodeURIComponent(domain)}`,
+      {
+        headers: { Accept: 'application/rdap+json, application/json' },
+        signal: AbortSignal.timeout(RDAP_TIMEOUT_MS)
+      }
+    );
+    let response = await lookup(lookupHost);
+    if (response.status === 404 && lookupHost !== hostname) {
+      response = await lookup(hostname);
+    }
 
     if (response.status === 404) {
       return [{
         id: 'domain-rdap-not-found',
         title: 'No domain registration record returned',
-        detail: `The public RDAP lookup did not return a registration record for ${hostname}. This may reflect an unsupported domain, lookup limitation, or missing record; it is not proof of maliciousness.`,
+        detail: `The public RDAP lookup did not return a registration record for ${lookupHost}. This may reflect an unsupported domain, lookup limitation, or missing record; it is not proof of maliciousness.`,
         severity: 'medium',
         source: 'Public RDAP domain lookup',
         state: 'UNKNOWN',
         observedAt,
-        metadata: { hostname, httpStatus: 404 }
+        metadata: { hostname, lookupHost, httpStatus: 404 }
       }];
     }
 
@@ -55,12 +65,12 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
       return [{
         id: 'domain-registration-date-unavailable',
         title: 'Registration date unavailable',
-        detail: `RDAP returned domain data for ${hostname}, but no registration date was available to VERA.`,
+        detail: `RDAP returned domain data for ${lookupHost}, but no registration date was available to VERA.`,
         severity: 'info',
         source: 'Public RDAP domain lookup',
         state: 'UNKNOWN',
         observedAt,
-        metadata: { hostname }
+        metadata: { hostname, lookupHost }
       }];
     }
 
@@ -74,13 +84,13 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
       id: isNew ? 'domain-recent-registration' : 'domain-registration-age',
       title: isNew ? 'Recently registered domain' : 'Domain registration date found',
       detail: isNew
-        ? `${hostname} appears to have been registered ${ageDays} day(s) ago. Newly registered domains can deserve extra scrutiny, but domain age alone does not establish maliciousness.`
-        : `RDAP reports a registration date of ${registeredAt.toISOString().slice(0, 10)} for ${hostname} (approximately ${ageDays} days ago). Domain age alone does not establish legitimacy.`,
+        ? `${lookupHost} appears to have been registered ${ageDays} day(s) ago. Newly registered domains can deserve extra scrutiny, but domain age alone does not establish maliciousness.`
+        : `RDAP reports a registration date of ${registeredAt.toISOString().slice(0, 10)} for ${lookupHost} (approximately ${ageDays} days ago). Domain age alone does not establish legitimacy.`,
       severity: isNew ? 'medium' : 'info',
       source: 'Public RDAP domain lookup (rdap.org)',
       state: 'SUPPORTED',
       observedAt,
-      metadata: { hostname, registeredAt: registeredAt.toISOString(), ageDays, lookupUrl: `https://rdap.org/domain/${encodeURIComponent(hostname)}` }
+      metadata: { hostname, lookupHost, registeredAt: registeredAt.toISOString(), ageDays, lookupUrl: `https://rdap.org/domain/${encodeURIComponent(lookupHost)}` }
     }];
   } catch {
     return [{
