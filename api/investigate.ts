@@ -1,5 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { InputType, Network } from '../src/lib/types';
+import { localSignals } from '../src/lib/investigator';
+import { inspectWallet } from '../src/server/solana';
+import { inspectMagicEdenWallet } from '../src/server/magicEden';
+import { explainWithGemini } from '../src/server/gemini';
+import { persistScan } from '../src/server/db';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
 const allowedNetworks = new Set<Network>(['mainnet', 'devnet']);
@@ -54,9 +59,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Keep the health check lightweight. Server-only adapters are loaded only
-    // for real investigations so an optional dependency/runtime issue cannot
-    // take down the health endpoint itself.
     const { inputType, input, network = 'mainnet' } = req.body ?? {};
 
     if (
@@ -71,20 +73,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!allowedNetworks.has(network)) {
       return json(res, 400, { error: 'Invalid Solana network' });
     }
-
-    const { localSignals } = await import('../src/lib/investigator');
-
-    const [
-      { inspectWallet },
-      { inspectMagicEdenWallet },
-      { explainWithGemini },
-      { persistScan }
-    ] = await Promise.all([
-      import('../src/server/solana'),
-      import('../src/server/magicEden'),
-      import('../src/server/gemini'),
-      import('../src/server/db')
-    ]);
 
     let assessment = localSignals(inputType, input.trim());
 
