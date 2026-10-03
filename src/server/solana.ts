@@ -1,5 +1,5 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-import type { Evidence, Network } from '../lib/types';
+import type { Evidence, Network } from '../lib/types.js';
 
 export function rpcUrl(network: Network) {
   return network === 'devnet'
