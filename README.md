@@ -1,5 +1,56 @@
-# VERA
+# VERA — Know before you act.
 
-Know before you act.
+VERA is an evidence-first AI decision layer for online actions. It investigates URLs, messages, Solana public wallets and transaction inputs, separates evidence from inference, and explains the next action in plain English.
 
-AI decision layer for Web2 and Web3 actions.\n\nThis repository is being bootstrapped with the VERA MVP.
+## Current implementation
+- React/Vite frontend
+- Vercel serverless investigation API
+- Google Gemini evidence-grounded explanation layer
+- Solana Mainnet + Devnet read-only wallet intelligence
+- Magic Eden Solana wallet intelligence adapter
+- PostgreSQL production schema
+- Explicit VERIFIED / SUPPORTED / UNKNOWN / SUSPICIOUS / CONFIRMED_MALICIOUS states
+- No seed phrases, private keys, or autonomous transaction execution
+
+## Environment
+Copy `.env.example` to `.env` and set secrets locally. In Vercel, configure the same variables as server-side Environment Variables.
+
+`SOLANA_MAINNET_RPC_URL=https://api.mainnet.solana.com`
+`SOLANA_DEVNET_RPC_URL=https://api.devnet.solana.com`
+`SOLANA_NETWORK=both`
+`VERA_TEST_WALLET=4AMBqkqruwzT4RMh9sojo7RmBgYLYTuqGmv2GbAtXsVL`
+
+`GEMINI_API_KEY=`
+`GEMINI_MODEL=gemini-3.8-flash`
+`MAGIC_EDEN_API_KEY=`
+`DATABASE_URL=`
+
+## Run
+```bash
+npm install
+npm run dev
+```
+
+## Build
+```bash
+npm run typecheck
+npm run build
+```
+
+## API
+POST `/api/investigate`
+
+```json
+{
+  "inputType": "WALLET",
+  "input": "4AMBqkqruwzT4RMh9sojo7RmBgYLYTuqGmv2GbAtXsVL",
+  "network": "devnet"
+}
+```
+
+The AI receives only structured evidence produced by deterministic adapters. It must not invent missing evidence or convert unknowns into certainty.
+
+## Deployment
+Deploy from the GitHub repository through Vercel. Add environment variables to Preview and Production. Run database/schema.sql against the provisioned PostgreSQL database before enabling persistence.
+
+Public Solana RPC endpoints are suitable for development but are rate-limited and have no production SLA. For production scale, move to a dedicated Solana RPC provider.
