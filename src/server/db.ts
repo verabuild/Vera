@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import { createHash } from 'node:crypto';
-import type { Assessment, InputType, Network } from '../lib/types';
+import type { Assessment, InputType, Network } from '../lib/types.js';
 
 let pool: Pool | null = null;
 
