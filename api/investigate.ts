@@ -81,19 +81,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const domainEvidence = await inspectDomainRegistration(input.trim());
       const evidence = [...assessment.evidence, ...domainEvidence];
       const recentlyRegistered = domainEvidence.some((item) => item.id === 'domain-recent-registration');
+      const establishedRegistration = domainEvidence.some((item) => item.id === 'domain-registration-age');
+      const dnsResolves = domainEvidence.some((item) => item.id === 'domain-dns-resolves');
+      const registrationUnavailable = domainEvidence.some((item) =>
+        ['domain-intelligence-unavailable', 'domain-registration-date-unavailable', 'domain-registration-date-invalid'].includes(item.id)
+      );
 
-      assessment = {
-        ...assessment,
-        evidence,
-        headline: recentlyRegistered ? 'Domain is newly registered; verify independently' : assessment.headline,
-        explanation: recentlyRegistered
-          ? 'VERA found a recent domain registration date. Newness is a caution signal, not proof of a scam; the lookup does not establish the operator’s identity or the site’s intent.'
-          : assessment.explanation,
-        action: recentlyRegistered
-          ? 'Do not enter credentials, connect a wallet, or send funds until you verify the exact domain through an independent official source.'
-          : assessment.action,
-        confidence: recentlyRegistered ? 'MEDIUM' : assessment.confidence
-      };
+      // Domain age and DNS are supporting context only. They must never turn a URL
+      // into VERIFIED or imply that its content, operator, or intent is safe.
+      if (recentlyRegistered) {
+        assessment = {
+          ...assessment,
+          evidence,
+          headline: 'Newly registered domain needs extra scrutiny',
+          explanation: 'VERA found a recent domain registration date. Newness is a caution signal, not proof of a scam; this lookup does not establish the operator’s identity or the site’s intent.',
+          action: 'Pause before entering credentials, connecting a wallet, or sending funds. Reach the service through its independently verified official website instead.',
+          confidence: 'MEDIUM'
+        };
+      } else if (establishedRegistration && dnsResolves && assessment.state !== 'SUSPICIOUS') {
+        assessment = {
+          ...assessment,
+          state: 'UNKNOWN',
+          evidence,
+          headline: 'No immediate domain-age warning found',
+          explanation: 'The hostname resolves and the registry reports an established registration date. These are supporting signals only: VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.',
+          action: 'Before taking a sensitive action, confirm the exact hostname against the service’s official website or a trusted bookmark. Do not rely on domain age or HTTPS alone.',
+          confidence: 'LOW'
+        };
+      } else if (registrationUnavailable && dnsResolves && assessment.state !== 'SUSPICIOUS') {
+        assessment = {
+          ...assessment,
+          evidence,
+          headline: 'Domain resolves, but trust evidence is incomplete',
+          explanation: 'VERA confirmed DNS address records, but could not verify a reliable domain registration date. DNS resolution only shows that the hostname resolves; it does not establish the operator’s identity or trustworthiness.',
+          action: 'Confirm the exact hostname through an independent official source before entering credentials, connecting a wallet, or signing a transaction.',
+          confidence: 'LOW'
+        };
+      } else {
+        assessment = { ...assessment, evidence };
+      }
     }
 
     if (inputType === 'WALLET') {
