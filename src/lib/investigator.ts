@@ -3,6 +3,42 @@ import type { Assessment, Evidence, InputType } from './types.js';
 const highRiskPhrases = ['seed phrase', 'private key', 'recovery phrase', 'send crypto', 'verification code', 'claim now', 'connect your wallet'];
 const suspiciousHostTerms = ['airdrop', 'claim', 'verify', 'wallet-connect', 'free'];
 
+/**
+ * Accept common user-pasted URL forms without treating arbitrary text or
+ * non-web schemes as a valid web address.
+ */
+export function normalizeUrlInput(input: string): URL {
+  let candidate = input.trim();
+
+  // Remove common wrappers from copied links: Markdown angle brackets,
+  // quotation marks, and surrounding parentheses.
+  candidate = candidate.replace(/^<(.+)>$/, '$1').replace(/^[("'\u201c\u2018]+/, '').replace(/[)"'\u201d\u2019]+$/, '');
+
+  // If a user pasted a sentence containing a link, scan the first URL-like token.
+  if (/\s/.test(candidate)) {
+    const match = candidate.match(/(?:https?:\/\/|www\.)[^\s<>"']+|(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}(?::\d{1,5})?(?:\/[^\s<>"']*)?/i);
+    if (match) candidate = match[0];
+  }
+
+  candidate = candidate.replace(/[.,!?;:]+$/, '').replace(/[)\]}]+$/, '');
+
+  if (!candidate) throw new Error('Empty URL');
+  if (/^[a-z][a-z0-9+.-]*:/i.test(candidate) && !/^https?:\/\//i.test(candidate)) {
+    throw new Error('Unsupported URL scheme');
+  }
+
+  if (candidate.startsWith('//')) candidate = `https:${candidate}`;
+  else if (/^www\./i.test(candidate)) candidate = `https://${candidate}`;
+  else if (!/^https?:\/\//i.test(candidate)) candidate = `https://${candidate}`;
+
+  const url = new URL(candidate);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new Error('Unsupported URL scheme');
+  if (!url.hostname || !url.hostname.includes('.')) throw new Error('Missing public hostname');
+  if (url.username || url.password) throw new Error('URLs containing embedded credentials are not supported');
+  return url;
+}
+
+
 export function localSignals(type: InputType, input: string): Assessment {
   const evidence: Evidence[] = [];
   const now = new Date().toISOString();
@@ -18,7 +54,7 @@ export function localSignals(type: InputType, input: string): Assessment {
 
   if (type === 'URL') {
     try {
-      const url = new URL(input);
+      const url = normalizeUrlInput(input);
       const host = url.hostname.toLowerCase();
       const hits = suspiciousHostTerms.filter((term) => host.includes(term));
       if (hits.length) {
@@ -29,7 +65,7 @@ export function localSignals(type: InputType, input: string): Assessment {
       return { state: 'UNKNOWN', headline: 'No decisive trust evidence yet', explanation: 'VERA can parse the URL, but URL structure alone cannot prove identity, reputation, or safety.', action: 'Verify the domain through an independent official source before entering credentials or connecting a wallet.', evidence, confidence: 'LOW' };
     } catch {
       evidence.push({ id: 'url-invalid', title: 'Invalid URL format', detail: 'The supplied value could not be parsed as a standard URL.', severity: 'medium', source: 'VERA URL parser', state: 'VERIFIED', observedAt: now });
-      return { state: 'UNKNOWN', headline: 'VERA could not parse this URL', explanation: 'Provide the complete http:// or https:// URL so it can be investigated.', action: 'Check the link and scan it again.', evidence, confidence: 'HIGH' };
+      return { state: 'UNKNOWN', headline: 'VERA could not parse this URL', explanation: 'Paste a full link, a www address, or a domain such as example.com. VERA will normalise common web-link formats.', action: 'Check the link and scan it again.', evidence, confidence: 'HIGH' };
     }
   }
 
