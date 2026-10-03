@@ -12,6 +12,7 @@
   "dependencies": {
     "@google/genai": "latest",
     "@solana/web3.js": "latest",
+    "@vercel/analytics": "^2.0.1",
     "lucide-react": "latest",
     "pg": "latest",
     "react": "latest",
