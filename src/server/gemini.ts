@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import type { Assessment, Evidence } from '../lib/types';
+import type { Assessment, Evidence } from '../lib/types.js';
 
 export async function explainWithGemini(input: string, assessment: Assessment, evidence: Evidence[]) {
   if (!process.env.GEMINI_API_KEY) return null;
