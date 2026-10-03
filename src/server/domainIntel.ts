@@ -72,6 +72,9 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
     const url = normalizeUrlInput(rawUrl);
     const hostname = url.hostname.toLowerCase().replace(/\.$/, '');
 
+    // Add live DNS evidence independently of registration-data availability.
+    const dnsEvidence = await inspectDns(hostname, observedAt);
+
     if (!hostname || hostname === 'localhost' || /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname) || hostname.includes(':')) {
       return [dnsEvidence, {
         id: 'domain-registration-not-applicable',
@@ -83,10 +86,6 @@ export async function inspectDomainRegistration(rawUrl: string): Promise<Evidenc
         observedAt
       }];
     }
-
-    // Add a separate live DNS signal so the scan can still return useful
-    // infrastructure evidence when the RDAP service is unavailable.
-    const dnsEvidence = await inspectDns(hostname, observedAt);
 
     // RDAP is a domain-registration service, not a subdomain lookup. A common
     // pasted hostname such as www.google.com must be checked as google.com.
