@@ -51,6 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       service: 'vera-investigate',
       databaseConfigured: Boolean(process.env.DATABASE_URL),
       geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
+      webRiskConfigured: Boolean(process.env.WEB_RISK_API_KEY),
       solanaConfigured: Boolean(process.env.SOLANA_MAINNET_RPC_URL),
       timestamp: new Date().toISOString()
     });
@@ -83,7 +84,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         inspectDomainRegistration(input.trim()),
         inspectWebRisk(input.trim())
       ]);
-      const evidence = [...assessment.evidence, ...domainEvidence, threatEvidence];
+      const identityEvidence = {
+        id: 'website-identity-unverified',
+        title: 'Website operator identity not independently verified',
+        detail: 'DNS, registration data, and threat-list results do not prove that this page is operated by the organisation it claims to represent. VERA has not independently verified the page content or operator identity.',
+        severity: 'info' as const,
+        source: 'VERA evidence policy',
+        state: 'UNKNOWN' as const,
+        observedAt: new Date().toISOString()
+      };
+      const evidence = [...assessment.evidence, ...domainEvidence, threatEvidence, identityEvidence];
       const threatMatch = threatEvidence.id === 'threat-intel-match';
       const threatNoMatch = threatEvidence.id === 'threat-intel-no-match';
       const threatUnavailable = threatEvidence.state === 'UNKNOWN';
