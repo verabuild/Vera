@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { localSignals } from '../src/lib/investigator';
 import type { InputType, Network } from '../src/lib/types';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
@@ -72,6 +71,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!allowedNetworks.has(network)) {
       return json(res, 400, { error: 'Invalid Solana network' });
     }
+
+    const { localSignals } = await import('../src/lib/investigator');
 
     const [
       { inspectWallet },
