@@ -108,8 +108,23 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ inputType: mode, input: input.trim(), network })
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Investigation failed");
+      const contentType = response.headers.get("content-type") || "";
+      const raw = await response.text();
+      let data: { id?: string; createdAt?: string; assessment?: Assessment; error?: string; detail?: string } = {};
+      if (raw) {
+        if (contentType.includes("application/json")) {
+          try { data = JSON.parse(raw); } catch { /* fall through to raw server error */ }
+        } else {
+          data.error = raw;
+        }
+      }
+      if (!response.ok) {
+        const detail = data.detail ? `: ${data.detail}` : "";
+        throw new Error(data.error ? `${data.error}${detail}` : `Server returned HTTP ${response.status}`);
+      }
+      if (!data.assessment || !data.id || !data.createdAt) {
+        throw new Error("VERA returned an incomplete investigation response.");
+      }
       const scan: Scan = { id: data.id, type: mode, input: input.trim(), createdAt: data.createdAt, assessment: data.assessment };
       setAssessment(data.assessment);
       const next = [scan, ...history.filter((item) => item.input !== input.trim())];
