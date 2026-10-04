@@ -1,6 +1,6 @@
 # VERA — Know before you act.
 
-VERA is an evidence-first AI decision layer for online actions. It investigates URLs, messages, Solana public wallets and transaction inputs, separates evidence from inference, and explains the next action in plain English.
+VERA is an evidence-first AI decision layer for online actions. It investigates URLs, messages, Solana public wallets and transaction inputs, separates evidence from inference, and explains the next action in plain English. Its homepage also presents an interactive, source-linked overview of the human and economic impact of reported scams.
 
 ## Current implementation
 - React/Vite frontend
@@ -66,6 +66,14 @@ The AI receives only structured evidence produced by deterministic adapters. It 
 - When `TAVILY_API_KEY` is configured, VERA searches public web results for domain-specific scam, fraud, review, and warning reports. Returned source links are displayed in the evidence trail.
 - Search results are leads, not proof. User allegations, copied posts, affiliate promotions, stale pages, and manipulated search results can be misleading. VERA records report excerpts and source domains and only raises `SUSPICIOUS` when negative results span multiple source domains or a reputation-warning source is found.
 - No negative results, missing configuration, provider errors, or timeouts do not mean a domain is safe. This search is supplemental and is not a substitute for dedicated phishing intelligence or direct transaction simulation.
+
+### Public-impact homepage data
+The homepage uses official US reporting figures as context, not as a claim about worldwide totals:
+- The FTC reported consumers lost $12.5 billion to fraud in 2024: [FTC release](https://www.ftc.gov/news-events/news/press-releases/2025/03/new-ftc-data-show-big-jump-reported-losses-fraud-125-billion-2024).
+- The FBI's IC3 received 859,532 internet-crime complaints in 2024 and reported more than $16 billion in losses: [FBI release](https://www.fbi.gov/news/press-releases/fbi-releases-annual-internet-crime-report).
+- The FBI's 2024 report states IC3 has received more than nine million complaints since its founding: [2024 IC3 report](https://www.ic3.gov/AnnualReport/Reports/2024_IC3Report.pdf).
+- The homepage's human quote is attributed to FBI Director Kash Patel and links to the original FBI release. No fictional victim testimonials or fabricated company cases are used.
+- FTC and FBI figures have different reporting scopes and must not be added together. They represent reported cases and losses, not the complete global impact of scams.
 
 ## Deployment
 Deploy from the GitHub repository through Vercel. Add environment variables to Preview and Production. Run database/schema.sql against the provisioned PostgreSQL database before enabling persistence.
