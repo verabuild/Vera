@@ -82,3 +82,36 @@
 .footer-links a:hover,.footer-links a:hover span{color:#fff}
 .footer-copyright{grid-column:1/-1;text-align:right}
 @media(max-width:850px){.site-footer{grid-template-columns:1fr;gap:24px}.footer-links{width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}.footer-copyright{text-align:left}}
+
+
+/* Footer legal links and persistent colour-mode control */
+.footer-legal{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:20px;padding-top:18px;border-top:1px solid var(--line)}
+.legal-links{display:flex;align-items:center;flex-wrap:wrap;gap:20px}
+.legal-links a{color:#777;text-decoration:none;font-size:10px;transition:color .2s}
+.legal-links a:hover{color:var(--white)}
+.theme-switch{display:inline-flex;align-items:center;gap:3px;padding:3px;border:1px solid var(--line2);border-radius:9px;background:var(--panel)}
+.theme-switch button{padding:7px 10px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--muted);font-size:10px}
+.theme-switch button:hover{color:var(--white)}
+.theme-switch button.active{border-color:var(--line2);background:var(--panel2);color:var(--white)}
+.footer-copyright{margin-left:auto}
+:root[data-theme="light"]{color-scheme:light;--bg:#f5f6f8;--panel:#fff;--panel2:#f0f1f4;--line:#e1e3e8;--line2:#d1d5dc;--muted:#666b75;--soft:#4f5560;--white:#17191d}
+:root[data-theme="light"] body{background:radial-gradient(ellipse 70% 40% at 50% -8%,#e4e7ed 0,#f4f5f7 48%,#fff 100%);color:#17191d}
+:root[data-theme="light"] .nav,:root[data-theme="light"] footer{border-color:#e1e3e8}
+:root[data-theme="light"] .nav-center{color:#222}
+:root[data-theme="light"] .hero-copy>p,:root[data-theme="light"] .impact-intro,:root[data-theme="light"] .section-intro>p{color:#60656f}
+:root[data-theme="light"] .scanner-shell,:root[data-theme="light"] .impact-section,:root[data-theme="light"] .motion-story,:root[data-theme="light"] .impact-selector,:root[data-theme="light"] .impact-detail,:root[data-theme="light"] .motion-stage,:root[data-theme="light"] .principle-grid article,:root[data-theme="light"] .history-list{background:#fff;border-color:#e1e3e8}
+:root[data-theme="light"] .scanner-shell h2,:root[data-theme="light"] .impact-heading h2,:root[data-theme="light"] .motion-story-heading h2,:root[data-theme="light"] .section-intro h2,:root[data-theme="light"] .history h2,:root[data-theme="light"] .principle-grid h3,:root[data-theme="light"] .motion-stage-copy h3,:root[data-theme="light"] .impact-detail h3{color:#17191d}
+:root[data-theme="light"] .input-wrap textarea,:root[data-theme="light"] .mode,:root[data-theme="light"] .network-choice,:root[data-theme="light"] .history-row{background:#fafafa;color:#333;border-color:#e1e3e8}
+:root[data-theme="light"] .impact-tab.active,:root[data-theme="light"] .impact-tab:hover{background:#f1f2f5;color:#17191d;border-color:#ddd}
+:root[data-theme="light"] .impact-stat{background:linear-gradient(145deg,#fff,#f6f7f9);border-color:#e1e3e8;color:#17191d}
+:root[data-theme="light"] .impact-stat>span:last-child,:root[data-theme="light"] .impact-detail>p:not(.impact-caveat),:root[data-theme="light"] .motion-stage-copy>p,:root[data-theme="light"] .principle-grid p{color:#5f646d}
+:root[data-theme="light"] .motion-visual{background:radial-gradient(ellipse at center,#f1f2f5,transparent 70%),#f8f9fb;border-color:#e1e3e8}
+:root[data-theme="light"] .motion-visual-grid{opacity:.5;background-image:linear-gradient(#e2e4e8 1px,transparent 1px),linear-gradient(90deg,#e2e4e8 1px,transparent 1px)}
+:root[data-theme="light"] .motion-core,:root[data-theme="light"] .motion-signal{background:#fff;color:#222;border-color:#d7dae0}
+:root[data-theme="light"] .motion-visual-orbit{border-color:#d3d6dc}
+:root[data-theme="light"] .motion-stage,:root[data-theme="light"] .impact-selector{background:#fff}
+:root[data-theme="light"] .ghost-button,:root[data-theme="light"] .secondary-button,:root[data-theme="light"] .theme-switch{background:#fff;color:#444}
+:root[data-theme="light"] .theme-switch button.active{background:#eceef2;color:#17191d}
+:root[data-theme="light"] .footer-brand p{color:#333}
+:root[data-theme="light"] .empty{border-color:#d1d5dc;color:#656a74}
+@media(max-width:850px){.footer-legal{align-items:flex-start;flex-direction:column;gap:16px}.legal-links{gap:15px}.footer-copyright{margin-left:0}}
