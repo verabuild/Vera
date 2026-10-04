@@ -3,7 +3,8 @@ import {
   Activity, ArrowUpRight, BrainCircuit, Check, ChevronRight, ClipboardPaste,
   ExternalLink, FileSearch, Fingerprint, Globe2, Link2, LockKeyhole,
   MessageSquareText, Radar, RefreshCw, ScanSearch, ShieldCheck, Sparkles,
-  TriangleAlert, WalletCards, X, Zap
+  TriangleAlert, WalletCards, X, Zap, HeartCrack, Building2, BriefcaseBusiness,
+  CircleDollarSign, BadgeAlert, ArrowDownRight
 } from "lucide-react";
 import { Analytics } from "@vercel/analytics/react";
 import type { Network, Assessment, InputType, Scan } from "./lib/types";
@@ -54,6 +55,85 @@ function LiveInvestigation() {
     </div>
     <div className="signal-stream"><span className="signal-dot" /><span>VERA is correlating available evidence. No action is being executed.</span></div>
   </div>;
+}
+
+
+const impactStories = [
+  {
+    id: "people",
+    label: "People & families",
+    icon: HeartCrack,
+    title: "A scam can outlast the moment it happens.",
+    copy: "Reported fraud can mean lost savings, debt, disrupted plans and the difficult work of rebuilding trust. VERA cannot undo a transfer, but it can help people pause before a risky action.",
+    stat: "$12.5B",
+    statLabel: "reported lost to fraud in the US in 2024",
+    source: "Federal Trade Commission",
+    url: "https://www.ftc.gov/news-events/news/press-releases/2025/03/new-ftc-data-show-big-jump-reported-losses-fraud-125-billion-2024"
+  },
+  {
+    id: "business",
+    label: "Companies",
+    icon: Building2,
+    title: "Impersonation puts trust itself at risk.",
+    copy: "Fraudsters can copy a brand, mimic a support agent or exploit a familiar name. The damage can spread from the person who pays to the legitimate company forced to respond.",
+    stat: "$2.95B",
+    statLabel: "reported lost to imposter scams in the US in 2024",
+    source: "Federal Trade Commission",
+    url: "https://www.ftc.gov/news-events/news/press-releases/2025/03/new-ftc-data-show-big-jump-reported-losses-fraud-125-billion-2024"
+  },
+  {
+    id: "industry",
+    label: "Digital finance",
+    icon: CircleDollarSign,
+    title: "Crypto fraud can make a transfer difficult to reverse.",
+    copy: "The FBI reported that investment fraud involving cryptocurrency accounted for more than $6.5 billion in reported losses in 2024. The figure covers reports to the FBI's IC3, not every scam worldwide.",
+    stat: "$6.5B+",
+    statLabel: "reported losses from crypto-related investment fraud in 2024",
+    source: "FBI Internet Crime Complaint Center",
+    url: "https://www.fbi.gov/news/press-releases/fbi-releases-annual-internet-crime-report"
+  }
+];
+
+function ImpactSection() {
+  const [activeImpact, setActiveImpact] = useState("people");
+  const active = impactStories.find((item) => item.id === activeImpact) ?? impactStories[0];
+  const Icon = active.icon;
+  return <section className="impact-section" id="why-vera">
+    <div className="impact-kicker"><span className="live-pulse"><span />THE HUMAN COST</span><span className="impact-kicker-line" /></div>
+    <div className="impact-heading">
+      <div><p className="eyebrow">BEHIND EVERY REPORT IS A REAL CONSEQUENCE</p><h2>Scams don't just steal money.<br /><em>They steal certainty.</em></h2></div>
+      <p className="impact-intro">Numbers help show the scale. They never tell the whole story. VERA exists to put evidence between a person and a decision they may not be able to take back.</p>
+    </div>
+    <div className="impact-stat-grid">
+      <a className="impact-stat" href="https://www.ftc.gov/news-events/news/press-releases/2025/03/new-ftc-data-show-big-jump-reported-losses-fraud-125-billion-2024" target="_blank" rel="noreferrer noopener">
+        <span className="impact-stat-label">US CONSUMER REPORTS · 2024</span><strong>$12.5B</strong><span>reported lost to fraud <ExternalLink size={12} /></span>
+      </a>
+      <a className="impact-stat" href="https://www.fbi.gov/news/press-releases/fbi-releases-annual-internet-crime-report" target="_blank" rel="noreferrer noopener">
+        <span className="impact-stat-label">FBI IC3 · 2024</span><strong>859,532</strong><span>internet-crime complaints received <ExternalLink size={12} /></span>
+      </a>
+      <a className="impact-stat" href="https://www.ic3.gov/AnnualReport/Reports/2024_IC3Report.pdf" target="_blank" rel="noreferrer noopener">
+        <span className="impact-stat-label">FBI IC3 · CUMULATIVE</span><strong>9M+</strong><span>complaints received since IC3 began <ExternalLink size={12} /></span>
+      </a>
+    </div>
+    <div className="impact-explorer">
+      <div className="impact-selector">
+        <p className="eyebrow">EXPLORE THE CONSEQUENCES</p>
+        {impactStories.map((item) => {
+          const ItemIcon = item.icon;
+          return <button className={activeImpact === item.id ? "impact-tab active" : "impact-tab"} key={item.id} onClick={() => setActiveImpact(item.id)}><ItemIcon size={17} /><span>{item.label}</span><ChevronRight size={15} /></button>;
+        })}
+        <div className="impact-quote"><span className="quote-mark">“</span><blockquote>Reporting is one of the first and most important steps in fighting crime.</blockquote><p>FBI Director Kash Patel · April 2025</p><a href="https://www.fbi.gov/news/press-releases/fbi-releases-annual-internet-crime-report" target="_blank" rel="noreferrer noopener">Read the official statement <ArrowUpRight size={12} /></a></div>
+      </div>
+      <article className="impact-detail" key={active.id}>
+        <div className="impact-detail-top"><span className="impact-icon"><Icon size={21} /></span><span className="impact-index">IMPACT FILE / 0{impactStories.findIndex((item) => item.id === active.id) + 1}</span></div>
+        <h3>{active.title}</h3><p>{active.copy}</p>
+        <div className="impact-feature-stat"><strong>{active.stat}</strong><span>{active.statLabel}</span></div>
+        <div className="impact-source"><span>DATA SOURCE</span><a href={active.url} target="_blank" rel="noreferrer noopener">{active.source} <ExternalLink size={12} /></a></div>
+        <p className="impact-caveat">Reported figures are not the total global cost of scams. Reporting systems have different scopes, and many incidents go unreported.</p>
+      </article>
+    </div>
+    <div className="impact-bottom"><span><ShieldCheck size={15} /> Prevention starts before the click.</span><button onClick={() => { document.querySelector(".scanner-shell")?.scrollIntoView({ behavior: "smooth", block: "center" }); }}>Put VERA between you and the risk <ArrowUpRight size={15} /></button></div>
+  </section>;
 }
 
 function AssessmentPanel({ assessment }: { assessment: Assessment }) {
@@ -174,6 +254,8 @@ export default function App() {
         <div className="trust-note"><Check size={13} /> No wallet connection required <span /> <LockKeyhole size={12} /> Read-only investigation <span /> <Activity size={12} /> Live evidence</div>
       </div>
     </section>
+
+    <ImpactSection />
 
     {assessment && <section className="result-section" id="result"><div className="section-label">INVESTIGATION RESULT</div><AssessmentPanel assessment={assessment} /><button className="secondary-button" onClick={clear}><X size={14} /> Start new investigation</button></section>}
 
