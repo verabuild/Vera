@@ -186,13 +186,12 @@ export default function App() {
   async function scan() {
     setBusy(true); setError(null);
     try {
+      const accessToken = import.meta.env.VITE_PRIVY_APP_ID ? await getAccessToken() : null;
       const response = await fetch("/api/investigate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(import.meta.env.VITE_PRIVY_APP_ID && await getAccessToken()
-            ? { Authorization: `Bearer ${await getAccessToken()}` }
-            : {})
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
         },
         credentials: "same-origin",
         body: JSON.stringify({ inputType: mode, input: input.trim(), network })
