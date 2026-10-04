@@ -41,14 +41,22 @@ function cleanText(value: string, max = 700): string {
 }
 
 function isNegative(result: SearchResult): boolean {
+  const title = (result.title ?? '').toLowerCase();
   const text = `${result.title ?? ''} ${result.content ?? ''}`.toLowerCase();
+  // Generic review pages often mention the word scam while concluding a site
+  // is likely safe. Do not mistake those boilerplate phrases for an accusation.
+  if (/likely safe|probably not a scam|not a scam|no evidence of (?:a )?scam|legitimate website/.test(text) &&
+      !/users? (?:report|reported|say|said)|lost (?:their )?funds|never paid|withdrawal failed|rug ?pull|phishing campaign/.test(text)) {
+    return false;
+  }
+  const titleLooksAdverse = /scam|fraud|warning|unsafe|suspicious|high.?risk|rug ?pull|phishing/.test(title);
   if (PROMOTIONAL_TERMS.some((term) => text.includes(term))) {
     // Promotional content can still contain a complaint, but do not let a
     // bonus/referral post alone count as a negative report.
     return NEGATIVE_TERMS.some((term) => text.includes(term)) &&
       /scam|scammer|fraud|rug pull|rugpull|not paid|never paid|warning|unsafe|suspicious/.test(text);
   }
-  return NEGATIVE_TERMS.some((term) => text.includes(term));
+  return titleLooksAdverse || NEGATIVE_TERMS.some((term) => text.includes(term));
 }
 
 function isReputationSource(result: SearchResult): boolean {
