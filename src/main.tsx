@@ -18,11 +18,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             accentColor: "#f5f5f5",
             logo: "/vera-logo.jpg",
             walletChainType: "solana-only"
-          }}
+          }
         }}
       >
         <App />
       </PrivyProvider>
-    ) : <App />}
+    ) : (
+      <App />
+    )}
   </React.StrictMode>
 );
