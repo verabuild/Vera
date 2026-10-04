@@ -12,14 +12,14 @@
   "dependencies": {
     "@google/genai": "latest",
     "@privy-io/react-auth": "latest",
-    "@privy-io/node": "latest",
     "@solana/web3.js": "latest",
     "@vercel/analytics": "^2.0.1",
     "lucide-react": "latest",
     "pg": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "@solana-program/memo": "0.8.0"
+    "@solana-program/memo": "0.8.0",
+    "jose": "^6.1.0"
   },
   "devDependencies": {
     "@types/node": "latest",
