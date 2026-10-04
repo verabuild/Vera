@@ -3,8 +3,11 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE,
+  privy_user_id TEXT UNIQUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS privy_user_id TEXT UNIQUE;
 
 CREATE TABLE IF NOT EXISTS entities (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
