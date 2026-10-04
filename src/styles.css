@@ -49,3 +49,5 @@
 .auth-divider{opacity:.45}
 @media(max-width:900px){.auth-account{display:none}.nav-actions{gap:7px}.auth-button{padding:8px 9px}}
 @media(max-width:640px){.nav-actions .ghost-button{display:none}.auth-status{display:none}.auth-button{font-size:10px}}
+
+.signup-prompt{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:12px 0;padding:16px;border:1px solid #4a4025;border-radius:12px;background:linear-gradient(135deg,#17150f,#101010);animation:heroIn .35s ease both}.signup-prompt strong{display:block;color:#f4f1e8;font-size:13px}.signup-prompt p{margin:6px 0 0;color:#aaa;font-size:12px;line-height:1.6;max-width:430px}.signup-prompt .auth-button{flex-shrink:0}@media(max-width:600px){.signup-prompt{align-items:flex-start;flex-direction:column}.signup-prompt .auth-button{width:100%}}
