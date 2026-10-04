@@ -207,7 +207,22 @@ function AssessmentPanel({ assessment }: { assessment: Assessment }) {
 }
 
 export default function App() {
-  const [mode, setMode] = useState<InputType>("URL");
+  const [themeMode, setThemeMode] = useState<"light" | "dark" | "auto">(() => {
+    try { return (localStorage.getItem("vera-theme") as "light" | "dark" | "auto") || "dark"; } catch { return "dark"; }
+  });
+  useEffect(() => {
+    const root = document.documentElement;
+    const applyTheme = () => {
+      const resolved = themeMode === "auto" ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark") : themeMode;
+      root.dataset.theme = resolved;
+    };
+    applyTheme();
+    try { localStorage.setItem("vera-theme", themeMode); } catch { /* storage may be unavailable */ }
+    const preference = window.matchMedia("(prefers-color-scheme: light)");
+    preference.addEventListener("change", applyTheme);
+    return () => preference.removeEventListener("change", applyTheme);
+  }, [themeMode]);
+  const [mode] = useState<InputType>("URL");
   const [input, setInput] = useState("");
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [history, setHistory] = useState<Scan[]>([]);
@@ -347,7 +362,7 @@ export default function App() {
       {history.length === 0 ? <div className="empty"><FileSearch size={20} /><div><strong>No investigations yet</strong><p>Your recent checks will appear here after you investigate something.</p></div></div> : <div className="history-list">{history.map((scan) => <button className="history-row" key={scan.id} onClick={() => restore(scan)}><span className="history-type">{scan.type}</span><span className="history-input">{scan.input}</span><StateBadge state={scan.assessment.state} /><ChevronRight size={16} /></button>)}</div>}
     </section>
 
-    <footer className="site-footer"><div className="footer-brand"><div className="brand"><img className="brand-logo" src="/vera-logo.jpg" alt="VERA" /></div><p>Know before you act.</p><small>Evidence before action. No financial execution.</small></div><nav className="footer-links" aria-label="Project links"><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> GitHub <span>Source code</span></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> X <span>@verabuild</span></a><a href="mailto:verabuild1@gmail.com"><ExternalLink size={14} /> Email <span>verabuild1@gmail.com</span></a><a href="https://github.com/verabuild/Vera/blob/main/README.md" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Documentation <span>Project overview</span></a></nav><small className="footer-copyright">VERA · Decision intelligence</small></footer>
+    <footer className="site-footer"><div className="footer-brand"><div className="brand"><img className="brand-logo" src="/vera-logo.jpg" alt="VERA" /></div><p>Know before you act.</p><small>Evidence before action. No financial execution.</small></div><nav className="footer-links" aria-label="Project links"><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> GitHub <span>Source code</span></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> X <span>@verabuild</span></a><a href="mailto:verabuild1@gmail.com"><ExternalLink size={14} /> Email <span>verabuild1@gmail.com</span></a><a href="https://github.com/verabuild/Vera/blob/main/README.md" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Documentation <span>Project overview</span></a></nav><div className="footer-legal"><nav className="legal-links" aria-label="Legal"><a href="https://www.gloam.trade/terms" target="_blank" rel="noreferrer noopener">Terms</a><a href="https://www.gloam.trade/privacy" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://www.gloam.trade/cookies" target="_blank" rel="noreferrer noopener">Cookies</a><a href="https://www.gloam.trade/disclosures" target="_blank" rel="noreferrer noopener">Risk disclosures</a></nav><div className="theme-switch" role="group" aria-label="Colour theme">{(["light", "dark", "auto"] as const).map((theme) => <button key={theme} type="button" className={themeMode === theme ? "active" : ""} aria-pressed={themeMode === theme} onClick={() => setThemeMode(theme)}>{theme[0].toUpperCase() + theme.slice(1)}</button>)}</div><small className="footer-copyright">VERA · Decision intelligence</small></div></footer>
     <Analytics />
   </main>;
 }
