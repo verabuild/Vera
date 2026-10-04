@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { PrivyProvider } from "@privy-io/react-auth";
+import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 import App from "./App";
 import "./styles.css";
 
@@ -18,6 +19,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             accentColor: "#f5f5f5",
             logo: "/vera-logo.jpg",
             walletChainType: "solana-only"
+          },
+          externalWallets: {
+            solana: {
+              connectors: toSolanaWalletConnectors()
+            }
           }
         }}
       >
