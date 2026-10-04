@@ -78,7 +78,7 @@ function AssessmentPanel({ assessment }: { assessment: Assessment }) {
     </div>
     <div className="evidence-list">{assessment.evidence.map((item) => <div className="evidence-row" key={item.id}>
       <div className={`evidence-dot dot-${item.severity}`} />
-      <div className="evidence-main"><div className="evidence-title"><strong>{item.title}</strong><span>{item.state}</span></div><p>{item.detail}</p><small>{item.source}</small></div>
+      <div className="evidence-main"><div className="evidence-title"><strong>{item.title}</strong><span>{item.state}</span></div><p>{item.detail}</p><small>{item.source}</small>{Array.isArray(item.metadata?.reports) && <div className="evidence-links">{item.metadata.reports.map((report, index) => { if (typeof report !== "object" || report === null) return null; const link = report as Record<string, unknown>; if (typeof link.url !== "string" || !/^https?:\\/\\//i.test(link.url)) return null; return <a href={link.url} target="_blank" rel="noreferrer noopener" key={link.url + index}>{typeof link.title === "string" ? link.title : link.url}<ExternalLink size={11} /></a>; })}</div>}{Array.isArray(item.metadata?.results) && <div className="evidence-links">{item.metadata.results.map((report, index) => { if (typeof report !== "object" || report === null) return null; const link = report as Record<string, unknown>; if (typeof link.url !== "string" || !/^https?:\\/\\//i.test(link.url)) return null; return <a href={link.url} target="_blank" rel="noreferrer noopener" key={link.url + index}>{typeof link.title === "string" ? link.title : link.url}<ExternalLink size={11} /></a>; })}</div>}</div>
     </div>)}</div>
   </section>;
 }
