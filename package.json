@@ -18,8 +18,10 @@
     "pg": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "@solana-program/memo": "0.8.0",
-    "jose": "^6.1.0"
+    "@solana-program/memo": "latest",
+    "jose": "^6.1.0",
+    "@solana-program/system": "latest",
+    "@solana-program/token": "latest"
   },
   "devDependencies": {
     "@types/node": "latest",
