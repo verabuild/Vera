@@ -42,7 +42,8 @@ export async function persistScan(
   inputType: InputType,
   input: string,
   network: Network,
-  assessment: Assessment
+  assessment: Assessment,
+  privyUserId?: string
 ) {
   const db = getPool();
   if (!db) return;
@@ -52,12 +53,24 @@ export async function persistScan(
   try {
     await client.query('BEGIN');
 
+    let userId: string | null = null;
+    if (privyUserId) {
+      const userResult = await client.query(
+        `INSERT INTO users(privy_user_id)
+         VALUES($1)
+         ON CONFLICT(privy_user_id) DO UPDATE SET privy_user_id = EXCLUDED.privy_user_id
+         RETURNING id`,
+        [privyUserId]
+      );
+      userId = userResult.rows[0]?.id as string | undefined ?? null;
+    }
+
     const inputHash = createHash('sha256').update(input).digest('hex');
 
     await client.query(
-      `INSERT INTO scans(id,input_type,input_hash,input_preview,network)
-       VALUES($1,$2,$3,$4,$5)`,
-      [scanId, inputType, inputHash, input.slice(0, 500), network]
+      `INSERT INTO scans(id,user_id,input_type,input_hash,input_preview,network)
+       VALUES($1,$2,$3,$4,$5,$6)`,
+      [scanId, userId, inputType, inputHash, input.slice(0, 500), network]
     );
 
     const entityResult = await client.query(
