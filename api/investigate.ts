@@ -112,7 +112,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           state: 'CONFIRMED_MALICIOUS',
           evidence,
           headline: 'Known malware-distribution URL reported by URLhaus',
-          explanation: `PhishTank reported a verified phishing match for this URL. Review the threat category in the evidence trail. This is a provider-reported finding, not a claim that VERA independently inspected every part of the page. ${'VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.'}`,
+          explanation: `URLhaus returned a matching record for this URL in its malware-distribution database. Review the provider details in the evidence trail. This is a provider-reported finding, not a claim that VERA independently inspected every part of the page. ${'VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.'}`,
           action: 'Do not proceed to the page, enter credentials, connect a wallet, download files, or send funds. Report the URL through the relevant platform and use an independently verified official site.',
           confidence: 'HIGH'
         };
