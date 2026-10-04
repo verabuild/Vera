@@ -14,8 +14,9 @@ function getClient() {
 export async function verifyPrivyAccessToken(token: string): Promise<string | null> {
   const privy = getClient();
   if (!privy || !token) return null;
-  const claims = await privy.verifyAuthToken(token) as { userId?: string; sub?: string };
-  const subject = claims.userId ?? claims.sub;
+
+  const claims = await privy.utils().auth().verifyAccessToken(token);
+  const subject = claims.userId ?? claims.user_id;
   return typeof subject === "string" && subject.startsWith("did:privy:") ? subject : null;
 }
 
