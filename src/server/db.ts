@@ -37,6 +37,21 @@ function entityIdentifier(inputType: InputType, input: string) {
   return input;
 }
 
+export async function consumeUsageQuota(subjectId: string, periodKey: string, limit: number) {
+  const db = getPool();
+  if (!db) throw new Error('Database is required for server-enforced usage limits');
+  const result = await db.query(
+    `INSERT INTO usage_counters(subject_id, period_key, usage_count) VALUES($1,$2,1)
+     ON CONFLICT(subject_id, period_key) DO UPDATE
+       SET usage_count = usage_counters.usage_count + 1, updated_at = now()
+       WHERE usage_counters.usage_count < $3
+     RETURNING usage_count`,
+    [subjectId, periodKey, limit]
+  );
+  if (!result.rows.length) return { allowed: false, remaining: 0 };
+  return { allowed: true, remaining: Math.max(0, limit - Number(result.rows[0].usage_count)) };
+}
+
 export async function persistScan(
   scanId: string,
   inputType: InputType,
