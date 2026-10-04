@@ -73,3 +73,11 @@ CREATE INDEX IF NOT EXISTS scans_input_hash_idx ON scans(input_hash);
 CREATE INDEX IF NOT EXISTS signals_entity_idx ON signals(entity_id);
 CREATE INDEX IF NOT EXISTS evidence_scan_idx ON evidence(scan_id);
 CREATE INDEX IF NOT EXISTS actions_scan_idx ON actions(scan_id);
+
+CREATE TABLE IF NOT EXISTS usage_counters (
+  subject_id TEXT NOT NULL,
+  period_key TEXT NOT NULL,
+  usage_count INTEGER NOT NULL DEFAULT 0 CHECK (usage_count >= 0),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY(subject_id, period_key)
+);
