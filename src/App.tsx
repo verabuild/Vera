@@ -7,6 +7,8 @@ import {
   CircleDollarSign, BadgeAlert, ArrowDownRight
 } from "lucide-react";
 import { Analytics } from "@vercel/analytics/react";
+import { getAccessToken } from "@privy-io/react-auth";
+import AuthControls from "./components/AuthControls";
 import type { Network, Assessment, InputType, Scan } from "./lib/types";
 
 const modes: { id: InputType; label: string; icon: typeof Link2; description: string }[] = [
@@ -186,7 +188,13 @@ export default function App() {
     try {
       const response = await fetch("/api/investigate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(import.meta.env.VITE_PRIVY_APP_ID && await getAccessToken()
+            ? { Authorization: `Bearer ${await getAccessToken()}` }
+            : {})
+        },
+        credentials: "same-origin",
         body: JSON.stringify({ inputType: mode, input: input.trim(), network })
       });
       const contentType = response.headers.get("content-type") || "";
@@ -222,7 +230,7 @@ export default function App() {
     <nav className="nav">
       <div className="brand"><img className="brand-logo" src="/vera-logo.jpg" alt="VERA" /></div>
       <div className="nav-center"><span className="nav-live" /><strong>DECISION INTELLIGENCE</strong></div>
-      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span><button className="ghost-button">How it works <ChevronRight size={14} /></button></div>
+      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span>{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}<button className="ghost-button">How it works <ChevronRight size={14} /></button></div>
     </nav>
 
     <section className="hero">
