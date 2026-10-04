@@ -15,7 +15,7 @@ function getVerificationKeys(appId: string) {
 
 /**
  * Verifies the Privy access-token signature and its issuer/audience/expiry.
- * The token is never trusted based on client-supplied user IDs.
+ * Never trust a client-supplied user ID.
  */
 export async function verifyPrivyAccessToken(token: string): Promise<string | null> {
   const appId = process.env.PRIVY_APP_ID;
