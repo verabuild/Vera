@@ -7,7 +7,7 @@ import {
   CircleDollarSign, BadgeAlert, ArrowDownRight
 } from "lucide-react";
 import { Analytics } from "@vercel/analytics/react";
-import { getAccessToken } from "@privy-io/react-auth";
+import { getAccessToken, usePrivy } from "@privy-io/react-auth";
 import AuthControls from "./components/AuthControls";
 import type { Network, Assessment, InputType, Scan } from "./lib/types";
 
@@ -31,7 +31,7 @@ function loadScans(): Scan[] {
 }
 function saveScans(scans: Scan[]) { localStorage.setItem(STORAGE_KEY, JSON.stringify(scans.slice(0, 12))); }
 
-function StateBadge({ state }: { state: Assessment["state"] }) {
+function SignupPrompt() {\n  const { login } = usePrivy();\n  return <div className="signup-prompt"><div><strong>Your two free investigations are used.</strong><p>Sign in with Google, email or a Solana wallet to continue. You’ll get five investigations per day.</p></div><button className="auth-button auth-login" onClick={() => login()}><ShieldCheck size={14} /> Sign in to continue</button></div>;\n}\n\nfunction StateBadge({ state }: { state: Assessment["state"] }) {
   const Icon = state === "VERIFIED" || state === "SUPPORTED" ? ShieldCheck : state === "CONFIRMED_MALICIOUS" ? TriangleAlert : Activity;
   return <span className={`state-badge state-${state.toLowerCase()}`}><Icon size={12} />{state.replace("_", " ")}</span>;
 }
@@ -172,7 +172,7 @@ export default function App() {
   const [history, setHistory] = useState<Scan[]>([]);
   const [busy, setBusy] = useState(false);
   const [network, setNetwork] = useState<Network>("mainnet");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);\n  const [signupPrompt, setSignupPrompt] = useState(false);
   const [cursor, setCursor] = useState({ x: 50, y: 50 });
 
   useEffect(() => setHistory(loadScans()), []);
@@ -184,7 +184,7 @@ export default function App() {
   }[mode]), [mode]);
 
   async function scan() {
-    setBusy(true); setError(null);
+    setBusy(true); setError(null); setSignupPrompt(false);
     try {
       const accessToken = import.meta.env.VITE_PRIVY_APP_ID ? await getAccessToken() : null;
       const response = await fetch("/api/investigate", {
@@ -198,7 +198,7 @@ export default function App() {
       });
       const contentType = response.headers.get("content-type") || "";
       const raw = await response.text();
-      let data: { id?: string; createdAt?: string; assessment?: Assessment; error?: string; detail?: string } = {};
+      let data: { id?: string; createdAt?: string; assessment?: Assessment; error?: string; detail?: string; signupRequired?: boolean } = {};
       if (raw) {
         if (contentType.includes("application/json")) {
           try { data = JSON.parse(raw); } catch { /* fall through to raw server error */ }
@@ -255,7 +255,7 @@ export default function App() {
           <button className="paste" onClick={() => navigator.clipboard?.readText().then(setInput)}><ClipboardPaste size={14} /> Paste</button>
         </div>
 
-        {error && <div className="error-note"><TriangleAlert size={15} />{error}</div>}
+        {error && <div className="error-note"><TriangleAlert size={15} />{error}</div>}\n        {signupPrompt && import.meta.env.VITE_PRIVY_APP_ID && <SignupPrompt />}
         {busy && <LiveInvestigation />}
         <button className="scan-button" onClick={scan} disabled={busy || !input.trim()}>{busy ? <><RefreshCw size={16} className="spin" /> Investigating signals…</> : <><ScanSearch size={16} /> Investigate with VERA <ArrowUpRight size={16} /></>}</button>
         <div className="trust-note"><Check size={13} /> No wallet connection required <span /> <LockKeyhole size={12} /> Read-only investigation <span /> <Activity size={12} /> Live evidence</div>
