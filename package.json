@@ -18,7 +18,8 @@
     "lucide-react": "latest",
     "pg": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "@solana-program/memo": "latest"
   },
   "devDependencies": {
     "@types/node": "latest",
