@@ -15,6 +15,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm install
+      - name: Validate package metadata and regenerate lockfile
+        run: npm install --package-lock-only
+      - name: Verify clean reproducible install from generated lockfile
+        run: npm ci
       - run: npm run typecheck
       - run: npm run build
