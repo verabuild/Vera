@@ -19,7 +19,7 @@
     "pg": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "@solana-program/memo": "latest"
+    "@solana-program/memo": "0.8.0"
   },
   "devDependencies": {
     "@types/node": "latest",
