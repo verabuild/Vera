@@ -214,6 +214,7 @@ export default function App() {
         }
       }
       if (!response.ok) {
+        if (data.signupRequired) setSignupPrompt(true);
         const detail = data.detail ? `: ${data.detail}` : "";
         throw new Error(data.error ? `${data.error}${detail}` : `Server returned HTTP ${response.status}`);
       }
