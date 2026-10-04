@@ -9,6 +9,8 @@ import { inspectDomainRegistration } from '../src/server/domainIntel.js';
 import { inspectThreatIntel } from '../src/server/threatIntel.js';
 import { inspectWebReputation } from '../src/server/reputationIntel.js';
 import { verifyPrivyAccessToken, privyServerConfigured } from '../src/server/privyAuth.js';
+import { getAnonymousSubject } from '../src/server/anonymousSession.js';
+import { consumeUsageQuota } from '../src/server/db.js';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
 const allowedNetworks = new Set<Network>(['mainnet', 'devnet']);
@@ -56,6 +58,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       urlhausConfigured: Boolean(process.env.URLHAUS_AUTH_KEY),
       webReputationConfigured: Boolean(process.env.TAVILY_API_KEY),
       privyConfigured: privyServerConfigured(),
+      usageLimitsConfigured: Boolean(process.env.DATABASE_URL && process.env.VERA_ANON_SECRET && process.env.VERA_ANON_SECRET.length >= 32),
       solanaConfigured: Boolean(process.env.SOLANA_MAINNET_RPC_URL),
       timestamp: new Date().toISOString()
     });
@@ -98,6 +101,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!allowedNetworks.has(network)) {
       return json(res, 400, { error: 'Invalid Solana network' });
+    }
+
+    if (!process.env.DATABASE_URL) {
+      return json(res, 503, { error: 'VERA usage limits are temporarily unavailable. Please try again later.' });
+    }
+
+    let quota;
+    if (authenticatedUserId) {
+      quota = await consumeUsageQuota(`privy:${authenticatedUserId}`, new Date().toISOString().slice(0, 10), 5);
+    } else {
+      const anonymousSubject = getAnonymousSubject(req, res);
+      if (!anonymousSubject) {
+        return json(res, 503, { error: 'Anonymous usage protection is not configured. Please try again later.' });
+      }
+      quota = await consumeUsageQuota(`anonymous:${anonymousSubject}`, 'lifetime', 2);
+    }
+
+    if (!quota.allowed) {
+      return json(res, 429, authenticatedUserId
+        ? { error: 'You have used your five investigations for today. Your allowance resets at 00:00 UTC.', remaining: 0, signupRequired: false }
+        : { error: 'You have used your two free investigations. Sign in to continue with five investigations per day.', remaining: 0, signupRequired: true });
     }
 
     let assessment = localSignals(inputType, input.trim());
@@ -257,7 +281,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       inputType,
       input: input.trim(),
       network,
-      assessment: finalAssessment
+      assessment: finalAssessment,
+      usage: { remaining: quota.remaining, dailyLimit: authenticatedUserId ? 5 : 2, period: authenticatedUserId ? 'UTC day' : 'lifetime' }
     };
 
     await persistScan(
