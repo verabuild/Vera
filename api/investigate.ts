@@ -51,7 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       service: 'vera-investigate',
       databaseConfigured: Boolean(process.env.DATABASE_URL),
       geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
-      phishTankConfigured: true,
+      urlhausConfigured: Boolean(process.env.URLHAUS_AUTH_KEY),
       solanaConfigured: Boolean(process.env.SOLANA_MAINNET_RPC_URL),
       timestamp: new Date().toISOString()
     });
@@ -94,8 +94,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         observedAt: new Date().toISOString()
       };
       const evidence = [...assessment.evidence, ...domainEvidence, ...threatEvidence, identityEvidence];
-      const threatMatch = threatEvidence.some((item) => item.id === 'phishtank-match');
-      const threatNoMatch = threatEvidence.some((item) => item.id === 'phishtank-no-match');
+      const threatMatch = threatEvidence.some((item) => item.id === 'urlhaus-match');
+      const threatNoMatch = threatEvidence.some((item) => item.id === 'urlhaus-no-match');
       const threatUnavailable = threatEvidence.every((item) => item.state === 'UNKNOWN');
       const recentlyRegistered = domainEvidence.some((item) => item.id === 'domain-recent-registration');
       const establishedRegistration = domainEvidence.some((item) => item.id === 'domain-registration-age');
@@ -111,7 +111,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           ...assessment,
           state: 'CONFIRMED_MALICIOUS',
           evidence,
-          headline: 'Known phishing threat reported by PhishTank',
+          headline: 'Known malware-distribution URL reported by URLhaus',
           explanation: `PhishTank reported a verified phishing match for this URL. Review the threat category in the evidence trail. This is a provider-reported finding, not a claim that VERA independently inspected every part of the page. ${'VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.'}`,
           action: 'Do not proceed to the page, enter credentials, connect a wallet, download files, or send funds. Report the URL through the relevant platform and use an independently verified official site.',
           confidence: 'HIGH'
@@ -130,8 +130,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           ...assessment,
           state: 'SUPPORTED',
           evidence,
-          headline: 'No known phishing match detected',
-          explanation: 'PhishTank returned no verified-and-valid phishing match for this URL at the time of this scan. This is a useful reputation signal, not proof that the site is legitimate or safe; newly emerging or unlisted threats may not be detected. VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.',
+          headline: 'No URLhaus malware record found',
+          explanation: 'URLhaus returned no matching record for this URL at the time of this scan. URLhaus focuses on malware-distribution URLs; this does not rule out phishing, impersonation, fraud, or a newly emerging threat. VERA has not verified the page content or operator identity, so this is not a safety verdict.',
           action: 'Before entering credentials, connecting a wallet, or signing a transaction, confirm the exact hostname through an independently verified official source.',
           confidence: 'LOW'
         };
