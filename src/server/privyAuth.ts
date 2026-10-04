@@ -1,25 +1,41 @@
-import { PrivyClient } from "@privy-io/node";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
-let client: PrivyClient | null = null;
+let verificationKeys: ReturnType<typeof createRemoteJWKSet> | null = null;
+let verificationAppId: string | null = null;
 
-function getClient() {
-  const appId = process.env.PRIVY_APP_ID;
-  const appSecret = process.env.PRIVY_APP_SECRET;
-  if (!appId || !appSecret) return null;
-  client ||= new PrivyClient({ appId, appSecret });
-  return client;
+function getVerificationKeys(appId: string) {
+  if (!verificationKeys || verificationAppId !== appId) {
+    verificationKeys = createRemoteJWKSet(
+      new URL(`https://api.privy.io/v1/apps/${encodeURIComponent(appId)}/jwks.json`),
+    );
+    verificationAppId = appId;
+  }
+  return verificationKeys;
 }
 
-/** Verifies the bearer token with Privy's server SDK. Never trust client-supplied user IDs. */
+/**
+ * Verifies the Privy access-token signature and its issuer/audience/expiry.
+ * The token is never trusted based on client-supplied user IDs.
+ */
 export async function verifyPrivyAccessToken(token: string): Promise<string | null> {
-  const privy = getClient();
-  if (!privy || !token) return null;
+  const appId = process.env.PRIVY_APP_ID;
+  if (!appId || !token) return null;
 
-  const claims = await privy.utils().auth().verifyAccessToken(token);
-  const subject = claims.user_id;
-  return typeof subject === "string" && subject.startsWith("did:privy:") ? subject : null;
+  try {
+    const { payload } = await jwtVerify(token, getVerificationKeys(appId), {
+      algorithms: ["ES256"],
+      issuer: "privy.io",
+      audience: appId,
+    });
+    const subject = payload.sub;
+    return typeof subject === "string" && subject.startsWith("did:privy:")
+      ? subject
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 export function privyServerConfigured() {
-  return Boolean(process.env.PRIVY_APP_ID && process.env.PRIVY_APP_SECRET);
+  return Boolean(process.env.PRIVY_APP_ID);
 }
