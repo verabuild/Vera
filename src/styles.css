@@ -35,3 +35,17 @@
 @keyframes impactReveal{from{opacity:.25;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:850px){.impact-section{margin-bottom:70px;padding:25px 18px;border-radius:20px}.impact-heading{grid-template-columns:1fr;gap:20px}.impact-heading h2{font-size:clamp(37px,8vw,55px)}.impact-intro{max-width:620px}.impact-stat-grid{grid-template-columns:1fr;gap:9px;margin:28px 0 20px}.impact-stat{min-height:0;padding:17px;display:grid;grid-template-columns:1fr auto;gap:8px 12px}.impact-stat-label{grid-column:1/-1}.impact-stat strong{grid-row:2}.impact-stat>span:last-child{grid-column:1/-1}.impact-explorer{grid-template-columns:1fr}.impact-selector{padding:16px}.impact-quote{margin-top:18px}.impact-detail{min-height:380px;padding:24px}.impact-bottom{align-items:flex-start;flex-direction:column}.impact-bottom>button{width:100%;justify-content:center}}
 @media(prefers-reduced-motion:reduce){.impact-detail{animation:none}.impact-stat,.impact-tab,.impact-bottom>button{transition:none}}
+
+
+/* Privy account controls */
+.nav-actions{gap:12px}
+.auth-controls{display:flex;align-items:center;gap:8px;min-width:0}
+.auth-account,.auth-status{display:inline-flex;align-items:center;gap:6px;color:#a7a7a7;font-size:10px;letter-spacing:.02em;white-space:nowrap}
+.auth-account svg{color:var(--green);flex-shrink:0}
+.auth-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 12px;border:1px solid #363636;border-radius:9px;background:#111;color:#f5f5f5;font-size:11px;font-weight:600;white-space:nowrap;transition:background .2s,border-color .2s,transform .2s}
+.auth-button:hover{background:#1a1a1a;border-color:#555;transform:translateY(-1px)}
+.auth-login{background:#f5f5f5;color:#090909;border-color:#f5f5f5}
+.auth-login:hover{background:#fff;border-color:#fff}
+.auth-divider{opacity:.45}
+@media(max-width:900px){.auth-account{display:none}.nav-actions{gap:7px}.auth-button{padding:8px 9px}}
+@media(max-width:640px){.nav-actions .ghost-button{display:none}.auth-status{display:none}.auth-button{font-size:10px}}
