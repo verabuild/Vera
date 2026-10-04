@@ -8,6 +8,7 @@ import { persistScan } from '../src/server/db.js';
 import { inspectDomainRegistration } from '../src/server/domainIntel.js';
 import { inspectThreatIntel } from '../src/server/threatIntel.js';
 import { inspectWebReputation } from '../src/server/reputationIntel.js';
+import { verifyPrivyAccessToken, privyServerConfigured } from '../src/server/privyAuth.js';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
 const allowedNetworks = new Set<Network>(['mainnet', 'devnet']);
@@ -54,6 +55,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
       urlhausConfigured: Boolean(process.env.URLHAUS_AUTH_KEY),
       webReputationConfigured: Boolean(process.env.TAVILY_API_KEY),
+      privyConfigured: privyServerConfigured(),
       solanaConfigured: Boolean(process.env.SOLANA_MAINNET_RPC_URL),
       timestamp: new Date().toISOString()
     });
@@ -64,6 +66,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    const authorization = req.headers.authorization;
+    const bearer = typeof authorization === 'string' && authorization.startsWith('Bearer ')
+      ? authorization.slice(7).trim()
+      : '';
+    let authenticatedUserId: string | null = null;
+    if (bearer) {
+      if (!privyServerConfigured()) {
+        return json(res, 503, { error: 'Sign-in verification is not configured on the server yet.' });
+      }
+      try {
+        authenticatedUserId = await verifyPrivyAccessToken(bearer);
+      } catch {
+        return json(res, 401, { error: 'Your sign-in session is invalid or expired. Please sign in again.' });
+      }
+      if (!authenticatedUserId) {
+        return json(res, 401, { error: 'Your sign-in session could not be verified. Please sign in again.' });
+      }
+    }
+
     const { inputType, input, network = 'mainnet' } = req.body ?? {};
 
     if (
@@ -244,7 +265,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       inputType,
       input.trim(),
       network,
-      finalAssessment
+      finalAssessment,
+      authenticatedUserId ?? undefined
     );
 
     return json(res, 200, scan);
