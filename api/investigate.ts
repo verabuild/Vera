@@ -7,6 +7,7 @@ import { explainWithGemini } from '../src/server/gemini.js';
 import { persistScan } from '../src/server/db.js';
 import { inspectDomainRegistration } from '../src/server/domainIntel.js';
 import { inspectThreatIntel } from '../src/server/threatIntel.js';
+import { inspectWebReputation } from '../src/server/reputationIntel.js';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
 const allowedNetworks = new Set<Network>(['mainnet', 'devnet']);
@@ -52,6 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       databaseConfigured: Boolean(process.env.DATABASE_URL),
       geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
       urlhausConfigured: Boolean(process.env.URLHAUS_AUTH_KEY),
+      webReputationConfigured: Boolean(process.env.TAVILY_API_KEY),
       solanaConfigured: Boolean(process.env.SOLANA_MAINNET_RPC_URL),
       timestamp: new Date().toISOString()
     });
@@ -80,9 +82,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let assessment = localSignals(inputType, input.trim());
 
     if (inputType === 'URL') {
-      const [domainEvidence, threatEvidence] = await Promise.all([
+      const [domainEvidence, threatEvidence, reputationEvidence] = await Promise.all([
         inspectDomainRegistration(input.trim()),
-        inspectThreatIntel(input.trim())
+        inspectThreatIntel(input.trim()),
+        inspectWebReputation(input.trim())
       ]);
       const identityEvidence = {
         id: 'website-identity-unverified',
@@ -93,10 +96,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         state: 'UNKNOWN' as const,
         observedAt: new Date().toISOString()
       };
-      const evidence = [...assessment.evidence, ...domainEvidence, ...threatEvidence, identityEvidence];
+      const evidence = [...assessment.evidence, ...domainEvidence, ...threatEvidence, ...reputationEvidence, identityEvidence];
       const threatMatch = threatEvidence.some((item) => item.id === 'urlhaus-match');
       const threatNoMatch = threatEvidence.some((item) => item.id === 'urlhaus-no-match');
       const threatUnavailable = threatEvidence.every((item) => item.state === 'UNKNOWN');
+      const negativeReputation = reputationEvidence.find((item) => item.id === 'web-reputation-negative-reports');
+      const reputationMetadata = negativeReputation?.metadata;
+      const distinctNegativeSources = Number(reputationMetadata?.distinctNegativeSourceDomains ?? 0);
+      const reputationWarnings = Number(reputationMetadata?.reputationWarningCount ?? 0);
       const recentlyRegistered = domainEvidence.some((item) => item.id === 'domain-recent-registration');
       const establishedRegistration = domainEvidence.some((item) => item.id === 'domain-registration-age');
       const dnsResolves = domainEvidence.some((item) => item.id === 'domain-dns-resolves');
@@ -115,6 +122,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           explanation: `URLhaus returned a matching record for this URL in its malware-distribution database. Review the provider details in the evidence trail. This is a provider-reported finding, not a claim that VERA independently inspected every part of the page. ${'VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.'}`,
           action: 'Do not proceed to the page, enter credentials, connect a wallet, download files, or send funds. Report the URL through the relevant platform and use an independently verified official site.',
           confidence: 'HIGH'
+        };
+      } else if (negativeReputation && (distinctNegativeSources >= 2 || reputationWarnings > 0)) {
+        assessment = {
+          ...assessment,
+          state: 'SUSPICIOUS',
+          evidence,
+          headline: 'Independent public reports raise reputation concerns',
+          explanation: 'VERA found public web reports containing scam, fraud, or warning language about this domain. These reports are attributed to their linked sources and may include allegations that have not been independently verified. Combined with the technical evidence, they justify caution, but search results alone do not prove that the operator committed fraud.',
+          action: 'Do not send funds, connect a wallet, or provide credentials while these reports remain unresolved. Open the linked evidence, check whether reports describe first-hand experiences, and verify the service through an independent official channel.',
+          confidence: 'MEDIUM'
         };
       } else if (recentlyRegistered) {
         assessment = {
