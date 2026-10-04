@@ -82,7 +82,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (inputType === 'URL') {
       const [domainEvidence, threatEvidence] = await Promise.all([
         inspectDomainRegistration(input.trim()),
-        inspectWebRisk(input.trim())
+        inspectThreatIntel(input.trim())
       ]);
       const identityEvidence = {
         id: 'website-identity-unverified',
@@ -94,9 +94,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         observedAt: new Date().toISOString()
       };
       const evidence = [...assessment.evidence, ...domainEvidence, ...threatEvidence, identityEvidence];
-      const threatMatch = threatEvidence.id === 'threat-intel-match';
-      const threatNoMatch = threatEvidence.id === 'threat-intel-no-match';
-      const threatUnavailable = threatEvidence.state === 'UNKNOWN';
+      const threatMatch = threatEvidence.some((item) => item.id === 'phishtank-match');
+      const threatNoMatch = threatEvidence.some((item) => item.id === 'phishtank-no-match');
+      const threatUnavailable = threatEvidence.every((item) => item.state === 'UNKNOWN');
       const recentlyRegistered = domainEvidence.some((item) => item.id === 'domain-recent-registration');
       const establishedRegistration = domainEvidence.some((item) => item.id === 'domain-registration-age');
       const dnsResolves = domainEvidence.some((item) => item.id === 'domain-dns-resolves');
@@ -112,7 +112,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           state: 'CONFIRMED_MALICIOUS',
           evidence,
           headline: 'Known phishing threat reported by PhishTank',
-          explanation: `Google Web Risk reported a known threat match for this URL. Review the threat category in the evidence trail. This is a provider-reported finding, not a claim that VERA independently inspected every part of the page. ${'VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.'}`,
+          explanation: `PhishTank reported a verified phishing match for this URL. Review the threat category in the evidence trail. This is a provider-reported finding, not a claim that VERA independently inspected every part of the page. ${'VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.'}`,
           action: 'Do not proceed to the page, enter credentials, connect a wallet, download files, or send funds. Report the URL through the relevant platform and use an independently verified official site.',
           confidence: 'HIGH'
         };
