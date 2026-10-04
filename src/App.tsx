@@ -143,6 +143,42 @@ function ImpactSection() {
   </section>;
 }
 
+const motionChapters = [
+  { number: "01", eyebrow: "THE MOMENT BEFORE", title: "Every risky decision starts with a small moment.", copy: "A link looks familiar. A message feels urgent. A transaction asks for a signature. The pressure is often designed to make you move before you think.", tag: "PAUSE", icon: LockKeyhole },
+  { number: "02", eyebrow: "EVIDENCE, NOT GUESSWORK", title: "Turn scattered signals into something you can understand.", copy: "VERA brings together available technical checks, reputation signals and context, then separates what is known from what remains uncertain.", tag: "INVESTIGATE", icon: Radar },
+  { number: "03", eyebrow: "YOUR DECISION, WITH CONTEXT", title: "Know what you are looking at before you act.", copy: "Get a plain-English assessment, an evidence trail and a practical next step. VERA informs your decision. It never signs or moves funds for you.", tag: "DECIDE", icon: ShieldCheck }
+];
+
+function MotionStory() {
+  const [active, setActive] = useState(0);
+  const chapter = motionChapters[active];
+  const Icon = chapter.icon;
+  const move = (direction: number) => setActive((current) => (current + direction + motionChapters.length) % motionChapters.length);
+  return <section className="motion-story" aria-label="How VERA helps you decide">
+    <div className="motion-story-top"><span className="motion-eyebrow"><span className="motion-live-dot" /> A BETTER MOMENT TO DECIDE</span><span className="motion-counter">CHAPTER {String(active + 1).padStart(2, "0")} <i /> 03</span></div>
+    <div className="motion-story-heading"><h2>Before the click.<br/><em>Before the cost.</em></h2><p>One deliberate pause can change what happens next.</p></div>
+    <div className="motion-track" aria-label="Story chapters">
+      {motionChapters.map((item, index) => <button key={item.number} className={index === active ? "motion-track-step active" : "motion-track-step"} onClick={() => setActive(index)} aria-current={index === active ? "step" : undefined}><span>{item.number}</span><i><b /></i><small>{item.tag}</small></button>)}
+    </div>
+    <div className="motion-stage" key={chapter.number}>
+      <div className="motion-stage-copy">
+        <span className="motion-stage-index">{chapter.number} / {chapter.eyebrow}</span>
+        <h3>{chapter.title}</h3><p>{chapter.copy}</p>
+        <div className="motion-stage-bottom"><span><Icon size={15}/>{chapter.tag === "PAUSE" ? "Slow the moment down" : chapter.tag === "INVESTIGATE" ? "Follow the evidence" : "Keep control in your hands"}</span><div className="motion-arrows"><button onClick={() => move(-1)} aria-label="Previous chapter"><ArrowDownRight size={17} className="motion-prev-icon"/></button><button onClick={() => move(1)} aria-label="Next chapter"><ArrowUpRight size={17}/></button></div></div>
+      </div>
+      <div className="motion-visual" aria-hidden="true">
+        <div className="motion-visual-grid"/>
+        <div className="motion-visual-orbit orbit-one"/><div className="motion-visual-orbit orbit-two"/>
+        <div className="motion-core"><Icon size={28}/><span>VERA</span><small>DECISION INTELLIGENCE</small></div>
+        <div className="motion-signal signal-a"><span className="signal-status"/> {active === 0 ? "ACTION DETECTED" : active === 1 ? "SIGNALS CORRELATED" : "ASSESSMENT READY"}</div>
+        <div className="motion-signal signal-b">{active === 0 ? "PAUSE BEFORE YOU SIGN" : active === 1 ? "EVIDENCE / CONTEXT / RISK" : "YOU REMAIN IN CONTROL"}</div>
+        <div className="motion-visual-index">VERA / {chapter.number}</div>
+      </div>
+    </div>
+    <div className="motion-story-foot"><span>READ-ONLY BY DESIGN</span><span>NO WALLET CONNECTION REQUIRED</span><span>UNCERTAINTY IS SHOWN, NOT HIDDEN</span></div>
+  </section>;
+}
+
 function AssessmentPanel({ assessment }: { assessment: Assessment }) {
   const isHigh = assessment.state === "CONFIRMED_MALICIOUS" || assessment.state === "SUSPICIOUS";
   return <section className={`assessment ${isHigh ? "assessment-alert" : ""}`}>
@@ -183,6 +219,26 @@ export default function App() {
   const [cursor, setCursor] = useState({ x: 50, y: 50 });
 
   useEffect(() => setHistory(loadScans()), []);
+
+  useEffect(() => {
+    const nodes = document.querySelectorAll<HTMLElement>(".impact-section, .principles, .history, .result-section, .motion-story, .scanner-shell, .hero-copy");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      nodes.forEach((node) => node.classList.add("motion-visible"));
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("motion-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -4% 0px" });
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, []);
+
   const placeholder = useMemo(() => ({
     URL: "Paste a link you want VERA to inspect…",
     MESSAGE: "Paste the message, DM or email you want VERA to analyse…",
@@ -270,6 +326,8 @@ export default function App() {
         <div className="trust-note"><Check size={13} /> No wallet connection required <span /> <LockKeyhole size={12} /> Read-only investigation <span /> <Activity size={12} /> Live evidence</div>
       </div>
     </section>
+
+    <MotionStory />
 
     <ImpactSection />
 
