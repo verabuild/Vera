@@ -7,6 +7,7 @@ VERA is an evidence-first AI decision layer for online actions. It investigates 
 - Vercel serverless investigation API
 - Google Gemini evidence-grounded explanation layer
 - URLhaus (abuse.ch) malware-URL threat-intelligence adapter (server-side Auth-Key)
+- Optional Tavily public-web reputation search for domain-specific scam reports, reviews, and warnings, with source links shown in the evidence trail
 - URL outcomes distinguish provider-reported threats, no known threat matches, and unavailable checks
 - Explicit website-identity uncertainty: DNS and clean threat lookups are not treated as proof of legitimacy
 - Solana Mainnet + Devnet read-only wallet intelligence
@@ -24,6 +25,7 @@ Copy `.env.example` to `.env` and set secrets locally. In Vercel, configure the 
 `VERA_TEST_WALLET=4AMBqkqruwzT4RMh9sojo7RmBgYLYTuqGmv2GbAtXsVL`
 
 `URLHAUS_AUTH_KEY=` (free abuse.ch Auth-Key; keep it server-side)
+`TAVILY_API_KEY=` (optional public-web reputation search; server-side only; free tier available)
 `GEMINI_API_KEY=`
 `GEMINI_MODEL=gemini-3.8-flash`
 `MAGIC_EDEN_API_KEY=`
@@ -59,6 +61,11 @@ The AI receives only structured evidence produced by deterministic adapters. It 
 - A successful lookup with no match reports **No URLhaus record found**. URLhaus focuses on malware-distribution URLs; this is not a guarantee of safety and does not rule out phishing or fraud.
 - Missing configuration, provider errors, rate limits, or timeouts produce an unavailable/unknown check, never a clean result.
 - DNS and registration age are supporting evidence only. VERA does not claim to have verified page content or operator identity based on those signals.
+
+### Public web reputation evidence
+- When `TAVILY_API_KEY` is configured, VERA searches public web results for domain-specific scam, fraud, review, and warning reports. Returned source links are displayed in the evidence trail.
+- Search results are leads, not proof. User allegations, copied posts, affiliate promotions, stale pages, and manipulated search results can be misleading. VERA records report excerpts and source domains and only raises `SUSPICIOUS` when negative results span multiple source domains or a reputation-warning source is found.
+- No negative results, missing configuration, provider errors, or timeouts do not mean a domain is safe. This search is supplemental and is not a substitute for dedicated phishing intelligence or direct transaction simulation.
 
 ## Deployment
 Deploy from the GitHub repository through Vercel. Add environment variables to Preview and Production. Run database/schema.sql against the provisioned PostgreSQL database before enabling persistence.
