@@ -128,9 +128,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } else if (threatNoMatch && assessment.state !== 'SUSPICIOUS') {
         assessment = {
           ...assessment,
-          state: 'SUPPORTED',
+          // A provider no-match is evidence about that provider's database,
+          // not positive evidence that the URL itself is safe.
+          state: 'UNKNOWN',
           evidence,
-          headline: 'No URLhaus malware record found',
+          headline: 'No URLhaus match; safety remains unknown',
           explanation: 'URLhaus returned no matching record for this URL at the time of this scan. URLhaus focuses on malware-distribution URLs; this does not rule out phishing, impersonation, fraud, or a newly emerging threat. VERA has not verified the page content or operator identity, so this is not a safety verdict.',
           action: 'Before entering credentials, connecting a wallet, or signing a transaction, confirm the exact hostname through an independently verified official source.',
           confidence: 'LOW'
