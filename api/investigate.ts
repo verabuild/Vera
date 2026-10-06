@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { InputType, Network } from '../src/lib/types.js';
 import { localSignals } from '../src/lib/investigator.js';
-import { inspectWallet } from '../src/server/solana.js';
+import { inspectWallet, inspectTransaction } from '../src/server/solana.js';
 import { inspectMagicEdenWallet } from '../src/server/magicEden.js';
 import { explainWithGemini } from '../src/server/gemini.js';
 import { persistScan } from '../src/server/db.js';
@@ -223,6 +223,76 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           ...assessment,
           evidence,
           explanation: assessment.explanation + ' VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.'
+        };
+      }
+    }
+
+    if (inputType === 'TX') {
+      const evidence = await inspectTransaction(input.trim(), network);
+      const failed = evidence.some((item) => item.id === 'tx-status' && item.detail.startsWith('The transaction record contains'));
+      const found = evidence.some((item) => item.id === 'tx-signature-verified');
+      const unavailable = evidence.some((item) => item.id === 'tx-lookup-unavailable');
+      const invalid = evidence.some((item) => item.id === 'tx-invalid-signature');
+      const transfers = evidence.find((item) => item.id === 'tx-transfers');
+
+      if (invalid) {
+        assessment = {
+          ...assessment,
+          state: 'UNKNOWN',
+          headline: 'VERA could not validate this transaction signature',
+          explanation: 'The supplied value does not match the expected Solana transaction-signature format.',
+          action: 'Paste a Solana transaction signature from the correct network and investigate it again.',
+          evidence,
+          confidence: 'HIGH',
+          network
+        };
+      } else if (unavailable) {
+        assessment = {
+          ...assessment,
+          state: 'UNKNOWN',
+          headline: 'Transaction evidence is unavailable',
+          explanation: 'VERA could not retrieve the transaction from the selected Solana RPC. An unavailable lookup must not be treated as a clean result.',
+          action: 'Confirm the signature and network, then retry from a trusted transaction explorer or RPC source.',
+          evidence,
+          confidence: 'LOW',
+          network
+        };
+      } else if (!found) {
+        assessment = {
+          ...assessment,
+          state: 'UNKNOWN',
+          headline: 'VERA could not locate this transaction',
+          explanation: 'No transaction record was returned for this signature on the selected network. VERA cannot infer what the transaction would do without the underlying chain record.',
+          action: 'Check that the signature belongs to the selected network and retry once the transaction is available.',
+          evidence,
+          confidence: 'LOW',
+          network
+        };
+      } else if (failed) {
+        assessment = {
+          ...assessment,
+          state: 'SUPPORTED',
+          headline: 'Transaction execution failed',
+          explanation: 'VERA verified the transaction record and found a runtime failure. A failed transaction is not automatically malicious, but the attempted instructions should be reviewed before repeating the action.',
+          action: 'Do not blindly retry. Review the failed instruction, referenced programs, signers and any transfer instructions first.',
+          evidence,
+          confidence: 'HIGH',
+          network
+        };
+      } else {
+        assessment = {
+          ...assessment,
+          state: transfers ? 'SUPPORTED' : 'VERIFIED',
+          headline: transfers ? 'Transaction parsed with asset movement' : 'Transaction parsed successfully',
+          explanation: transfers
+            ? 'VERA verified the transaction record and identified parsed transfer instructions. Successful execution confirms what the chain processed, not that the interaction was intended or safe.'
+            : 'VERA verified the transaction record and parsed its signers, programs, fee and execution metadata. Transaction existence and successful execution are not a safety guarantee.',
+          action: transfers
+            ? 'Review every transfer destination, asset, amount and referenced program before considering the transaction outcome expected.'
+            : 'Review the referenced programs, signers and execution logs against the action you intended to perform.',
+          evidence,
+          confidence: 'HIGH',
+          network
         };
       }
     }
