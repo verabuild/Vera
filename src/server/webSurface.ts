@@ -137,7 +137,7 @@ export async function inspectWebsiteSurface(rawInput: string): Promise<Evidence[
           securityHeaders: { hsts, csp, frameProtection },
           checkedAt: observedAt
         }
-      }), evidence({
+      }), {
         id: 'surface-security-headers',
         title: 'Response security headers observed',
         detail: `Security response headers: HSTS ${hsts ? 'present' : 'not observed'}, CSP ${csp ? 'present' : 'not observed'}, X-Frame-Options ${frameProtection ? 'present' : 'not observed'}.`,
@@ -146,7 +146,7 @@ export async function inspectWebsiteSurface(rawInput: string): Promise<Evidence[
         state: 'SUPPORTED',
         observedAt,
         metadata: { hsts, csp, frameProtection }
-      })];
+      }];
     }
 
     throw new Error('Redirect limit exceeded');
