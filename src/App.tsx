@@ -179,6 +179,33 @@ function MotionStory() {
   </section>;
 }
 
+function StatusReportPanel({ assessment }: { assessment: Assessment }) {
+  const report = assessment.statusReport;
+  if (!report) return null;
+  const overallLabel = report.overall === "CONFIRMED_FINDING"
+    ? "CONFIRMED FINDING"
+    : report.overall === "COMPLETE"
+      ? "INVESTIGATION COMPLETE"
+      : "INVESTIGATION PARTIAL";
+
+  return <div className="status-report">
+    <div className="status-report-head">
+      <div><p className="eyebrow">INVESTIGATION STATUS</p><h3>{overallLabel}</h3></div>
+      <div className="status-coverage"><strong>{report.coverage}%</strong><span>coverage</span></div>
+    </div>
+    <div className="status-summary">
+      <span>{report.decisiveFindings} decisive signal{report.decisiveFindings === 1 ? "" : "s"}</span>
+      <span>Checked {new Date(report.checkedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+    </div>
+    <div className="status-checks">
+      {report.checks.map((check) => <div className="status-check" key={check.name}>
+        <span className={`status-check-dot status-${check.status.toLowerCase()}`} />
+        <div><strong>{check.name}</strong><span>{check.status.replace("_", " ")}</span></div>
+      </div>)}
+    </div>
+  </div>;
+}
+
 function AssessmentPanel({ assessment }: { assessment: Assessment }) {
   const isHigh = assessment.state === "CONFIRMED_MALICIOUS" || assessment.state === "SUSPICIOUS";
   return <section className={`assessment ${isHigh ? "assessment-alert" : ""}`}>
@@ -190,6 +217,7 @@ function AssessmentPanel({ assessment }: { assessment: Assessment }) {
       <StateBadge state={assessment.state} />
     </div>
     <p className="assessment-copy">{assessment.explanation}</p>
+    <StatusReportPanel assessment={assessment} />
     {assessment.aiExplanation && <div className="ai-note"><div className="ai-note-head"><Sparkles size={15} /><strong>AI interpretation</strong><span>Evidence-grounded</span></div><p>{assessment.aiExplanation}</p></div>}
     <div className="action-box">
       <div className="action-icon"><ArrowUpRight size={18} /></div>
@@ -297,7 +325,20 @@ export default function App() {
       const next = [scan, ...history.filter((item) => item.input !== input.trim())];
       setHistory(next); saveScans(next);
       window.setTimeout(() => document.getElementById("result")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
-    } catch (err) { setError(err instanceof Error ? err.message : "Investigation failed"); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Investigation failed");
+      if (!assessment) {
+        setAssessment({
+          state: "UNKNOWN",
+          headline: "Live investigation is temporarily unavailable",
+          explanation: "VERA could not reach the live evidence service. This fallback does not claim a live finding.",
+          action: "Retry the investigation.",
+          evidence: [],
+          confidence: "LOW",
+          network
+        });
+      }
+    }
     finally { setBusy(false); }
   }
 
@@ -327,7 +368,7 @@ export default function App() {
 
         <div className="mode-row">{modes.map(({ id, label, icon: Icon, description }) => <button className={`mode ${mode === id ? "active" : ""}`} onClick={() => setMode(id)} key={id} title={description}><Icon size={15} /><span>{label}</span></button>)}</div>
 
-        {mode === "WALLET" && <div className="network-row"><span className="eyebrow">SOLANA NETWORK</span><div><button className={`network-choice ${network === "mainnet" ? "active" : ""}`} onClick={() => setNetwork("mainnet")}>Mainnet</button><button className={`network-choice ${network === "devnet" ? "active" : ""}`} onClick={() => setNetwork("devnet")}>Devnet</button></div></div>}
+        {(mode === "WALLET" || mode === "TX") && <div className="network-row"><span className="eyebrow">SOLANA NETWORK</span><div><button className={`network-choice ${network === "mainnet" ? "active" : ""}`} onClick={() => setNetwork("mainnet")}>Mainnet</button><button className={`network-choice ${network === "devnet" ? "active" : ""}`} onClick={() => setNetwork("devnet")}>Devnet</button></div></div>}
 
         <div className="input-wrap">
           <textarea value={input} onChange={(event) => setInput(event.target.value)} placeholder={placeholder} rows={4} spellCheck={false} />
