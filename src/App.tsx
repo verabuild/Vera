@@ -490,6 +490,8 @@ export default function App() {
   function clear() { setInput(""); setAssessment(null); setError(null); }
   function restore(scan: Scan) { setMode(scan.type); setInput(scan.input); setAssessment(scan.assessment); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
+  if (legalPage) return <LegalPage page={legalPage} />;
+
   return <main onMouseMove={(event) => { const r = event.currentTarget.getBoundingClientRect(); setCursor({ x: ((event.clientX-r.left)/r.width)*100, y: ((event.clientY-r.top)/r.height)*100 }); }} style={{ "--mx": `${cursor.x}%`, "--my": `${cursor.y}%` } as React.CSSProperties}>
     <nav className="nav">
       <div className="brand"><img className="brand-logo" src="/vera-logo.jpg" alt="VERA" /></div>
