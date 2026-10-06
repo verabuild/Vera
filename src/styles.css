@@ -125,3 +125,15 @@
 .status-check-dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#6b7280}.status-check-dot.status-match{box-shadow:0 0 10px rgba(255,85,85,.55);background:#f15b5b}.status-check-dot.status-checked{background:#8ee4ae;box-shadow:0 0 10px rgba(142,228,174,.35)}.status-check-dot.status-no_match{background:#8aa7ff}.status-check-dot.status-unavailable{background:#d5a95c}.status-check>div{display:flex;flex-direction:column;gap:3px;min-width:0}.status-check>div strong{font-size:10px;font-weight:600;color:var(--white)}.status-check>div span{font-size:8px}
 :root[data-theme="light"] .status-report{background:#f7f8fa}.status-check-dot.status-match{box-shadow:none}
 @media(max-width:620px){.status-checks{grid-template-columns:1fr}.status-summary{flex-direction:column;gap:6px}}
+
+/* Deterministic URL verdict banner */
+.verdict-banner{display:flex;align-items:center;gap:12px;margin:0 0 22px;padding:14px 16px;border:1px solid var(--line2);border-radius:12px;background:var(--panel2)}
+.verdict-banner>svg{flex:0 0 auto}
+.verdict-banner>div{display:flex;align-items:baseline;gap:9px;min-width:0}
+.verdict-banner strong{font:700 12px "DM Mono",monospace;letter-spacing:.1em}
+.verdict-banner span{color:var(--muted);font-size:11px}
+.verdict-safe{border-color:#245b3c;background:rgba(114,229,160,.05)}.verdict-safe>svg,.verdict-safe strong{color:var(--green)}
+.verdict-not-safe{border-color:#642c2c;background:rgba(255,112,112,.055)}.verdict-not-safe>svg,.verdict-not-safe strong{color:var(--red)}
+.verdict-caution{border-color:#5a4a21;background:rgba(231,196,106,.055)}.verdict-caution>svg,.verdict-caution strong{color:var(--amber)}
+.verdict-review{border-color:var(--line2)}.verdict-review>svg,.verdict-review strong{color:var(--muted)}
+@media(max-width:620px){.verdict-banner{align-items:flex-start}.verdict-banner>div{flex-direction:column;gap:4px}}
