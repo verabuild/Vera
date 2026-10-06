@@ -193,6 +193,132 @@ function MotionStory() {
   </section>;
 }
 
+const roadmapPhases = [
+  {
+    phase: "01",
+    window: "0–6 WEEKS",
+    title: "Make the verdict obvious.",
+    outcome: "A user understands SAFE, CAUTION, REVIEW or NOT SAFE in one glance.",
+    builds: "Hard verdict policy, evidence precedence, freshness, provider health and regression fixtures.",
+    exit: "Every verdict is reproducible from recorded evidence.",
+    tag: "TRUST"
+  },
+  {
+    phase: "02",
+    window: "6–12 WEEKS",
+    title: "Understand the transaction.",
+    outcome: "VERA explains what a Solana transaction is actually trying to do.",
+    builds: "Instruction decoding, program registry, signer roles, asset flows, recipient screening and authority changes.",
+    exit: "Known transaction fixtures classify correctly.",
+    tag: "INTENT"
+  },
+  {
+    phase: "03",
+    window: "3–5 MONTHS",
+    title: "Follow the attack path.",
+    outcome: "A message and the destination it points to become one investigation.",
+    builds: "All-link inspection, impersonation heuristics, lookalike domains, QR/link expansion, shareable reports.",
+    exit: "One investigation explains message cues and downstream target risk.",
+    tag: "CONTEXT"
+  },
+  {
+    phase: "04",
+    window: "5–7 MONTHS",
+    title: "Build the threat graph.",
+    outcome: "VERA learns relationships between domains, wallets, URLs, brands and transactions.",
+    builds: "Entity graph, reusable indicators, user reports, verdict feedback, deduplication and correction workflows.",
+    exit: "Repeated indicators become faster to assess and user feedback improves evaluation.",
+    tag: "NETWORK"
+  },
+  {
+    phase: "05",
+    window: "7–10 MONTHS",
+    title: "Become infrastructure.",
+    outcome: "Other products can call VERA before their users act.",
+    builds: "API, SDK, batch scans, webhooks, embeddable decision cards, audit logs and provider health.",
+    exit: "An external product receives a stable verdict and evidence schema.",
+    tag: "PLATFORM"
+  },
+  {
+    phase: "06",
+    window: "10–12 MONTHS",
+    title: "Stay useful after the scan.",
+    outcome: "VERA becomes continuous protection, not a one-time checker.",
+    builds: "Watchlists, recurring re-checks, address monitoring, domain-change detection, alerts and team policies.",
+    exit: "Users return because VERA detects change, not because they remember to scan.",
+    tag: "EVERGREEN"
+  }
+];
+
+function RoadmapSection() {
+  const [active, setActive] = useState(0);
+  const [dragStart, setDragStart] = useState<number | null>(null);
+  const phase = roadmapPhases[active];
+
+  function move(delta: number) {
+    setActive((current) => Math.max(0, Math.min(roadmapPhases.length - 1, current + delta)));
+  }
+
+  return <section className="roadmap-section motion-visible" id="roadmap">
+    <div className="roadmap-heading">
+      <div>
+        <div className="section-label">THE ROAD AHEAD</div>
+        <h2>Built to become <strong>evergreen.</strong></h2>
+      </div>
+      <p>From a frictionless beta scanner to a continuous safety layer for the moments before you act.</p>
+    </div>
+
+    <div className="roadmap-rail" aria-label="VERA roadmap timeline">
+      <div className="roadmap-rail-line"><span style={{ width: `${(active / (roadmapPhases.length - 1)) * 100}%` }} /></div>
+      {roadmapPhases.map((item, index) => <button type="button" key={item.phase} className={`roadmap-node ${index === active ? "active" : ""} ${index < active ? "complete" : ""}`} onClick={() => setActive(index)} aria-label={`Roadmap phase ${item.phase}: ${item.title}`}>
+        <span>{item.phase}</span><i />
+      </button>)}
+    </div>
+
+    <div
+      className="roadmap-card"
+      onPointerDown={(event) => { setDragStart(event.clientX); event.currentTarget.setPointerCapture(event.pointerId); }}
+      onPointerUp={(event) => {
+        if (dragStart !== null) {
+          const delta = event.clientX - dragStart;
+          if (Math.abs(delta) > 45) move(delta < 0 ? 1 : -1);
+        }
+        setDragStart(null);
+      }}
+      onPointerCancel={() => setDragStart(null)}
+    >
+      <div className="roadmap-card-main">
+        <div className="roadmap-meta"><span>{phase.phase} / {phase.tag}</span><strong>{phase.window}</strong></div>
+        <h3>{phase.title}</h3>
+        <p className="roadmap-outcome">{phase.outcome}</p>
+        <div className="roadmap-detail-grid">
+          <div><span>PRIORITY BUILDS</span><p>{phase.builds}</p></div>
+          <div><span>EXIT CRITERIA</span><p>{phase.exit}</p></div>
+        </div>
+      </div>
+      <div className="roadmap-visual" aria-hidden="true">
+        <div className="roadmap-grid" />
+        <div className="roadmap-orbit orbit-a" />
+        <div className="roadmap-orbit orbit-b" />
+        <div className="roadmap-core"><span>VERA</span><small>{phase.tag}</small></div>
+        <div className="roadmap-marker marker-left"><i />{phase.phase === "01" ? "VERDICT" : phase.phase === "02" ? "INTENT" : phase.phase === "03" ? "ATTACK PATH" : phase.phase === "04" ? "THREAT GRAPH" : phase.phase === "05" ? "API / SDK" : "CONTINUOUS"}</div>
+        <div className="roadmap-marker marker-right">{phase.phase === "06" ? "WATCH / ALERT" : `NEXT · ${roadmapPhases[Math.min(active + 1, roadmapPhases.length - 1)].tag}`}<i /></div>
+        <span className="roadmap-visual-index">2026 → 2027</span>
+      </div>
+    </div>
+
+    <div className="roadmap-controls">
+      <div><span>Swipe or use the controls</span><b>{String(active + 1).padStart(2, "0")} / {String(roadmapPhases.length).padStart(2, "0")}</b></div>
+      <div>
+        <button type="button" onClick={() => move(-1)} disabled={active === 0} aria-label="Previous roadmap phase"><ArrowDownRight size={16} className="roadmap-prev" /></button>
+        <button type="button" onClick={() => move(1)} disabled={active === roadmapPhases.length - 1} aria-label="Next roadmap phase"><ArrowUpRight size={16} /></button>
+      </div>
+    </div>
+
+    <div className="roadmap-principle"><ShieldCheck size={14} /><span>Evergreen by design</span><p>New intelligence becomes a module, new evidence improves decisions, and continuous monitoring creates the reason to return.</p><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener">View the full roadmap <ExternalLink size={11} /></a></div>
+  </section>;
+}
+
 function StatusReportPanel({ assessment }: { assessment: Assessment }) {
   const report = assessment.statusReport;
   if (!report) return null;
@@ -412,12 +538,14 @@ export default function App() {
       </div>
     </section>
 
-    <section className="history">
+    <RoadmapSection />
+
+     <section className="history">
       <div className="history-head"><div><div className="section-label">INVESTIGATION TRAIL</div><h2>Recent checks</h2></div><span className="muted"><LockKeyhole size={11} /> Stored locally in this demo</span></div>
       {history.length === 0 ? <div className="empty"><FileSearch size={20} /><div><strong>No investigations yet</strong><p>Your recent checks will appear here after you investigate something.</p></div></div> : <div className="history-list">{history.map((scan) => <button className="history-row" key={scan.id} onClick={() => restore(scan)}><span className="history-type">{scan.type}</span><span className="history-input">{scan.input}</span><StateBadge state={scan.assessment.state} /><ChevronRight size={16} /></button>)}</div>}
     </section>
 
-    <footer className="site-footer"><div className="footer-brand"><div className="brand"><img className="brand-logo" src="/vera-logo.jpg" alt="VERA" /></div><p>Know before you act.</p><small>Evidence before action. No financial execution.</small></div><nav className="footer-links" aria-label="Project links"><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> GitHub <span>Source code</span></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> X <span>@verabuild</span></a><a href="mailto:verabuild1@gmail.com"><ExternalLink size={14} /> Email <span>verabuild1@gmail.com</span></a><a href="https://github.com/verabuild/Vera/blob/main/README.md" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Documentation <span>Project overview</span></a></nav><div className="footer-legal"><nav className="legal-links" aria-label="Legal"><a href="/terms" target="_blank" rel="noreferrer noopener">Terms</a><a href="/privacy" target="_blank" rel="noreferrer noopener">Privacy</a><a href="/cookies" target="_blank" rel="noreferrer noopener">Cookies</a><a href="/disclosures" target="_blank" rel="noreferrer noopener">Risk disclosures</a></nav><div className="theme-switch" role="group" aria-label="Colour theme">{(["light", "dark", "auto"] as const).map((theme) => <button key={theme} type="button" className={themeMode === theme ? "active" : ""} aria-pressed={themeMode === theme} onClick={() => setThemeMode(theme)}>{theme[0].toUpperCase() + theme.slice(1)}</button>)}</div><small className="footer-copyright">VERA · Decision intelligence</small></div></footer>
+    <footer className="site-footer"><div className="footer-brand"><div className="brand"><img className="brand-logo" src="/vera-logo.jpg" alt="VERA" /></div><p>Know before you act.</p><small>Evidence before action. No financial execution.</small></div><nav className="footer-links" aria-label="Project links"><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> GitHub <span>Source code</span></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> X <span>@verabuild</span></a><a href="mailto:verabuild1@gmail.com"><ExternalLink size={14} /> Email <span>verabuild1@gmail.com</span></a><a href="#roadmap"><ExternalLink size={14} /> Roadmap <span>6–12 month product path</span></a><a href="https://github.com/verabuild/Vera/blob/main/README.md" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Documentation <span>Project overview</span></a></nav><div className="footer-legal"><nav className="legal-links" aria-label="Legal"><a href="/terms" target="_blank" rel="noreferrer noopener">Terms</a><a href="/privacy" target="_blank" rel="noreferrer noopener">Privacy</a><a href="/cookies" target="_blank" rel="noreferrer noopener">Cookies</a><a href="/disclosures" target="_blank" rel="noreferrer noopener">Risk disclosures</a></nav><div className="theme-switch" role="group" aria-label="Colour theme">{(["light", "dark", "auto"] as const).map((theme) => <button key={theme} type="button" className={themeMode === theme ? "active" : ""} aria-pressed={themeMode === theme} onClick={() => setThemeMode(theme)}>{theme[0].toUpperCase() + theme.slice(1)}</button>)}</div><small className="footer-copyright">VERA · Decision intelligence</small></div></footer>
     <Analytics />
   </main>;
 }
