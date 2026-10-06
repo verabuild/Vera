@@ -319,23 +319,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (inputType === 'WALLET') {
-      const [solanaEvidence, meEvidence] = await Promise.all([
-        inspectWallet(input.trim(), network),
-        inspectMagicEdenWallet(input.trim(), network)
-      ]);
-
-      const evidence = [...solanaEvidence, ...meEvidence];
-      const invalidAddress = solanaEvidence.some(
-        (item) => item.id === 'wallet-invalid'
-      );
+      const evidence = await investigateWalletProviders(input.trim(), network);
+      const invalidAddress = evidence.some((item) => item.id === 'wallet-invalid');
+      const reported = evidence.some((item) => item.id === 'chainabuse-reports');
 
       assessment = invalidAddress
         ? {
             ...assessment,
             state: 'UNKNOWN',
-            headline: 'VERA could not validate this wallet',
-            explanation:
-              'The supplied value is not a valid Solana public address, so live wallet intelligence cannot be interpreted.',
+            headline: 'VERA could not validate this wallet or address',
+            explanation: 'The supplied value is not a valid Solana public address.',
             action: 'Check the address and scan it again.',
             evidence,
             confidence: 'HIGH',
@@ -343,60 +336,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         : {
             ...assessment,
-            state: 'SUPPORTED',
-            headline: `Wallet evidence collected on ${network}`,
-            explanation:
-              'VERA found live chain evidence for this public address. This describes observable state and does not mean assets or projects associated with the wallet are safe.',
-            action:
-              'Review the evidence before interacting with any asset or signing a transaction.',
+            state: reported ? 'SUSPICIOUS' : 'SUPPORTED',
+            headline: reported ? 'Address has reported-risk evidence' : `Wallet and address evidence collected on ${network}`,
+            explanation: reported
+              ? 'VERA found public fraud-report evidence associated with this address. Review the individual reports before interacting with it.'
+              : 'VERA collected live Solana account, token, delegation, recent activity and marketplace evidence. Observable chain state is not a safety guarantee.',
+            action: reported
+              ? 'Pause and independently verify the recipient before transferring funds or signing an interaction.'
+              : 'Review the evidence before transferring funds or signing an interaction involving this address.',
             evidence,
             confidence: 'HIGH',
             network
           };
     }
 
-    const aiExplanation = await explainWithGemini(
-      input.trim(),
-      assessment,
-      assessment.evidence
-    );
-
-    const finalAssessment = {
+    assessment = {
       ...assessment,
-      aiExplanation: aiExplanation || undefined
+      statusReport: buildStatusReport(inputType, assessment.evidence, assessment, network)
     };
 
-    const scan = {
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      inputType,
-      input: input.trim(),
-      network,
-      assessment: finalAssessment,
-      usage: { remaining: quota.remaining, dailyLimit: authenticatedUserId ? 5 : 2, period: authenticatedUserId ? 'UTC day' : 'lifetime' }
-    };
 
-    try {
-      await persistScan(
-        scan.id,
-        inputType,
-        input.trim(),
-        network,
-        finalAssessment,
-        authenticatedUserId ?? undefined
-      );
-    } catch (error) {
-      // Persistence must never turn a completed read-only investigation into a
-      // user-facing 500. The scan remains available in the response/local history.
-      console.error('VERA persistence error', error);
-    }
-
-    return json(res, 200, scan);
-  } catch (error) {
-    console.error('VERA investigation error', error);
-    return json(res, 500, {
-      error: 'Investigation failed',
-      detail: 'VERA encountered an unexpected server error before it could complete the investigation. Check the server logs for the failing stage.'
-    });
-  }
-}
