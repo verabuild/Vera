@@ -376,10 +376,10 @@ function AssessmentPanel({ assessment }: { assessment: Assessment }) {
 }
 
 export default function App() {
-  const legalPath = window.location.pathname.replace(/\\/+$/, "");
-  if (legalPath === "/terms" || legalPath === "/privacy" || legalPath === "/cookies" || legalPath === "/disclosures") {
-    return <LegalPage page={legalPath.slice(1) as "terms" | "privacy" | "cookies" | "disclosures"} />;
-  }
+  const legalPath = window.location.pathname.replace(/\/+$/, "");
+  const legalPage = legalPath === "/terms" || legalPath === "/privacy" || legalPath === "/cookies" || legalPath === "/disclosures"
+    ? legalPath.slice(1) as "terms" | "privacy" | "cookies" | "disclosures"
+    : null;
   const [themeMode, setThemeMode] = useState<"light" | "dark" | "auto">(() => {
     try { return (localStorage.getItem("vera-theme") as "light" | "dark" | "auto") || "dark"; } catch { return "dark"; }
   });
@@ -489,6 +489,8 @@ export default function App() {
 
   function clear() { setInput(""); setAssessment(null); setError(null); }
   function restore(scan: Scan) { setMode(scan.type); setInput(scan.input); setAssessment(scan.assessment); window.scrollTo({ top: 0, behavior: "smooth" }); }
+
+  if (legalPage) return <LegalPage page={legalPage} />;
 
   if (legalPage) return <LegalPage page={legalPage} />;
 
