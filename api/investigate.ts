@@ -136,44 +136,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let assessment = localSignals(inputType, input.trim());
 
     if (inputType === 'URL') {
-      const providerResults = await Promise.allSettled([
-        inspectDomainRegistration(input.trim()),
-        inspectThreatIntel(input.trim()),
-        inspectWebReputation(input.trim())
-      ]);
-
-      const providerEvidence = (index: number, provider: string) => {
-        const result = providerResults[index];
-        if (result.status === 'fulfilled') return result.value;
-        console.error(`VERA ${provider} provider error`, result.reason);
-        return [{
-          id: `${provider.toLowerCase().replace(/\\s+/g, '-')}-unavailable`,
-          title: `${provider} evidence unavailable`,
-          detail: `VERA could not complete the ${provider} check. The missing source is treated as unknown and does not reduce the risk assessment.`,
+      const providers = await investigateUrlProviders(input.trim());
+      const domainEvidence = providers.domain;
+      const threatEvidence = providers.threat;
+      const reputationEvidence = providers.reputation;
+      const evidence = [
+        ...assessment.evidence,
+        ...domainEvidence,
+        ...threatEvidence,
+        ...reputationEvidence,
+        ...providers.surface,
+        ...providers.openphish,
+        ...providers.urlscan,
+        ...providers.chainabuse,
+        {
+          id: 'website-identity-unverified',
+          title: 'Website operator identity not independently verified',
+          detail: 'VERA reports observable infrastructure and reputation evidence. It does not treat those signals as proof of who operates a site.',
           severity: 'info' as const,
-          source: `VERA ${provider} provider`,
+          source: 'VERA evidence policy',
           state: 'UNKNOWN' as const,
-          observedAt: new Date().toISOString(),
-          metadata: { provider, lookupFailed: true }
-        }];
-      };
+          observedAt: new Date().toISOString()
+        }
+      ];
 
-      const domainEvidence = providerEvidence(0, 'Domain intelligence');
-      const threatEvidence = providerEvidence(1, 'Threat intelligence');
-      const reputationEvidence = providerEvidence(2, 'Web reputation');
-      const identityEvidence = {
-        id: 'website-identity-unverified',
-        title: 'Website operator identity not independently verified',
-        detail: 'DNS, registration data, and threat-list results do not prove that this page is operated by the organisation it claims to represent. VERA has not independently verified the page content or operator identity.',
-        severity: 'info' as const,
-        source: 'VERA evidence policy',
-        state: 'UNKNOWN' as const,
-        observedAt: new Date().toISOString()
-      };
-      const evidence = [...assessment.evidence, ...domainEvidence, ...threatEvidence, ...reputationEvidence, identityEvidence];
-      const threatMatch = threatEvidence.some((item) => item.id === 'urlhaus-match');
-      const threatNoMatch = threatEvidence.some((item) => item.id === 'urlhaus-no-match');
-      const threatUnavailable = threatEvidence.every((item) => item.state === 'UNKNOWN');
+      const urlhausMatch = threatEvidence.some((item) => item.id === 'urlhaus-match');
+      const openphishMatch = providers.openphish.some((item) => item.id === 'openphish-match');
+      const checkedChainabuse = providers.chainabuse.some(
+        (item) => item.id === 'chainabuse-reports' && Number(item.metadata?.checkedCount ?? 0) > 0
+      );
       const negativeReputation = reputationEvidence.find((item) => item.id === 'web-reputation-negative-reports');
       const reputationMetadata = negativeReputation?.metadata;
       const distinctNegativeSources = Number(reputationMetadata?.distinctNegativeSourceDomains ?? 0);
@@ -181,77 +172,78 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const recentlyRegistered = domainEvidence.some((item) => item.id === 'domain-recent-registration');
       const establishedRegistration = domainEvidence.some((item) => item.id === 'domain-registration-age');
       const dnsResolves = domainEvidence.some((item) => item.id === 'domain-dns-resolves');
-      const registrationUnavailable = domainEvidence.some((item) =>
-        ['domain-intelligence-unavailable', 'domain-registration-date-unavailable', 'domain-registration-date-invalid'].includes(item.id)
-      );
+      const threatNoMatch = threatEvidence.some((item) => item.id === 'urlhaus-no-match');
+      const threatUnavailable = threatEvidence.every((item) => item.state === 'UNKNOWN');
 
-      // Domain age and DNS are supporting context only. They must never turn a URL
-      // into VERIFIED or imply that its content, operator, or intent is safe.
-      if (threatMatch) {
+      if (urlhausMatch || openphishMatch) {
         assessment = {
           ...assessment,
           state: 'CONFIRMED_MALICIOUS',
+          headline: openphishMatch ? 'Known phishing URL reported by OpenPhish' : 'Known malware URL reported by URLhaus',
+          explanation: openphishMatch
+            ? 'OpenPhish returned a phishing-database match for this URL.'
+            : 'URLhaus returned a malware-distribution match for this URL.',
+          action: 'Stop the interaction and use an independently verified destination.',
           evidence,
-          headline: 'Known malware-distribution URL reported by URLhaus',
-          explanation: `URLhaus returned a matching record for this URL in its malware-distribution database. Review the provider details in the evidence trail. This is a provider-reported finding, not a claim that VERA independently inspected every part of the page. ${'VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.'}`,
-          action: 'Do not proceed to the page, enter credentials, connect a wallet, download files, or send funds. Report the URL through the relevant platform and use an independently verified official site.',
+          confidence: 'HIGH'
+        };
+      } else if (checkedChainabuse) {
+        assessment = {
+          ...assessment,
+          state: 'SUSPICIOUS',
+          headline: 'Chainabuse reports this destination',
+          explanation: 'Chainabuse returned checked reports associated with this target. Review the report details as supporting risk evidence.',
+          action: 'Pause and independently verify the destination before proceeding.',
+          evidence,
           confidence: 'HIGH'
         };
       } else if (negativeReputation && (distinctNegativeSources >= 2 || reputationWarnings > 0)) {
         assessment = {
           ...assessment,
           state: 'SUSPICIOUS',
+          headline: 'Public reports raise reputation concerns',
+          explanation: 'VERA found multiple public reports containing risk language about this domain. Search results are supporting evidence and may be incomplete or mistaken.',
+          action: 'Review the linked reports and verify the domain independently before proceeding.',
           evidence,
-          headline: 'Independent public reports raise reputation concerns',
-          explanation: 'VERA found public web reports containing scam, fraud, or warning language about this domain. These reports are attributed to their linked sources and may include allegations that have not been independently verified. Combined with the technical evidence, they justify caution, but search results alone do not prove that the operator committed fraud.',
-          action: 'Do not send funds, connect a wallet, or provide credentials while these reports remain unresolved. Open the linked evidence, check whether reports describe first-hand experiences, and verify the service through an independent official channel.',
           confidence: 'MEDIUM'
         };
       } else if (recentlyRegistered) {
         assessment = {
           ...assessment,
+          state: 'SUSPICIOUS',
+          headline: 'Recently registered domain needs extra scrutiny',
+          explanation: 'VERA found a recent registration date. Domain age is a caution signal, not proof of maliciousness.',
+          action: 'Verify the operator and exact domain independently before proceeding.',
           evidence,
-          headline: 'Newly registered domain needs extra scrutiny',
-          explanation: 'VERA found a recent domain registration date. Newness is a caution signal, not proof of a scam. VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.',
-          action: 'Pause before entering credentials, connecting a wallet, or sending funds. Reach the service through its independently verified official website instead.',
           confidence: 'MEDIUM'
         };
-      } else if (threatNoMatch && assessment.state !== 'SUSPICIOUS') {
-        assessment = {
-          ...assessment,
-          // A provider no-match is evidence about that provider's database,
-          // not positive evidence that the URL itself is safe.
-          state: 'UNKNOWN',
-          evidence,
-          headline: 'No URLhaus match; safety remains unknown',
-          explanation: 'URLhaus returned no matching record for this URL at the time of this scan. URLhaus focuses on malware-distribution URLs; this does not rule out phishing, impersonation, fraud, or a newly emerging threat. VERA has not verified the page content or operator identity, so this is not a safety verdict.',
-          action: 'Before entering credentials, connecting a wallet, or signing a transaction, confirm the exact hostname through an independently verified official source.',
-          confidence: 'LOW'
-        };
-      } else if (establishedRegistration && dnsResolves && assessment.state !== 'SUSPICIOUS') {
+      } else if (threatNoMatch) {
         assessment = {
           ...assessment,
           state: 'UNKNOWN',
+          headline: 'Threat feeds returned no match',
+          explanation: threatUnavailable
+            ? 'The primary malware feed was unavailable, so no positive safety conclusion is possible.'
+            : 'URLhaus returned no malware-URL match. A no-match does not establish that the site is legitimate.',
+          action: 'Review the complete evidence trail and verify the exact hostname independently.',
           evidence,
-          headline: threatUnavailable ? 'Domain evidence found; threat check unavailable' : 'No immediate domain-age warning found',
-          explanation: threatUnavailable ? 'The hostname resolves and the registry reports an established registration date, but VERA could not complete the live threat-intelligence check. DNS and domain age are supporting signals only. VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.' : 'The hostname resolves and the registry reports an established registration date. These are supporting signals only: VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.',
-          action: 'Before taking a sensitive action, confirm the exact hostname against the service’s official website or a trusted bookmark. Do not rely on domain age or HTTPS alone.',
           confidence: 'LOW'
         };
-      } else if (registrationUnavailable && dnsResolves && assessment.state !== 'SUSPICIOUS') {
+      } else if (establishedRegistration && dnsResolves) {
         assessment = {
           ...assessment,
+          state: 'UNKNOWN',
+          headline: 'Domain and infrastructure evidence collected',
+          explanation: 'VERA found resolving DNS and registration evidence, but these signals do not verify the operator or site intent.',
+          action: 'Verify the exact hostname independently before sensitive actions.',
           evidence,
-          headline: 'Domain resolves, but trust evidence is incomplete',
-          explanation: 'VERA confirmed DNS address records, but could not verify a reliable domain registration date. DNS resolution only shows that the hostname resolves. VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.',
-          action: 'Confirm the exact hostname through an independent official source before entering credentials, connecting a wallet, or signing a transaction.',
           confidence: 'LOW'
         };
       } else {
         assessment = {
           ...assessment,
           evidence,
-          explanation: assessment.explanation + ' VERA has not verified the page content, operator identity, or current threat reputation, so this is not a safety verdict.'
+          explanation: assessment.explanation + ' Website identity and intent remain unverified.'
         };
       }
     }
