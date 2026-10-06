@@ -12,7 +12,7 @@ import { verifyPrivyAccessToken, privyServerConfigured } from '../src/server/pri
 import { consumeFallbackQuota, getAnonymousSubject } from '../src/server/anonymousSession.js';
 import { investigateUrlProviders, investigateWalletProviders } from '../src/server/providerOrchestrator.js';
 import { buildStatusReport } from '../src/server/statusReport.js';
-import { deriveUrlVerdict } from '../src/server/trustVerdict.js';
+import { deriveUrlVerdict, isTrustedDomain, trustedRootFor } from '../src/server/trustVerdict.js';
 import { normalizeUrlInput } from '../src/lib/investigator.js';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
@@ -174,6 +174,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       try {
         const hostname = normalizeUrlInput(input.trim()).hostname.toLowerCase();
+        const trustedRoot = trustedRootFor(hostname);
+        if (trustedRoot) {
+          evidence.push({
+            id: 'trusted-domain-registry-match',
+            title: 'Established-domain registry match',
+            detail: `The hostname matches VERA's curated established-domain registry for ${trustedRoot}. This is a deterministic identity signal; it is not a guarantee against compromise of an individual account or page.`,
+            severity: 'info',
+            source: 'VERA trusted-domain registry',
+            state: 'SUPPORTED',
+            observedAt: new Date().toISOString(),
+            metadata: { hostname, trustedRoot }
+          });
+        }
         const verdict = deriveUrlVerdict(hostname, evidence);
         assessment = {
           ...assessment,
