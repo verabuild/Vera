@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import type { Assessment, InputType, Network } from '../lib/types.js';
 
 let pool: Pool | null = null;
+let usageSchemaPromise: Promise<void> | null = null;
 
 function getPool() {
   if (!process.env.DATABASE_URL) return null;
@@ -10,6 +11,9 @@ function getPool() {
   pool ||= new Pool({
     connectionString: process.env.DATABASE_URL,
     max: 3,
+    connectionTimeoutMillis: 5000,
+    idleTimeoutMillis: 10000,
+    statement_timeout: 8000,
     ssl: process.env.DATABASE_URL.includes('localhost')
       ? false
       : { rejectUnauthorized: false }
@@ -37,9 +41,29 @@ function entityIdentifier(inputType: InputType, input: string) {
   return input;
 }
 
+async function ensureUsageSchema(db: Pool) {
+  usageSchemaPromise ||= db.query(
+    'CREATE TABLE IF NOT EXISTS usage_counters (' +
+    'subject_id TEXT NOT NULL, ' +
+    'period_key TEXT NOT NULL, ' +
+    'usage_count INTEGER NOT NULL DEFAULT 0 CHECK (usage_count >= 0), ' +
+    'updated_at TIMESTAMPTZ NOT NULL DEFAULT now(), ' +
+    'PRIMARY KEY(subject_id, period_key)' +
+    ')'
+  ).then(() => undefined).catch((error) => {
+    usageSchemaPromise = null;
+    throw error;
+  });
+
+  return usageSchemaPromise;
+}
+
 export async function consumeUsageQuota(subjectId: string, periodKey: string, limit: number) {
   const db = getPool();
-  if (!db) throw new Error('Database is required for server-enforced usage limits');
+  if (!db) throw new Error('Database unavailable');
+
+  await ensureUsageSchema(db);
+
   const result = await db.query(
     `INSERT INTO usage_counters(subject_id, period_key, usage_count) VALUES($1,$2,1)
      ON CONFLICT(subject_id, period_key) DO UPDATE
@@ -48,6 +72,7 @@ export async function consumeUsageQuota(subjectId: string, periodKey: string, li
      RETURNING usage_count`,
     [subjectId, periodKey, limit]
   );
+
   if (!result.rows.length) return { allowed: false, remaining: 0 };
   return { allowed: true, remaining: Math.max(0, limit - Number(result.rows[0].usage_count)) };
 }
