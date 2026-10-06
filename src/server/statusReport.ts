@@ -9,21 +9,39 @@ function checkFromEvidence(name: string, sourceMatch: RegExp, evidence: Evidence
     detail: 'This check was not requested for the current investigation type.'
   };
 
-  if (items.some((item) => /(?:match|reported|confirmed|negative)/i.test(item.id) || item.severity === 'high')) {
-    return {
-      name,
-      status: 'MATCH',
-      source: items[0].source,
-      detail: items[0].detail
-    };
-  }
-
   if (items.some((item) => /not-configured/i.test(item.id))) {
     return {
       name,
       status: 'SKIPPED',
       source: items[0].source,
       detail: items[0].detail
+    };
+  }
+
+  if (items.some((item) => /unavailable|lookup-failed/i.test(item.id) || item.state === 'UNKNOWN' && !/no-match|no-reports|no-history|no-clear-reports|no-a-record/i.test(item.id))) {
+    return {
+      name,
+      status: 'UNAVAILABLE',
+      source: items[0].source,
+      detail: items.find((item) => /unavailable|lookup-failed/i.test(item.id))?.detail ?? items[0].detail
+    };
+  }
+
+  if (items.some((item) => /no-match|no-reports|no-history|no-clear-reports|no-a-record/i.test(item.id))) {
+    return {
+      name,
+      status: 'NO_MATCH',
+      source: items.find((item) => /no-match|no-reports|no-history|no-clear-reports|no-a-record/i.test(item.id))?.source ?? items[0].source,
+      detail: items.find((item) => /no-match|no-reports|no-history|no-clear-reports|no-a-record/i.test(item.id))?.detail ?? items[0].detail
+    };
+  }
+
+  if (items.some((item) => /match|reported|confirmed|negative|malicious-history/i.test(item.id) || item.severity === 'high')) {
+    return {
+      name,
+      status: 'MATCH',
+      source: items.find((item) => /match|reported|confirmed|negative|malicious-history/i.test(item.id) || item.severity === 'high')?.source ?? items[0].source,
+      detail: items.find((item) => /match|reported|confirmed|negative|malicious-history/i.test(item.id) || item.severity === 'high')?.detail ?? items[0].detail
     };
   }
 
@@ -46,6 +64,7 @@ export function buildStatusReport(inputType: InputType, evidence: Evidence[], as
       checkFromEvidence('URLhaus malware feed', /URLhaus/i, evidence),
       checkFromEvidence('OpenPhish phishing feed', /OpenPhish/i, evidence),
       checkFromEvidence('urlscan history', /urlscan.io/i, evidence),
+      checkFromEvidence('Established-domain registry', /VERA trusted-domain registry/i, evidence),
       checkFromEvidence('Public web reputation', /Tavily/i, evidence),
       checkFromEvidence('Chainabuse reports', /Chainabuse/i, evidence)
     );
