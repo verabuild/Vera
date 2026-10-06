@@ -18,10 +18,10 @@ function checkFromEvidence(name: string, sourceMatch: RegExp, evidence: Evidence
     };
   }
 
-  if (items.every((item) => item.state === 'UNKNOWN') || items.some((item) => /(?:unavailable|not-configured|lookup-failed)/i.test(item.id))) {
+  if (items.some((item) => /not-configured/i.test(item.id))) {
     return {
       name,
-      status: 'UNAVAILABLE',
+      status: 'SKIPPED',
       source: items[0].source,
       detail: items[0].detail
     };
