@@ -12,6 +12,8 @@ import { verifyPrivyAccessToken, privyServerConfigured } from '../src/server/pri
 import { consumeFallbackQuota, getAnonymousSubject } from '../src/server/anonymousSession.js';
 import { investigateUrlProviders, investigateWalletProviders } from '../src/server/providerOrchestrator.js';
 import { buildStatusReport } from '../src/server/statusReport.js';
+import { deriveUrlVerdict } from '../src/server/trustVerdict.js';
+import { normalizeUrlInput } from '../src/lib/investigator.js';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
 const allowedNetworks = new Set<Network>(['mainnet', 'devnet']);
@@ -150,14 +152,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (inputType === 'URL') {
       const providers = await investigateUrlProviders(input.trim());
-      const domainEvidence = providers.domain;
-      const threatEvidence = providers.threat;
-      const reputationEvidence = providers.reputation;
       const evidence = [
         ...assessment.evidence,
-        ...domainEvidence,
-        ...threatEvidence,
-        ...reputationEvidence,
+        ...providers.domain,
+        ...providers.threat,
+        ...providers.reputation,
         ...providers.surface,
         ...providers.openphish,
         ...providers.urlscan,
@@ -173,90 +172,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       ];
 
-      const urlhausMatch = threatEvidence.some((item) => item.id === 'urlhaus-match');
-      const openphishMatch = providers.openphish.some((item) => item.id === 'openphish-match');
-      const checkedChainabuse = providers.chainabuse.some(
-        (item) => item.id === 'chainabuse-reports' && Number(item.metadata?.checkedCount ?? 0) > 0
-      );
-      const negativeReputation = reputationEvidence.find((item) => item.id === 'web-reputation-negative-reports');
-      const reputationMetadata = negativeReputation?.metadata;
-      const distinctNegativeSources = Number(reputationMetadata?.distinctNegativeSourceDomains ?? 0);
-      const reputationWarnings = Number(reputationMetadata?.reputationWarningCount ?? 0);
-      const recentlyRegistered = domainEvidence.some((item) => item.id === 'domain-recent-registration');
-      const establishedRegistration = domainEvidence.some((item) => item.id === 'domain-registration-age');
-      const dnsResolves = domainEvidence.some((item) => item.id === 'domain-dns-resolves');
-      const threatNoMatch = threatEvidence.some((item) => item.id === 'urlhaus-no-match');
-      const threatUnavailable = threatEvidence.every((item) => item.state === 'UNKNOWN');
-
-      if (urlhausMatch || openphishMatch) {
+      try {
+        const hostname = normalizeUrlInput(input.trim()).hostname.toLowerCase();
+        const verdict = deriveUrlVerdict(hostname, evidence);
         assessment = {
           ...assessment,
-          state: 'CONFIRMED_MALICIOUS',
-          headline: openphishMatch ? 'Known phishing URL reported by OpenPhish' : 'Known malware URL reported by URLhaus',
-          explanation: openphishMatch
-            ? 'OpenPhish returned a phishing-database match for this URL.'
-            : 'URLhaus returned a malware-distribution match for this URL.',
-          action: 'Stop the interaction and use an independently verified destination.',
+          state: verdict.verdict === 'NOT_SAFE'
+            ? (evidence.some((item) => item.id === 'urlhaus-match' || item.id === 'openphish-match') ? 'CONFIRMED_MALICIOUS' : 'SUSPICIOUS')
+            : verdict.verdict === 'CAUTION'
+              ? 'SUSPICIOUS'
+              : verdict.verdict === 'SAFE'
+                ? 'VERIFIED'
+                : 'UNKNOWN',
+          headline: verdict.headline,
+          explanation: verdict.explanation,
+          action: verdict.action,
           evidence,
-          confidence: 'HIGH'
+          confidence: verdict.confidence,
+          verdict: verdict.verdict
         };
-      } else if (checkedChainabuse) {
-        assessment = {
-          ...assessment,
-          state: 'SUSPICIOUS',
-          headline: 'Chainabuse reports this destination',
-          explanation: 'Chainabuse returned checked reports associated with this target. Review the report details as supporting risk evidence.',
-          action: 'Pause and independently verify the destination before proceeding.',
-          evidence,
-          confidence: 'HIGH'
-        };
-      } else if (negativeReputation && (distinctNegativeSources >= 2 || reputationWarnings > 0)) {
-        assessment = {
-          ...assessment,
-          state: 'SUSPICIOUS',
-          headline: 'Public reports raise reputation concerns',
-          explanation: 'VERA found multiple public reports containing risk language about this domain. Search results are supporting evidence and may be incomplete or mistaken.',
-          action: 'Review the linked reports and verify the domain independently before proceeding.',
-          evidence,
-          confidence: 'MEDIUM'
-        };
-      } else if (recentlyRegistered) {
-        assessment = {
-          ...assessment,
-          state: 'SUSPICIOUS',
-          headline: 'Recently registered domain needs extra scrutiny',
-          explanation: 'VERA found a recent registration date. Domain age is a caution signal, not proof of maliciousness.',
-          action: 'Verify the operator and exact domain independently before proceeding.',
-          evidence,
-          confidence: 'MEDIUM'
-        };
-      } else if (threatNoMatch) {
+      } catch {
         assessment = {
           ...assessment,
           state: 'UNKNOWN',
-          headline: 'Threat feeds returned no match',
-          explanation: threatUnavailable
-            ? 'The primary malware feed was unavailable, so no positive safety conclusion is possible.'
-            : 'URLhaus returned no malware-URL match. A no-match does not establish that the site is legitimate.',
-          action: 'Review the complete evidence trail and verify the exact hostname independently.',
+          headline: 'VERA could not classify this URL',
+          explanation: 'The URL evidence was collected, but VERA could not derive a final deterministic verdict from the normalized hostname.',
+          action: 'Verify the exact hostname through an independent trusted source before taking sensitive actions.',
           evidence,
-          confidence: 'LOW'
-        };
-      } else if (establishedRegistration && dnsResolves) {
-        assessment = {
-          ...assessment,
-          state: 'UNKNOWN',
-          headline: 'Domain and infrastructure evidence collected',
-          explanation: 'VERA found resolving DNS and registration evidence, but these signals do not verify the operator or site intent.',
-          action: 'Verify the exact hostname independently before sensitive actions.',
-          evidence,
-          confidence: 'LOW'
-        };
-      } else {
-        assessment = {
-          ...assessment,
-          evidence,
-          explanation: assessment.explanation + ' Website identity and intent remain unverified.'
+          confidence: 'LOW',
+          verdict: 'REVIEW'
         };
       }
     }
