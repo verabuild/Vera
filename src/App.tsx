@@ -41,6 +41,20 @@ function StateBadge({ state }: { state: Assessment["state"] }) {
   return <span className={`state-badge state-${state.toLowerCase()}`}><Icon size={12} />{state.replace("_", " ")}</span>;
 }
 
+function VerdictBanner({ assessment }: { assessment: Assessment }) {
+  if (!assessment.verdict) return null;
+  const config = assessment.verdict === "SAFE"
+    ? { label: "SAFE", copy: "No known safety flags detected", icon: ShieldCheck, className: "verdict-safe" }
+    : assessment.verdict === "NOT_SAFE"
+      ? { label: "NOT SAFE", copy: "Do not interact until independently verified", icon: TriangleAlert, className: "verdict-not-safe" }
+      : assessment.verdict === "CAUTION"
+        ? { label: "CAUTION", copy: "Risk signals require additional verification", icon: TriangleAlert, className: "verdict-caution" }
+        : { label: "REVIEW", copy: "Evidence is inconclusive", icon: Activity, className: "verdict-review" };
+  const Icon = config.icon;
+  return <div className={`verdict-banner ${config.className}`}><Icon size={17} /><div><strong>{config.label}</strong><span>{config.copy}</span></div></div>;
+}
+
+
 function LiveInvestigation() {
   const [stage, setStage] = useState(0);
   useEffect(() => {
