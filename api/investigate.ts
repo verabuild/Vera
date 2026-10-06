@@ -12,7 +12,7 @@ import { verifyPrivyAccessToken, privyServerConfigured } from '../src/server/pri
 import { consumeFallbackQuota, getAnonymousSubject } from '../src/server/anonymousSession.js';
 import { investigateUrlProviders, investigateWalletProviders } from '../src/server/providerOrchestrator.js';
 import { buildStatusReport } from '../src/server/statusReport.js';
-import { deriveUrlVerdict, isTrustedDomain, trustedRootFor } from '../src/server/trustVerdict.js';
+import { deriveUrlVerdict, trustedRootFor } from '../src/server/trustVerdict.js';
 import { normalizeUrlInput } from '../src/lib/investigator.js';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
