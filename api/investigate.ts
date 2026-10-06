@@ -356,3 +356,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
 
+
+    const aiExplanation = await explainWithGemini(
+      input.trim(),
+      assessment,
+      assessment.evidence
+    );
+
+    const finalAssessment = {
+      ...assessment,
+      aiExplanation: aiExplanation || undefined
+    };
+
+    const scan = {
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      inputType,
+      input: input.trim(),
+      network,
+      assessment: finalAssessment,
+      usage: {
+        remaining: quota.remaining,
+        dailyLimit: authenticatedUserId ? 5 : 2,
+        period: authenticatedUserId ? 'UTC day' : 'lifetime'
+      }
+    };
+
+    try {
+      await persistScan(
+        scan.id,
+        inputType,
+        input.trim(),
+        network,
+        finalAssessment,
+        authenticatedUserId ?? undefined
+      );
+    } catch (error) {
+      console.error('VERA persistence error', error);
+    }
+
+    return json(res, 200, scan);
+  } catch (error) {
+    console.error('VERA investigation error', error);
+    return json(res, 500, {
+      error: 'Investigation failed',
+      detail: 'VERA encountered an unexpected server error before it could complete the investigation. Check the server logs for the failing stage.'
+    });
+  }
+}
