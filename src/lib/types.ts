@@ -2,6 +2,22 @@ export type InputType = 'URL' | 'MESSAGE' | 'WALLET' | 'TX';
 export type Network = 'mainnet' | 'devnet';
 export type AssessmentState = 'VERIFIED' | 'SUPPORTED' | 'UNKNOWN' | 'SUSPICIOUS' | 'CONFIRMED_MALICIOUS';
 export type Severity = 'info' | 'low' | 'medium' | 'high';
+export type InvestigationCheckStatus = 'CHECKED' | 'MATCH' | 'NO_MATCH' | 'UNAVAILABLE' | 'SKIPPED';
+
+export interface InvestigationCheck {
+  name: string;
+  status: InvestigationCheckStatus;
+  source: string;
+  detail: string;
+}
+
+export interface InvestigationStatusReport {
+  overall: 'COMPLETE' | 'PARTIAL' | 'CONFIRMED_FINDING';
+  coverage: number;
+  checkedAt: string;
+  checks: InvestigationCheck[];
+  decisiveFindings: number;
+}
 
 export interface Evidence {
   id: string;
@@ -23,6 +39,7 @@ export interface Assessment {
   confidence?: 'LOW' | 'MEDIUM' | 'HIGH';
   network?: Network;
   aiExplanation?: string;
+  statusReport?: InvestigationStatusReport;
 }
 
 export interface Scan {
