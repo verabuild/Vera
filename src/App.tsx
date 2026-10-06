@@ -222,7 +222,7 @@ export default function App() {
     preference.addEventListener("change", applyTheme);
     return () => preference.removeEventListener("change", applyTheme);
   }, [themeMode]);
-  const [mode] = useState<InputType>("URL");
+  const [mode, setMode] = useState<InputType>("URL");
   const [input, setInput] = useState("");
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [history, setHistory] = useState<Scan[]>([]);
@@ -258,7 +258,7 @@ export default function App() {
     URL: "Paste a link you want VERA to inspect…",
     MESSAGE: "Paste the message, DM or email you want VERA to analyse…",
     WALLET: "Paste a Solana wallet address…",
-    TX: "Paste transaction details or calldata…"
+    TX: "Paste a Solana transaction signature…"
   }[mode]), [mode]);
 
   async function scan() {
