@@ -63,7 +63,14 @@ function decodePayload(value: string): Record<string, unknown> | null {
 
 function setCookie(res: VercelResponse, name: string, value: string, maxAge: number) {
   const secure = process.env.VERCEL ? "; Secure" : "";
-  res.setHeader("Set-Cookie", `${name}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`);
+  const cookie = `${name}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
+  const existing = res.getHeader("Set-Cookie");
+  const cookies = Array.isArray(existing)
+    ? existing.map(String)
+    : existing
+      ? [String(existing)]
+      : [];
+  res.setHeader("Set-Cookie", [...cookies, cookie]);
 }
 
 export function consumeFallbackQuota(
