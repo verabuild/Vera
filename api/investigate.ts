@@ -4,13 +4,12 @@ import { localSignals } from '../src/lib/investigator.js';
 import { inspectWallet, inspectTransaction } from '../src/server/solana.js';
 import { inspectMagicEdenWallet } from '../src/server/magicEden.js';
 import { explainWithGemini } from '../src/server/gemini.js';
-import { persistScan } from '../src/server/db.js';
+import { consumeUsageQuota, persistScan } from '../src/server/db.js';
 import { inspectDomainRegistration } from '../src/server/domainIntel.js';
 import { inspectThreatIntel } from '../src/server/threatIntel.js';
 import { inspectWebReputation } from '../src/server/reputationIntel.js';
 import { verifyPrivyAccessToken, privyServerConfigured } from '../src/server/privyAuth.js';
 import { getAnonymousSubject } from '../src/server/anonymousSession.js';
-import { consumeUsageQuota } from '../src/server/db.js';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
 const allowedNetworks = new Set<Network>(['mainnet', 'devnet']);
@@ -108,14 +107,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     let quota;
-    if (authenticatedUserId) {
-      quota = await consumeUsageQuota(`privy:${authenticatedUserId}`, new Date().toISOString().slice(0, 10), 5);
-    } else {
-      const anonymousSubject = getAnonymousSubject(req, res);
-      if (!anonymousSubject) {
-        return json(res, 503, { error: 'Anonymous usage protection is not configured. Please try again later.' });
+    try {
+      if (authenticatedUserId) {
+        quota = await consumeUsageQuota(`privy:${authenticatedUserId}`, new Date().toISOString().slice(0, 10), 5);
+      } else {
+        const anonymousSubject = getAnonymousSubject(req, res);
+        if (!anonymousSubject) {
+          return json(res, 503, { error: 'Anonymous usage protection is not configured. Please try again later.' });
+        }
+        quota = await consumeUsageQuota(`anonymous:${anonymousSubject}`, 'lifetime', 2);
       }
-      quota = await consumeUsageQuota(`anonymous:${anonymousSubject}`, 'lifetime', 2);
+    } catch (error) {
+      console.error('VERA quota error', error);
+      return json(res, 503, {
+        error: 'Investigation service temporarily unavailable',
+        detail: 'VERA could not verify your investigation allowance. No investigation was executed.'
+      });
     }
 
     if (!quota.allowed) {
@@ -127,11 +134,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let assessment = localSignals(inputType, input.trim());
 
     if (inputType === 'URL') {
-      const [domainEvidence, threatEvidence, reputationEvidence] = await Promise.all([
+      const providerResults = await Promise.allSettled([
         inspectDomainRegistration(input.trim()),
         inspectThreatIntel(input.trim()),
         inspectWebReputation(input.trim())
       ]);
+
+      const providerEvidence = (index: number, provider: string) => {
+        const result = providerResults[index];
+        if (result.status === 'fulfilled') return result.value;
+        console.error(`VERA ${provider} provider error`, result.reason);
+        return [{
+          id: `${provider.toLowerCase().replace(/\\s+/g, '-')}-unavailable`,
+          title: `${provider} evidence unavailable`,
+          detail: `VERA could not complete the ${provider} check. The missing source is treated as unknown and does not reduce the risk assessment.`,
+          severity: 'info' as const,
+          source: `VERA ${provider} provider`,
+          state: 'UNKNOWN' as const,
+          observedAt: new Date().toISOString(),
+          metadata: { provider, lookupFailed: true }
+        }];
+      };
+
+      const domainEvidence = providerEvidence(0, 'Domain intelligence');
+      const threatEvidence = providerEvidence(1, 'Threat intelligence');
+      const reputationEvidence = providerEvidence(2, 'Web reputation');
       const identityEvidence = {
         id: 'website-identity-unverified',
         title: 'Website operator identity not independently verified',
@@ -355,21 +382,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       usage: { remaining: quota.remaining, dailyLimit: authenticatedUserId ? 5 : 2, period: authenticatedUserId ? 'UTC day' : 'lifetime' }
     };
 
-    await persistScan(
-      scan.id,
-      inputType,
-      input.trim(),
-      network,
-      finalAssessment,
-      authenticatedUserId ?? undefined
-    );
+    try {
+      await persistScan(
+        scan.id,
+        inputType,
+        input.trim(),
+        network,
+        finalAssessment,
+        authenticatedUserId ?? undefined
+      );
+    } catch (error) {
+      // Persistence must never turn a completed read-only investigation into a
+      // user-facing 500. The scan remains available in the response/local history.
+      console.error('VERA persistence error', error);
+    }
 
     return json(res, 200, scan);
   } catch (error) {
     console.error('VERA investigation error', error);
     return json(res, 500, {
       error: 'Investigation failed',
-      detail: 'The investigation service encountered an unexpected error.'
+      detail: 'VERA encountered an unexpected server error before it could complete the investigation. Check the server logs for the failing stage.'
     });
   }
 }
