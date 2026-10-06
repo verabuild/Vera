@@ -7,7 +7,12 @@ VERA is an evidence-first AI decision layer for online actions. It investigates 
 - Vercel serverless investigation API
 - Google Gemini evidence-grounded explanation layer
 - URLhaus (abuse.ch) malware-URL threat-intelligence adapter (server-side Auth-Key)
+- OpenPhish community phishing database for direct URL checks
+- urlscan.io historical public scan search for domain observations
+- Website surface inspection with redirect, title, server and security-header evidence
 - Optional Tavily public-web reputation search for domain-specific scam reports, reviews, and warnings, with source links shown in the evidence trail
+- Optional Chainabuse public scam-report screening for URLs and Solana addresses
+- DEX Screener public Solana market context for address-shaped token inputs
 - URL outcomes distinguish provider-reported threats, no known threat matches, and unavailable checks
 - Explicit website-identity uncertainty: DNS and clean threat lookups are not treated as proof of legitimacy
 - Solana Mainnet + Devnet read-only wallet intelligence
@@ -26,6 +31,8 @@ Copy `.env.example` to `.env` and set secrets locally. In Vercel, configure the 
 
 `URLHAUS_AUTH_KEY=` (free abuse.ch Auth-Key; keep it server-side)
 `TAVILY_API_KEY=` (optional public-web reputation search; server-side only; free tier available)
+`URLSCAN_API_KEY=` (optional urlscan.io API key; server-side only; unauthenticated public search is still attempted)
+`CHAINABUSE_API_KEY=` (optional Chainabuse API key; server-side only)
 `GEMINI_API_KEY=`
 `GEMINI_MODEL=gemini-3.8-flash`
 `MAGIC_EDEN_API_KEY=`
@@ -56,7 +63,10 @@ POST `/api/investigate`
 
 The AI receives only structured evidence produced by deterministic adapters. It must not invent missing evidence or convert unknowns into certainty.
 
-### URL reputation results
+### Investigation status and coverage
+Every completed investigation now returns a status report with provider-by-provider state, overall coverage, the number of decisive signals, and the observation time. `MATCH` means a provider returned a positive threat signal; `NO_MATCH` means the provider completed and did not return a match; `UNAVAILABLE` means the provider could not complete; `SKIPPED` means the provider is optional and not configured.
+
+### URL investigation results
 - A URLhaus match produces a high-priority `CONFIRMED_MALICIOUS` assessment with the provider-reported URL record, threat type, status, tags, and reference where available.
 - A successful lookup with no match reports **No URLhaus record found**. URLhaus focuses on malware-distribution URLs; this is not a guarantee of safety and does not rule out phishing or fraud.
 - Missing configuration, provider errors, rate limits, or timeouts produce an unavailable/unknown check, never a clean result.

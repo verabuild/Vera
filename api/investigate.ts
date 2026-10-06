@@ -58,6 +58,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
       urlhausConfigured: Boolean(process.env.URLHAUS_AUTH_KEY),
       webReputationConfigured: Boolean(process.env.TAVILY_API_KEY),
+      urlscanConfigured: true,
+      chainabuseConfigured: Boolean(process.env.CHAINABUSE_API_KEY),
+      openPhishConfigured: true,
       privyConfigured: privyServerConfigured(),
       usageLimitsConfigured: Boolean(process.env.DATABASE_URL && process.env.VERA_ANON_SECRET && process.env.VERA_ANON_SECRET.length >= 32),
       solanaConfigured: Boolean(process.env.SOLANA_MAINNET_RPC_URL),
@@ -244,6 +247,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           ...assessment,
           evidence,
           explanation: assessment.explanation + ' Website identity and intent remain unverified.'
+        };
+      }
+    }
+
+    if (inputType === 'MESSAGE') {
+      const linkEvidence = assessment.evidence.find((item) => item.id === 'message-links-present');
+      const links = linkEvidence?.metadata?.links;
+      if (Array.isArray(links) && typeof links[0] === 'string') {
+        const linkedUrl = links[0];
+        const providers = await investigateUrlProviders(linkedUrl);
+        const linkedEvidence = [
+          ...providers.domain,
+          ...providers.threat,
+          ...providers.reputation,
+          ...providers.surface,
+          ...providers.openphish,
+          ...providers.urlscan,
+          ...providers.chainabuse
+        ];
+        const linkedThreat = providers.threat.some((item) => item.id === 'urlhaus-match');
+        const linkedPhish = providers.openphish.some((item) => item.id === 'openphish-match');
+        assessment = {
+          ...assessment,
+          evidence: [...assessment.evidence, ...linkedEvidence],
+          state: linkedThreat || linkedPhish ? 'CONFIRMED_MALICIOUS' : assessment.state,
+          headline: linkedThreat || linkedPhish
+            ? 'Message contains a known malicious link'
+            : assessment.headline,
+          explanation: linkedThreat || linkedPhish
+            ? 'VERA followed the first detected URL through its read-only threat-intelligence pipeline and found a confirmed provider match.'
+            : assessment.explanation,
+          action: linkedThreat || linkedPhish
+            ? 'Do not open or interact with the linked destination. Verify the sender through an independent channel.'
+            : assessment.action,
+          confidence: linkedThreat || linkedPhish ? 'HIGH' : assessment.confidence
         };
       }
     }
