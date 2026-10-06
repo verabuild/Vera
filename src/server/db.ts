@@ -81,11 +81,16 @@ export async function persistScan(
     }
 
     const inputHash = createHash('sha256').update(input).digest('hex');
+    const preview = inputType === 'MESSAGE'
+      ? '[message content redacted]'
+      : inputType === 'TX'
+        ? '[transaction input redacted]'
+        : input.slice(0, 500);
 
     await client.query(
       `INSERT INTO scans(id,user_id,input_type,input_hash,input_preview,network)
        VALUES($1,$2,$3,$4,$5,$6)`,
-      [scanId, userId, inputType, inputHash, input.slice(0, 500), network]
+      [scanId, userId, inputType, inputHash, preview, network]
     );
 
     const entityResult = await client.query(
