@@ -1,6 +1,7 @@
 export type InputType = 'URL' | 'MESSAGE' | 'WALLET' | 'TX';
 export type Network = 'mainnet' | 'devnet';
 export type AssessmentState = 'VERIFIED' | 'SUPPORTED' | 'UNKNOWN' | 'SUSPICIOUS' | 'CONFIRMED_MALICIOUS';
+export type UrlVerdict = 'SAFE' | 'NOT_SAFE' | 'CAUTION' | 'REVIEW';
 export type Severity = 'info' | 'low' | 'medium' | 'high';
 export type InvestigationCheckStatus = 'CHECKED' | 'MATCH' | 'NO_MATCH' | 'UNAVAILABLE' | 'SKIPPED';
 
@@ -40,6 +41,7 @@ export interface Assessment {
   network?: Network;
   aiExplanation?: string;
   statusReport?: InvestigationStatusReport;
+  verdict?: UrlVerdict;
 }
 
 export interface Scan {
