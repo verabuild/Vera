@@ -17,7 +17,7 @@ const TRUSTED_ROOTS = new Set([
   'nodejs.org'
 ]);
 
-function trustedRootFor(hostname: string) {
+export function trustedRootFor(hostname: string) {
   const host = hostname.toLowerCase().replace(/^www\./, '').replace(/\.$/, '');
   for (const root of TRUSTED_ROOTS) {
     if (host === root || host.endsWith(`.${root}`)) return root;
@@ -29,6 +29,10 @@ function numericStatus(evidence: Evidence[]) {
   const surface = evidence.find((item) => item.id === 'surface-response');
   const status = Number(surface?.metadata?.status);
   return Number.isFinite(status) ? status : null;
+}
+
+export function isTrustedDomain(hostname: string) {
+  return Boolean(trustedRootFor(hostname));
 }
 
 export function deriveUrlVerdict(
