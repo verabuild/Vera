@@ -350,6 +350,7 @@ function StatusReportPanel({ assessment }: { assessment: Assessment }) {
 function AssessmentPanel({ assessment }: { assessment: Assessment }) {
   const isHigh = assessment.state === "CONFIRMED_MALICIOUS" || assessment.state === "SUSPICIOUS";
   return <section className={`assessment ${isHigh ? "assessment-alert" : ""}`}>
+    {assessment.verdict && <VerdictBanner assessment={assessment} />}
     <div className="assessment-top">
       <div className="assessment-title">
         <p className="eyebrow">VERA DECISION</p>
