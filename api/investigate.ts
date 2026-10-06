@@ -10,6 +10,8 @@ import { inspectThreatIntel } from '../src/server/threatIntel.js';
 import { inspectWebReputation } from '../src/server/reputationIntel.js';
 import { verifyPrivyAccessToken, privyServerConfigured } from '../src/server/privyAuth.js';
 import { getAnonymousSubject } from '../src/server/anonymousSession.js';
+import { investigateUrlProviders, investigateWalletProviders } from '../src/server/providerOrchestrator.js';
+import { buildStatusReport } from '../src/server/statusReport.js';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
 const allowedNetworks = new Set<Network>(['mainnet', 'devnet']);
