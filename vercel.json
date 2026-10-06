@@ -1,7 +1,11 @@
 {
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
   "functions": {
-    "api/investigate.ts": { "maxDuration": 30,
-      "includeFiles": "src/**" }
+    "api/investigate.ts": {
+      "maxDuration": 30,
+      "includeFiles": "src/**"
+    }
   },
   "headers": [
     {

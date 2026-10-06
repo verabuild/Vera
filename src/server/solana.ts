@@ -1,6 +1,9 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import type { Evidence, Network } from '../lib/types.js';
 
+const SPL_TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
+const TOKEN_2022_PROGRAM_ID = 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb';
+
 export function rpcUrl(network: Network) {
   return network === 'devnet'
     ? (process.env.SOLANA_DEVNET_RPC_URL || 'https://api.devnet.solana.com')
@@ -9,22 +12,187 @@ export function rpcUrl(network: Network) {
 
 export async function inspectWallet(address: string, network: Network): Promise<Evidence[]> {
   const observedAt = new Date().toISOString();
-  const connection = new Connection(rpcUrl(network), 'confirmed');
+
   let pubkey: PublicKey;
-  try { pubkey = new PublicKey(address); } catch {
-    return [{ id: 'wallet-invalid', title: 'Invalid Solana address', detail: 'The supplied value is not a valid Solana public key.', severity: 'high', source: 'Solana RPC / PublicKey parser', state: 'VERIFIED', observedAt }];
+  try {
+    pubkey = new PublicKey(address.trim());
+  } catch {
+    return [{
+      id: 'wallet-invalid',
+      title: 'Invalid Solana address',
+      detail: 'The supplied value is not a valid Solana public key.',
+      severity: 'high',
+      source: 'Solana RPC / PublicKey parser',
+      state: 'VERIFIED',
+      observedAt
+    }];
   }
-  const [balance, account, tokenAccounts] = await Promise.all([
+
+  const connection = new Connection(rpcUrl(network), 'confirmed');
+  const results = await Promise.allSettled([
     connection.getBalance(pubkey),
     connection.getAccountInfo(pubkey),
-    connection.getParsedTokenAccountsByOwner(pubkey, { programId: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') })
+    connection.getParsedTokenAccountsByOwner(pubkey, { programId: new PublicKey(SPL_TOKEN_PROGRAM_ID) }),
+    connection.getParsedTokenAccountsByOwner(pubkey, { programId: new PublicKey(TOKEN_2022_PROGRAM_ID) }),
+    connection.getSignaturesForAddress(pubkey, { limit: 20 })
   ]);
-  return [
-    { id: 'wallet-address', title: 'Address is valid', detail: `Valid Solana public key on ${network}.`, severity: 'info', source: 'Solana RPC', state: 'VERIFIED', observedAt },
-    { id: 'wallet-balance', title: 'Native SOL balance', detail: `${(balance / 1e9).toFixed(9)} SOL.`, severity: 'info', source: 'Solana RPC', state: 'VERIFIED', observedAt, metadata: { lamports: balance } },
-    { id: 'wallet-account', title: 'Account status', detail: account ? `Account exists with owner ${account.owner.toBase58()}.` : 'No system account data was returned for this address.', severity: 'info', source: 'Solana RPC', state: 'VERIFIED', observedAt },
-    { id: 'wallet-tokens', title: 'Token accounts discovered', detail: `${tokenAccounts.value.length} SPL token accounts and ${token2022Accounts.value.length} Token-2022 accounts were returned. This is inventory data, not a safety judgment.`, severity: 'info', source: 'Solana RPC', state: 'VERIFIED', observedAt, metadata: { count: tokenAccounts.value.length, token2022Count: token2022Accounts.value.length } },\n    { id: 'wallet-delegates', title: 'Delegated token permissions observed', detail: delegated ? `${delegated} token account(s) currently expose a delegate. Delegation can permit another account to transfer tokens within the approved rules, so it deserves review before interacting with those assets.` : 'No active token-account delegates were observed in the returned SPL and Token-2022 inventory.', severity: delegated ? 'medium' : 'info', source: 'Solana RPC parsed token accounts', state: 'VERIFIED', observedAt, metadata: { delegatedAccounts: delegated } },\n    { id: 'wallet-activity', title: 'Recent on-chain activity', detail: `${recentSignatures.length} recent transaction signature(s) were returned for this address. This is a recent-activity snapshot, not a complete transaction history.`, severity: 'info', source: 'Solana RPC', state: recentSignatures.length ? 'VERIFIED' : 'UNKNOWN', observedAt, metadata: { count: recentSignatures.length, signatures: recentSignatures.slice(0, 10).map((item) => ({ signature: item.signature, slot: item.slot, blockTime: item.blockTime, err: item.err })) } }
-  ];
+
+  const balance = results[0].status === 'fulfilled' ? results[0].value : null;
+  const account = results[1].status === 'fulfilled' ? results[1].value : null;
+  const tokenAccounts = results[2].status === 'fulfilled' ? results[2].value : null;
+  const token2022Accounts = results[3].status === 'fulfilled' ? results[3].value : null;
+  const recentSignatures = results[4].status === 'fulfilled' ? results[4].value : null;
+
+  const delegatedCount = (result: typeof tokenAccounts | typeof token2022Accounts) => {
+    const accounts = result?.value ?? [];
+    return accounts.filter((item) => {
+      const data = item.account.data;
+      if (!data || typeof data !== 'object') return false;
+      const parsed = (data as Record<string, unknown>).parsed;
+      if (!parsed || typeof parsed !== 'object') return false;
+      const info = (parsed as Record<string, unknown>).info;
+      if (!info || typeof info !== 'object') return false;
+      return typeof (info as Record<string, unknown>).delegate === 'string';
+    }).length;
+  };
+
+  const splCount = tokenAccounts?.value.length ?? 0;
+  const token2022Count = token2022Accounts?.value.length ?? 0;
+  const delegated = delegatedCount(tokenAccounts) + delegatedCount(token2022Accounts);
+
+  const evidence: Evidence[] = [{
+    id: 'wallet-address',
+    title: 'Address is valid',
+    detail: `Valid Solana public key on ${network}.`,
+    severity: 'info',
+    source: 'Solana RPC / PublicKey parser',
+    state: 'VERIFIED',
+    observedAt
+  }];
+
+  if (balance !== null) {
+    evidence.push({
+      id: 'wallet-balance',
+      title: 'Native SOL balance',
+      detail: `${(balance / 1e9).toFixed(9)} SOL.`,
+      severity: 'info',
+      source: 'Solana RPC',
+      state: 'VERIFIED',
+      observedAt,
+      metadata: { lamports: balance }
+    });
+  } else {
+    evidence.push({
+      id: 'wallet-balance-unavailable',
+      title: 'Native SOL balance unavailable',
+      detail: 'VERA could not retrieve the SOL balance from the selected RPC. This is an unavailable check, not evidence of a zero balance.',
+      severity: 'medium',
+      source: 'Solana RPC',
+      state: 'UNKNOWN',
+      observedAt
+    });
+  }
+
+  if (results[1].status === 'fulfilled') {
+    evidence.push({
+      id: 'wallet-account',
+      title: 'Account status',
+      detail: account
+        ? `Account exists with owner ${account.owner.toBase58()}.`
+        : 'The address did not return account data at the selected commitment.',
+      severity: account ? 'info' : 'low',
+      source: 'Solana RPC',
+      state: 'VERIFIED',
+      observedAt,
+      metadata: account
+        ? { owner: account.owner.toBase58(), executable: account.executable, lamports: account.lamports }
+        : { exists: false }
+    });
+  } else {
+    evidence.push({
+      id: 'wallet-account-unavailable',
+      title: 'Account status unavailable',
+      detail: 'VERA could not retrieve account metadata from the selected RPC.',
+      severity: 'medium',
+      source: 'Solana RPC',
+      state: 'UNKNOWN',
+      observedAt
+    });
+  }
+
+  if (results[2].status === 'fulfilled' || results[3].status === 'fulfilled') {
+    evidence.push({
+      id: 'wallet-tokens',
+      title: 'Token accounts discovered',
+      detail: `${splCount} SPL token accounts and ${token2022Count} Token-2022 accounts were returned. This is inventory data, not a safety judgment.`,
+      severity: 'info',
+      source: 'Solana RPC',
+      state: 'VERIFIED',
+      observedAt,
+      metadata: {
+        count: splCount,
+        token2022Count,
+        splLookupAvailable: results[2].status === 'fulfilled',
+        token2022LookupAvailable: results[3].status === 'fulfilled'
+      }
+    });
+  } else {
+    evidence.push({
+      id: 'wallet-tokens-unavailable',
+      title: 'Token inventory unavailable',
+      detail: 'VERA could not retrieve parsed SPL or Token-2022 account inventory from the selected RPC.',
+      severity: 'medium',
+      source: 'Solana RPC',
+      state: 'UNKNOWN',
+      observedAt
+    });
+  }
+
+  evidence.push({
+    id: 'wallet-delegates',
+    title: 'Delegated token permissions observed',
+    detail: delegated
+      ? `${delegated} token account(s) currently expose a delegate. Delegation can permit another account to transfer tokens within the approved rules, so it deserves review before interacting with those assets.`
+      : 'No active token-account delegates were observed in the returned inventory. This does not prove that no delegated permission exists elsewhere or was omitted by an unavailable check.',
+    severity: delegated ? 'medium' : 'info',
+    source: 'Solana RPC parsed token accounts',
+    state: results[2].status === 'fulfilled' || results[3].status === 'fulfilled' ? 'VERIFIED' : 'UNKNOWN',
+    observedAt,
+    metadata: { delegatedAccounts: delegated }
+  });
+
+  if (recentSignatures) {
+    evidence.push({
+      id: 'wallet-activity',
+      title: 'Recent on-chain activity',
+      detail: `${recentSignatures.length} recent transaction signature(s) were returned for this address. This is a recent-activity snapshot, not a complete transaction history.`,
+      severity: 'info',
+      source: 'Solana RPC',
+      state: 'VERIFIED',
+      observedAt,
+      metadata: {
+        count: recentSignatures.length,
+        signatures: recentSignatures.slice(0, 10).map((item) => ({
+          signature: item.signature,
+          slot: item.slot,
+          blockTime: item.blockTime,
+          err: item.err
+        }))
+      }
+    });
+  } else {
+    evidence.push({
+      id: 'wallet-activity-unavailable',
+      title: 'Recent activity unavailable',
+      detail: 'VERA could not retrieve the recent transaction-signature snapshot for this address.',
+      severity: 'medium',
+      source: 'Solana RPC',
+      state: 'UNKNOWN',
+      observedAt
+    });
+  }
+
+  return evidence;
 }
 
 function isBase58Signature(value: string) {

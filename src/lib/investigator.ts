@@ -1,7 +1,21 @@
 import type { Assessment, Evidence, InputType } from './types.js';
 
-const highRiskPhrases = ['seed phrase', 'private key', 'recovery phrase', 'send crypto', 'verification code', 'claim now', 'connect your wallet'];
+const highRiskPhrases = [
+  'seed phrase',
+  'private key',
+  'recovery phrase',
+  'send crypto',
+  'verification code',
+  'claim now',
+  'connect your wallet'
+];
+
 const suspiciousHostTerms = ['airdrop', 'claim', 'verify', 'wallet-connect', 'free'];
+
+function containsTerm(value: string, term: string) {
+  if (term.includes(' ')) return value.includes(term);
+  return new RegExp(`\\b${term.replace(/[.*+?^\${}()|[\]\\]/g, '\\\\$&')}\\b`, 'i').test(value);
+}
 
 /**
  * Accept common user-pasted URL forms without treating arbitrary text or
@@ -10,11 +24,11 @@ const suspiciousHostTerms = ['airdrop', 'claim', 'verify', 'wallet-connect', 'fr
 export function normalizeUrlInput(input: string): URL {
   let candidate = input.trim();
 
-  // Remove common wrappers from copied links: Markdown angle brackets,
-  // quotation marks, and surrounding parentheses.
-  candidate = candidate.replace(/^<(.+)>$/, '$1').replace(/^[("'\u201c\u2018]+/, '').replace(/[)"'\u201d\u2019]+$/, '');
+  candidate = candidate
+    .replace(/^<(.+)>$/, '$1')
+    .replace(/^[("'“‘]+/, '')
+    .replace(/[)"'”’]+$/, '');
 
-  // If a user pasted a sentence containing a link, scan the first URL-like token.
   if (/\s/.test(candidate)) {
     const match = candidate.match(/(?:https?:\/\/|www\.)[^\s<>"']+|(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}(?::\d{1,5})?(?:\/[^\s<>"']*)?/i);
     if (match) candidate = match[0];
@@ -38,21 +52,20 @@ export function normalizeUrlInput(input: string): URL {
   return url;
 }
 
-
 export function localSignals(type: InputType, input: string): Assessment {
   const evidence: Evidence[] = [];
   const now = new Date().toISOString();
 
   if (type === 'MESSAGE') {
     const lower = input.toLowerCase();
-    const hits = highRiskPhrases.filter((p) => lower.includes(p));
+    const hits = highRiskPhrases.filter((p) => containsTerm(lower, p));
     const urgencyTerms = ['urgent', 'immediately', 'act now', 'expires today', 'last chance', 'within 24 hours', 'final warning'];
     const impersonationTerms = ['support team', 'customer support', 'official support', 'admin', 'security team', 'compliance team', 'verify your account'];
     const paymentTerms = ['send', 'transfer', 'deposit', 'pay', 'payment', 'usdt', 'usdc', 'sol'];
-    const urgencyHits = urgencyTerms.filter((p) => lower.includes(p));
-    const impersonationHits = impersonationTerms.filter((p) => lower.includes(p));
-    const paymentHits = paymentTerms.filter((p) => lower.includes(p));
-    const urlMatches = input.match(/https?:\\/\\/[^\\s<>"']+|www\\.[^\\s<>"']+/gi) ?? [];
+    const urgencyHits = urgencyTerms.filter((p) => containsTerm(lower, p));
+    const impersonationHits = impersonationTerms.filter((p) => containsTerm(lower, p));
+    const paymentHits = paymentTerms.filter((p) => containsTerm(lower, p));
+    const urlMatches = input.match(/https?:\/\/[^\s<>"']+|www\.[^\s<>"']+/gi) ?? [];
 
     if (hits.length) {
       evidence.push({ id: 'message-risk-language', title: 'High-risk request language', detail: `The message contains: ${hits.join(', ')}. These phrases can be associated with credential theft or irreversible transfers. This is a risk signal, not proof of malicious intent.`, severity: 'high', source: 'VERA deterministic message rules', state: 'SUPPORTED', observedAt: now });
@@ -90,10 +103,12 @@ export function localSignals(type: InputType, input: string): Assessment {
       const url = normalizeUrlInput(input);
       const host = url.hostname.toLowerCase();
       const hits = suspiciousHostTerms.filter((term) => host.includes(term));
+
       if (hits.length) {
         evidence.push({ id: 'url-host-signal', title: 'Suspicious hostname pattern', detail: `Hostname contains: ${hits.join(', ')}. This can occur on legitimate sites too, so it is not proof of compromise.`, severity: 'medium', source: 'VERA deterministic URL rules', state: 'SUPPORTED', observedAt: now });
         return { state: 'SUSPICIOUS', headline: 'The URL deserves verification', explanation: 'The hostname contains patterns frequently seen in promotional, verification, or wallet-themed links. VERA has not independently confirmed the site identity.', action: 'Open the service from a trusted bookmark or official domain instead of using this link.', evidence, confidence: 'MEDIUM' };
       }
+
       evidence.push({ id: 'url-structure', title: 'URL structure parsed', detail: `${url.protocol === 'https:' ? 'HTTPS' : 'HTTP'} URL with hostname ${host}. ${url.protocol === 'https:' ? 'Transport encryption does not establish that the site itself is legitimate.' : 'This URL does not use HTTPS, so transport is not encrypted by TLS.'}`, severity: 'info', source: 'VERA URL parser', state: 'SUPPORTED', observedAt: now });
       return { state: 'UNKNOWN', headline: 'No decisive trust evidence yet', explanation: 'VERA can parse the URL, but URL structure alone cannot prove identity, reputation, or safety.', action: 'Verify the domain through an independent official source before entering credentials or connecting a wallet.', evidence, confidence: 'LOW' };
     } catch {
@@ -102,5 +117,12 @@ export function localSignals(type: InputType, input: string): Assessment {
     }
   }
 
-  return { state: 'UNKNOWN', headline: 'More evidence is required', explanation: 'VERA has not found enough deterministic evidence to make a stronger assessment.', action: 'Verify the identity and intended action independently before proceeding.', evidence, confidence: 'LOW' };
+  return {
+    state: 'UNKNOWN',
+    headline: 'More evidence is required',
+    explanation: 'VERA has not found enough deterministic evidence to make a stronger assessment.',
+    action: 'Verify the identity and intended outcome independently before taking a sensitive action.',
+    evidence,
+    confidence: 'LOW'
+  };
 }
