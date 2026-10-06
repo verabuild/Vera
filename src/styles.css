@@ -115,3 +115,13 @@
 :root[data-theme="light"] .footer-brand p{color:#333}
 :root[data-theme="light"] .empty{border-color:#d1d5dc;color:#656a74}
 @media(max-width:850px){.footer-legal{align-items:flex-start;flex-direction:column;gap:16px}.legal-links{gap:15px}.footer-copyright{margin-left:0}}
+
+/* Investigation status report */
+.status-report{margin:20px 0 24px;padding:17px 18px;border:1px solid var(--line2);border-radius:15px;background:var(--panel2)}
+.status-report-head{display:flex;align-items:center;justify-content:space-between;gap:16px}.status-report-head h3{margin:5px 0 0;font-size:14px;letter-spacing:.02em}
+.status-coverage{display:flex;align-items:baseline;gap:6px}.status-coverage strong{font-size:22px;letter-spacing:-.04em}.status-coverage span,.status-summary,.status-check>div span{color:var(--muted);font:9px "DM Mono",monospace;letter-spacing:.06em}
+.status-summary{display:flex;justify-content:space-between;gap:12px;margin-top:11px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.status-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.status-check{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel)}
+.status-check-dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#6b7280}.status-check-dot.status-match{box-shadow:0 0 10px rgba(255,85,85,.55);background:#f15b5b}.status-check-dot.status-checked{background:#8ee4ae;box-shadow:0 0 10px rgba(142,228,174,.35)}.status-check-dot.status-no_match{background:#8aa7ff}.status-check-dot.status-unavailable{background:#d5a95c}.status-check>div{display:flex;flex-direction:column;gap:3px;min-width:0}.status-check>div strong{font-size:10px;font-weight:600;color:var(--white)}.status-check>div span{font-size:8px}
+:root[data-theme="light"] .status-report{background:#f7f8fa}.status-check-dot.status-match{box-shadow:none}
+@media(max-width:620px){.status-checks{grid-template-columns:1fr}.status-summary{flex-direction:column;gap:6px}}
