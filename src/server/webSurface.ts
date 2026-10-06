@@ -137,7 +137,7 @@ export async function inspectWebsiteSurface(rawInput: string): Promise<Evidence[
           securityHeaders: { hsts, csp, frameProtection },
           checkedAt: observedAt
         }
-      }), {
+      }, observedAt), {
         id: 'surface-security-headers',
         title: 'Response security headers observed',
         detail: `Security response headers: HSTS ${hsts ? 'present' : 'not observed'}, CSP ${csp ? 'present' : 'not observed'}, X-Frame-Options ${frameProtection ? 'present' : 'not observed'}.`,
