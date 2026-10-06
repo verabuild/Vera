@@ -248,7 +248,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           action: linkedThreat || linkedPhish
             ? 'Do not open or interact with the linked destination. Verify the sender through an independent channel.'
             : assessment.action,
-          confidence: linkedThreat || linkedPhish ? 'HIGH' : assessment.confidence
+          confidence: linkedThreat || linkedPhish ? 'HIGH' : assessment.confidence,
+          verdict: linkedThreat || linkedPhish ? 'NOT_SAFE' : assessment.verdict
         };
       }
     }
