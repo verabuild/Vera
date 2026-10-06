@@ -9,6 +9,7 @@ import {
 import { Analytics } from "@vercel/analytics/react";
 import { usePrivy } from "@privy-io/react-auth";
 import AuthControls from "./components/AuthControls";
+import LegalPage from "./components/LegalPage";
 import type { Network, Assessment, InputType, Scan } from "./lib/types";
 
 const modes: { id: InputType; label: string; icon: typeof Link2; description: string }[] = [
@@ -375,6 +376,10 @@ function AssessmentPanel({ assessment }: { assessment: Assessment }) {
 }
 
 export default function App() {
+  const legalPath = window.location.pathname.replace(/\\/+$/, "");
+  if (legalPath === "/terms" || legalPath === "/privacy" || legalPath === "/cookies" || legalPath === "/disclosures") {
+    return <LegalPage page={legalPath.slice(1) as "terms" | "privacy" | "cookies" | "disclosures"} />;
+  }
   const [themeMode, setThemeMode] = useState<"light" | "dark" | "auto">(() => {
     try { return (localStorage.getItem("vera-theme") as "light" | "dark" | "auto") || "dark"; } catch { return "dark"; }
   });
