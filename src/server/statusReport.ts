@@ -27,15 +27,6 @@ function checkFromEvidence(name: string, sourceMatch: RegExp, evidence: Evidence
     };
   }
 
-  if (items.some((item) => /no-match|no-reports|no-clear-reports|no-a-record|invalid/i.test(item.id))) {
-    return {
-      name,
-      status: 'NO_MATCH',
-      source: items[0].source,
-      detail: items[0].detail
-    };
-  }
-
   return {
     name,
     status: 'CHECKED',

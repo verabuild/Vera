@@ -73,14 +73,14 @@ export async function inspectUrlscan(rawInput: string): Promise<Evidence[]> {
     const results = Array.isArray(data.results) ? data.results.slice(0, 5) : [];
 
     return [{
-      id: 'urlscan-history',
+      id: results.length ? 'urlscan-history' : 'urlscan-no-history',
       title: results.length ? 'Historical urlscan observations found' : 'No urlscan history returned',
       detail: results.length
         ? `urlscan.io returned ${results.length} historical public scan result(s) for ${domain}. Historical observations can reveal prior page metadata or malicious verdict signals, but they are not proof that the current page is unchanged.`
         : `urlscan.io did not return historical public scan results for ${domain}. This is a coverage result, not evidence of safety.`,
       severity: results.some((item) => item.verdicts?.overall?.malicious) ? 'high' : 'info',
       source: 'urlscan.io Search API',
-      state: results.some((item) => item.verdicts?.overall?.malicious) ? 'SUPPORTED' : 'UNKNOWN',
+      state: results.some((item) => item.verdicts?.overall?.malicious) ? 'SUPPORTED' : 'SUPPORTED',
       observedAt,
       metadata: {
         domain,
