@@ -145,7 +145,6 @@ export function deriveUrlVerdict(
     surfaceStatus >= 200 &&
     surfaceStatus < 400 &&
     !chainabuseReports &&
-    (!trustedRoot || (negativeSourceCount === 0 && reputationWarnings === 0)) &&
     !urlscanMalicious &&
     evidence.some((item) => item.id === 'urlhaus-no-match') &&
     evidence.some((item) => item.id === 'openphish-no-match');
