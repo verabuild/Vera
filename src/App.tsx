@@ -34,7 +34,7 @@ function saveScans(scans: Scan[]) { localStorage.setItem(STORAGE_KEY, JSON.strin
 
 function SignupPrompt() {
   const { login } = usePrivy();
-  return <div className="signup-prompt"><div><strong>Your two free investigations are used.</strong><p>Sign in with Google, email or a Solana wallet to continue. You’ll get five investigations per day.</p></div><button className="auth-button auth-login" onClick={() => login()}><ShieldCheck size={14} /> Sign in to continue</button></div>;
+  return <div className="signup-prompt"><div><strong>Your five free investigations are used.</strong><p>Sign in with Google, email or a Solana wallet to continue. You’ll get ten investigations per day.</p></div><button className="auth-button auth-login" onClick={() => login()}><ShieldCheck size={14} /> Sign in to continue</button></div>;
 }
 
 function StateBadge({ state }: { state: Assessment["state"] }) {
@@ -507,7 +507,7 @@ export default function App() {
         <div className="pill"><span className="pill-live" /><strong>EVIDENCE BEFORE ACTION</strong></div>
         <h1>Know <em>before</em><br />you act.</h1>
         <p>VERA turns technical signals into a clear decision before you <strong>click, connect, sign or pay.</strong></p>
-        <div className="hero-proof"><span><ShieldCheck size={14} /> Evidence-led</span><span><LockKeyhole size={14} /> No wallet connection</span><span><Zap size={14} /> Read-only by design</span></div>
+        <div className="hero-proof"><span><ShieldCheck size={14} /> Evidence-led</span><span><LockKeyhole size={14} /> No wallet connection needed</span><span><Zap size={14} /> Read-only by design</span></div>
       </div>
 
       <div className="scanner-shell">
