@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { usePrivy } from "@privy-io/react-auth";
 import {
   Activity, ArrowLeft, ArrowLeftRight, ArrowUpRight, Check, CheckCircle2,
   ChevronRight, Clock3, Copy, ExternalLink, FileSearch, Fingerprint, Link2,
   Mail, ShieldCheck, TriangleAlert, Wallet, LogIn, LogOut
 } from "lucide-react";
 import type { Assessment, Evidence, Scan, Severity } from "../lib/types";
+import AuthControls from "./AuthControls";
 
 type Props = {
   scan: Scan;
@@ -81,7 +81,6 @@ function statusLabel(overall: "COMPLETE" | "PARTIAL" | "CONFIRMED_FINDING") {
 }
 
 function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnother }: Props) {
-  const { ready, authenticated, user, login, logout } = usePrivy();
   const Icon = inputIcons[scan.type];
   const config = verdictConfig(scan.assessment);
   const VerdictIcon = config.icon;
@@ -90,7 +89,6 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
   const [evidenceFilter, setEvidenceFilter] = useState<EvidenceFilter>("all");
   const [expandedEvidence, setExpandedEvidence] = useState<string | null>(null);
   const [revealCount, setRevealCount] = useState(0);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const evidenceCounts = useMemo(() => {
@@ -136,186 +134,66 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
     }
   };
 
-  const accountEmail = user?.email?.address;
-  const accountWallet = user?.wallet?.address;
-  const accountLabel = accountEmail ?? accountWallet ?? "VERA account";
-  const shortWallet = accountWallet ? `${accountWallet.slice(0, 6)}…${accountWallet.slice(-4)}` : null;
 
-  const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
-    const y = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
-    setTilt({ x: y * -2.2, y: x * 2.2 });
-  };
-
-  const handlePointerLeave = () => setTilt({ x: 0, y: 0 });
-
-  return <main
-    className="investigation-page"
-    onPointerMove={handlePointerMove}
-    onPointerLeave={handlePointerLeave}
-    style={{ "--room-tilt-x": `${tilt.x}deg`, "--room-tilt-y": `${tilt.y}deg` } as React.CSSProperties}
-  >
-    <header className="investigation-nav">
-      <button className="investigation-back" onClick={onBack}><ArrowLeft size={15} /> VERA</button>
-      <div className="investigation-nav-center"><span className="nav-live" /> INVESTIGATION ROOM</div>
-      <div className="investigation-nav-actions">
-        <button className="investigation-nav-link" onClick={onInvestigations}><FileSearch size={14} /> All investigations</button>
-        {ready && authenticated
-          ? <button className="investigation-account-button" onClick={() => void logout()} title={accountLabel}>
-              <ShieldCheck size={13} /> {accountEmail ? accountEmail : shortWallet ?? "Account"} <LogOut size={13} />
-            </button>
-          : <button className="investigation-account-button" onClick={() => login()}><LogIn size={13} /> Sign in</button>}
-        <button className="investigation-new" onClick={onInvestigateAnother}>New investigation <ArrowUpRight size={14} /></button>
+  return <main className="investigation-page investigation-gloam-inspired">
+    <header className="investigation-topbar">
+      <button className="investigation-brand" onClick={onBack} aria-label="Back to VERA"><span className="investigation-brand-mark">V</span><span>VERA</span></button>
+      <div className="investigation-topbar-center"><span className="nav-live" /> INVESTIGATION</div>
+      <div className="investigation-topbar-actions">
+        <button className="investigation-top-link" onClick={onInvestigations}><FileSearch size={14} /> Investigations</button>
+        <AuthControls />
       </div>
     </header>
 
-    <div className="investigation-shell">
-      <div className="investigation-depth-grid" aria-hidden="true" />
-      <div className="investigation-breadcrumb">
-        <span>INVESTIGATION</span><ChevronRight size={12} /><span>{scan.type}</span>
-        <ChevronRight size={12} /><span className="muted">{scan.id.slice(0, 8).toUpperCase()}</span>
-      </div>
+    <div className="investigation-app-shell">
+      <aside className="investigation-rail">
+        <div className="rail-section">
+          <span className="rail-label">CURRENT CASE</span>
+          <div className="rail-target"><Icon size={15} /><span>{scan.type === "URL" ? "Website / Link" : scan.type}</span></div>
+          <p className="rail-input" title={scan.input}>{scan.input}</p>
+        </div>
+        <div className="rail-divider" />
+        <div className="rail-section"><span className="rail-label">STATUS</span><div className="rail-status"><span className="rail-status-dot" /> {report ? statusLabel(report.overall) : "ASSESSING"}</div></div>
+        <div className="rail-section rail-meta"><span className="rail-label">CASE ID</span><strong>{scan.id.slice(0, 8).toUpperCase()}</strong><span>{formatDate(scan.createdAt)}</span></div>
+        <div className="rail-bottom"><span className="rail-readonly"><ShieldCheck size={13} /> Read-only</span><button onClick={onInvestigateAnother} className="rail-new">New investigation <ArrowUpRight size={13} /></button></div>
+      </aside>
 
-      <section className="investigation-command">
-        <div className="investigation-command-target">
-          <div className="investigation-type"><Icon size={14} /> {scan.type === "URL" ? "Website / Link" : scan.type}</div>
-          <h1>{scan.input}</h1>
-          <div className="investigation-meta">
-            <span><Clock3 size={12} /> {formatDate(scan.createdAt)}</span>
-            <span><ShieldCheck size={12} /> Read-only</span>
-            {scan.assessment.network && <span>{scan.assessment.network}</span>}
+      <section className="investigation-canvas">
+        <div className="investigation-canvas-head">
+          <div><span className="investigation-eyebrow">INVESTIGATION ROOM</span><h1>Understand what you are about to act on.</h1></div>
+          <div className="canvas-meta">{scan.assessment.network && <span>{scan.assessment.network}</span>}<span>{formatDate(scan.createdAt)}</span></div>
+        </div>
+
+        <section className="investigation-field">
+          <div className="field-glint" aria-hidden="true" />
+          <div className="field-target"><span className="investigation-eyebrow">TARGET</span><div className="field-target-row"><Icon size={16} /><strong title={scan.input}>{scan.input}</strong></div><span className="field-target-meta">VERA inspected this target using available security, reputation, infrastructure and on-chain evidence.</span></div>
+          <div className={`field-verdict ${config.className}`}><div className="field-verdict-mark"><VerdictIcon size={25} /></div><div><span className="investigation-eyebrow">ASSESSMENT</span><strong>{config.label}</strong><p>{config.copy}</p></div></div>
+        </section>
+
+        {report && <section className="investigation-stat-row"><div><span>Coverage</span><strong>{report.coverage}%</strong></div><div><span>Decisive signals</span><strong>{report.decisiveFindings}</strong></div><div><span>Checks</span><strong>{report.checks.length}</strong></div><div><span>Mode</span><strong>Read-only</strong></div></section>}
+
+        <section className="investigation-slide-deck">
+          <article className="slide-card slide-primary"><div className="slide-card-index">01 / DECISION</div><span className="investigation-eyebrow">WHY THIS RESULT</span><h2>{scan.assessment.headline}</h2><p>{scan.assessment.explanation}</p><div className="slide-action"><span className="investigation-eyebrow">NEXT BEST ACTION</span><strong>{scan.assessment.action}</strong></div></article>
+          <article className="slide-card slide-signals"><div className="slide-card-index">02 / SIGNALS</div><div className="investigation-section-head compact"><div><span className="investigation-eyebrow">DECISIVE SIGNALS</span><h2>What moved the assessment</h2></div><span className="investigation-count">{decisiveSignals.length}</span></div><div className="signal-stack">{(decisiveSignals.length ? decisiveSignals.slice(0, 3) : scan.assessment.evidence.slice(0, 3)).map((item, index) => <article className={`signal-row evidence-reveal ${index < revealCount ? "is-visible" : ""}`} key={item.id}><span className={`evidence-dot dot-${item.severity}`} /><div><strong>{item.title}</strong><p>{item.detail}</p><small>{item.source}</small></div></article>)}{scan.assessment.evidence.length === 0 && <div className="investigation-empty"><Activity size={17} /> No evidence was recorded.</div>}</div></article>
+        </section>
+
+        <section className="investigation-next-strip"><div><span className="investigation-eyebrow">KEEP MOVING</span><strong>Have another link, wallet or message to check?</strong><span>Start a fresh investigation without leaving this workspace.</span></div><button onClick={onInvestigateAnother}>Investigate another <ArrowUpRight size={14} /></button></section>
+
+        <section className={`advanced-details ${advancedOpen ? "is-open" : ""}`}>
+          <button type="button" className="advanced-details-toggle" onClick={() => setAdvancedOpen((open) => !open)} aria-expanded={advancedOpen} aria-controls="advanced-investigation-details">
+            <span className="advanced-toggle-copy"><span className="advanced-icon"><Fingerprint size={15} /></span><span><span className="investigation-eyebrow">ADVANCED DETAILS</span><strong>Evidence, coverage and investigation trail</strong><small>Open this when you want to inspect the technical evidence behind the assessment.</small></span></span>
+            <span className="advanced-toggle-action">{advancedOpen ? "Hide details" : "View details"} <ChevronRight size={15} /></span>
+          </button>
+          <div id="advanced-investigation-details" className="advanced-details-body" hidden={!advancedOpen}>
+            <section className="investigation-section investigation-depth-card"><div className="investigation-section-head"><div><span className="investigation-eyebrow">EVIDENCE</span><h2>What VERA established</h2></div><span className="investigation-count"><Fingerprint size={12} /> {scan.assessment.evidence.length} signals</span></div><div className="evidence-filter-row" aria-label="Filter evidence by severity">{(Object.keys(filterLabels) as EvidenceFilter[]).map((filter) => <button key={filter} type="button" className={evidenceFilter === filter ? "active" : ""} onClick={() => setEvidenceFilter(filter)}>{filterLabels[filter]} <span>{evidenceCounts[filter]}</span></button>)}</div><div className="investigation-evidence">{visibleEvidence.length === 0 ? <div className="investigation-empty"><Activity size={17} /><span>No {filterLabels[evidenceFilter].toLowerCase()} severity evidence was recorded.</span></div> : visibleEvidence.map((item: Evidence, index) => <article className={`investigation-evidence-row evidence-reveal ${index < revealCount ? "is-visible" : ""}`} key={item.id}><div className={`evidence-dot dot-${item.severity}`} /><button className="investigation-evidence-toggle" type="button" onClick={() => setExpandedEvidence(expandedEvidence === item.id ? null : item.id)} aria-expanded={expandedEvidence === item.id}><div className="investigation-evidence-main"><div className="investigation-evidence-title"><strong>{item.title}</strong><span>{item.state}</span><ChevronRight className={expandedEvidence === item.id ? "evidence-chevron open" : "evidence-chevron"} size={13} /></div><p>{item.detail}</p><div className="investigation-evidence-meta"><small>{item.source}</small>{item.observedAt && <small>Observed {formatDate(item.observedAt)}</small>}</div></div></button>{expandedEvidence === item.id && <div className="evidence-expanded"><span className="investigation-eyebrow">EVIDENCE DETAIL</span><p>{item.detail}</p>{Array.isArray(item.metadata?.reports) && <div className="evidence-links">{item.metadata.reports.map((reportItem, linkIndex) => { if (typeof reportItem !== "object" || reportItem === null) return null; const link = reportItem as Record<string, unknown>; if (typeof link.url !== "string" || !(link.url.startsWith("https://") || link.url.startsWith("http://"))) return null; return <a href={link.url} target="_blank" rel="noreferrer noopener" key={link.url + linkIndex}>{typeof link.title === "string" ? link.title : link.url}<ExternalLink size={11} /></a>; })}</div>}{Array.isArray(item.metadata?.results) && <div className="evidence-links">{item.metadata.results.map((resultItem, linkIndex) => { if (typeof resultItem !== "object" || resultItem === null) return null; const link = resultItem as Record<string, unknown>; if (typeof link.url !== "string" || !(link.url.startsWith("https://") || link.url.startsWith("http://"))) return null; return <a href={link.url} target="_blank" rel="noreferrer noopener" key={link.url + linkIndex}>{typeof link.title === "string" ? link.title : link.url}<ExternalLink size={11} /></a>; })}</div>}</div>}</article>)}</div></section>
+            {timeline.length > 0 && <section className="investigation-section investigation-depth-card"><div className="investigation-section-head"><div><span className="investigation-eyebrow">EVIDENCE TIMELINE</span><h2>When the signals were observed</h2></div><span className="investigation-count">{timeline.length} observations</span></div><div className="investigation-timeline">{timeline.map((item) => <div className="timeline-item" key={item.id}><div className={`timeline-node node-${item.severity}`} /><div className="timeline-line" /><div className="timeline-content"><span>{item.observedAt ? formatDate(item.observedAt) : ""}</span><strong>{item.title}</strong><p>{item.source} · {item.state}</p></div></div>)}</div></section>}
+            {report && <section className="investigation-section investigation-depth-card"><div className="investigation-section-head"><div><span className="investigation-eyebrow">COVERAGE</span><h2>How much evidence was available</h2></div><strong className="coverage-number">{report.coverage}%</strong></div><div className="coverage-bar"><span style={{ width: `${Math.max(0, Math.min(100, report.coverage))}%` }} /></div><div className="coverage-grid">{report.checks.map((check) => <div className="coverage-check" key={check.name}><span className={`coverage-dot coverage-${check.status.toLowerCase()}`} /><div><strong>{check.name}</strong><small>{checkLabel(check.status)}</small></div></div>)}</div><p className="coverage-note">Unavailable checks are shown explicitly. VERA does not treat missing evidence as a clean result.</p></section>}
+            {scan.assessment.aiExplanation && <section className="investigation-section interpretation-section investigation-depth-card"><div className="investigation-section-head"><div><span className="investigation-eyebrow">INTERPRETATION</span><h2>Evidence in plain language</h2></div></div><p className="interpretation-copy">{scan.assessment.aiExplanation}</p></section>}
+            <section className="investigation-footer-card investigation-depth-card"><div><span className="investigation-eyebrow">INVESTIGATION ID</span><strong>{scan.id}</strong><button onClick={copyId}>{copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy ID</>}</button></div></section>
           </div>
-        </div>
-        <div className={`investigation-command-verdict ${config.className}`}>
-          <div className="verdict-mark"><VerdictIcon size={21} /></div>
-          <div className="verdict-copy">
-            <span className="investigation-eyebrow">VERA ASSESSMENT</span>
-            <strong>{config.label}</strong>
-            <p>{config.copy}</p>
-          </div>
-        </div>
+        </section>
+        <div className="investigation-principle"><ShieldCheck size={15} /><span>Investigate first. Understand the evidence. Then decide.</span></div>
       </section>
-
-      {report && <section className="investigation-status-strip investigation-depth-card">
-        <div className="status-strip-main">
-          <span className="status-strip-icon"><CheckCircle2 size={15} /></span>
-          <div><span className="investigation-eyebrow">INVESTIGATION STATUS</span><strong>{statusLabel(report.overall)}</strong></div>
-        </div>
-        <div className="status-strip-stats">
-          <span><strong>{report.coverage}%</strong> coverage</span>
-          <span><strong>{report.decisiveFindings}</strong> decisive</span>
-          <span>Checked {formatDate(report.checkedAt)}</span>
-        </div>
-      </section>}
-
-      <section className="investigation-primary-card investigation-depth-card">
-        <div className="primary-main">
-          <div className="primary-label"><span className="investigation-eyebrow">WHY?</span><span className="primary-rule" /></div>
-          <h2>{scan.assessment.headline}</h2>
-          <p>{scan.assessment.explanation}</p>
-        </div>
-        <div className="primary-action">
-          <span className="investigation-eyebrow">NEXT BEST ACTION</span>
-          <strong>{scan.assessment.action}</strong>
-        </div>
-      </section>
-
-      <section className="investigation-decision-row">
-        <div className="decision-signal-card investigation-depth-card">
-          <div className="investigation-section-head compact">
-            <div><span className="investigation-eyebrow">DECISIVE SIGNALS</span><h2>What influenced the assessment</h2></div>
-            <span className="investigation-count">{decisiveSignals.length} decisive</span>
-          </div>
-          {decisiveSignals.length === 0
-            ? <div className="investigation-empty"><Activity size={17} /><span>No high-severity signals were recorded.</span></div>
-            : <div className="decisive-list">{decisiveSignals.slice(0, 3).map((item, index) => <article className={`decisive-card evidence-reveal ${index < revealCount ? "is-visible" : ""}`} key={item.id}>
-                <span className={`evidence-dot dot-${item.severity}`} />
-                <div><strong>{item.title}</strong><p>{item.detail}</p><small>{item.source}</small></div>
-              </article>)}</div>}
-        </div>
-        <div className="investigation-next-card investigation-depth-card">
-          <span className="investigation-eyebrow">READY FOR ANOTHER CHECK?</span>
-          <h2>Keep the workflow moving.</h2>
-          <p>You do not need to scroll through technical evidence to start another investigation.</p>
-          <button type="button" onClick={onInvestigateAnother}>Investigate another <ArrowUpRight size={14} /></button>
-        </div>
-      </section>
-
-      <section className={`advanced-details ${advancedOpen ? "is-open" : ""}`}>
-        <button type="button" className="advanced-details-toggle" onClick={() => setAdvancedOpen((open) => !open)} aria-expanded={advancedOpen} aria-controls="advanced-investigation-details">
-          <span className="advanced-toggle-copy">
-            <span className="advanced-icon"><Fingerprint size={15} /></span>
-            <span><span className="investigation-eyebrow">ADVANCED DETAILS</span><strong>Evidence, coverage and investigation trail</strong><small>For users who want to inspect how VERA reached the result.</small></span>
-          </span>
-          <span className="advanced-toggle-action">{advancedOpen ? "Hide details" : "View details"} <ChevronRight size={15} /></span>
-        </button>
-
-        <div id="advanced-investigation-details" className="advanced-details-body" hidden={!advancedOpen}>
-          <section className="investigation-section investigation-depth-card">
-            <div className="investigation-section-head">
-              <div><span className="investigation-eyebrow">EVIDENCE</span><h2>What VERA established</h2></div>
-              <span className="investigation-count"><Fingerprint size={12} /> {scan.assessment.evidence.length} signals</span>
-            </div>
-            <div className="evidence-filter-row" aria-label="Filter evidence by severity">
-              {(Object.keys(filterLabels) as EvidenceFilter[]).map((filter) => <button key={filter} type="button" className={evidenceFilter === filter ? "active" : ""} onClick={() => setEvidenceFilter(filter)}>
-                {filterLabels[filter]} <span>{evidenceCounts[filter]}</span>
-              </button>)}
-            </div>
-            <div className="investigation-evidence">
-              {visibleEvidence.length === 0
-                ? <div className="investigation-empty"><Activity size={17} /><span>No {filterLabels[evidenceFilter].toLowerCase()} severity evidence was recorded.</span></div>
-                : visibleEvidence.map((item: Evidence, index) => <article className={`investigation-evidence-row evidence-reveal ${index < revealCount ? "is-visible" : ""}`} key={item.id}>
-                <div className={`evidence-dot dot-${item.severity}`} />
-                <button className="investigation-evidence-toggle" type="button" onClick={() => setExpandedEvidence(expandedEvidence === item.id ? null : item.id)} aria-expanded={expandedEvidence === item.id}>
-                  <div className="investigation-evidence-main">
-                    <div className="investigation-evidence-title"><strong>{item.title}</strong><span>{item.state}</span><ChevronRight className={expandedEvidence === item.id ? "evidence-chevron open" : "evidence-chevron"} size={13} /></div>
-                    <p>{item.detail}</p>
-                    <div className="investigation-evidence-meta"><small>{item.source}</small>{item.observedAt && <small>Observed {formatDate(item.observedAt)}</small>}</div>
-                  </div>
-                </button>
-                {expandedEvidence === item.id && <div className="evidence-expanded">
-                  <span className="investigation-eyebrow">EVIDENCE DETAIL</span><p>{item.detail}</p>
-                  {Array.isArray(item.metadata?.reports) && <div className="evidence-links">{item.metadata.reports.map((reportItem, linkIndex) => {
-                    if (typeof reportItem !== "object" || reportItem === null) return null;
-                    const link = reportItem as Record<string, unknown>;
-                    if (typeof link.url !== "string" || !(link.url.startsWith("https://") || link.url.startsWith("http://"))) return null;
-                    return <a href={link.url} target="_blank" rel="noreferrer noopener" key={link.url + linkIndex}>{typeof link.title === "string" ? link.title : link.url}<ExternalLink size={11} /></a>;
-                  })}</div>}
-                  {Array.isArray(item.metadata?.results) && <div className="evidence-links">{item.metadata.results.map((resultItem, linkIndex) => {
-                    if (typeof resultItem !== "object" || resultItem === null) return null;
-                    const link = resultItem as Record<string, unknown>;
-                    if (typeof link.url !== "string" || !(link.url.startsWith("https://") || link.url.startsWith("http://"))) return null;
-                    return <a href={link.url} target="_blank" rel="noreferrer noopener" key={link.url + linkIndex}>{typeof link.title === "string" ? link.title : link.url}<ExternalLink size={11} /></a>;
-                  })}</div>}
-                </div>}
-              </article>)}
-            </div>
-          </section>
-
-          {timeline.length > 0 && <section className="investigation-section investigation-depth-card">
-            <div className="investigation-section-head"><div><span className="investigation-eyebrow">EVIDENCE TIMELINE</span><h2>When the signals were observed</h2></div><span className="investigation-count">{timeline.length} observations</span></div>
-            <div className="investigation-timeline">{timeline.map((item) => <div className="timeline-item" key={item.id}><div className={`timeline-node node-${item.severity}`} /><div className="timeline-line" /><div className="timeline-content"><span>{item.observedAt ? formatDate(item.observedAt) : ""}</span><strong>{item.title}</strong><p>{item.source} · {item.state}</p></div></div>)}</div>
-          </section>}
-
-          {report && <section className="investigation-section investigation-depth-card">
-            <div className="investigation-section-head"><div><span className="investigation-eyebrow">COVERAGE</span><h2>How much evidence was available</h2></div><strong className="coverage-number">{report.coverage}%</strong></div>
-            <div className="coverage-bar"><span style={{ width: `${Math.max(0, Math.min(100, report.coverage))}%` }} /></div>
-            <div className="coverage-grid">{report.checks.map((check) => <div className="coverage-check" key={check.name}><span className={`coverage-dot coverage-${check.status.toLowerCase()}`} /><div><strong>{check.name}</strong><small>{checkLabel(check.status)}</small></div></div>)}</div>
-            <p className="coverage-note">Unavailable checks are shown explicitly. VERA does not treat missing evidence as a clean result.</p>
-          </section>}
-
-          {scan.assessment.aiExplanation && <section className="investigation-section interpretation-section investigation-depth-card">
-            <div className="investigation-section-head"><div><span className="investigation-eyebrow">INTERPRETATION</span><h2>Evidence in plain language</h2></div></div>
-            <p className="interpretation-copy">{scan.assessment.aiExplanation}</p>
-          </section>}
-
-          <section className="investigation-footer-card investigation-depth-card"><div><span className="investigation-eyebrow">INVESTIGATION ID</span><strong>{scan.id}</strong><button onClick={copyId}>{copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy ID</>}</button></div></section>
-        </div>
-      </section>
-
-      <div className="investigation-principle"><ShieldCheck size={15} /><span>Investigate first. Understand the evidence. Then decide.</span></div>
-
     </div>
   </main>;
 }
