@@ -11,5 +11,5 @@ export default function AuthControls() {
       <button className="auth-button" onClick={() => void logout()}><LogOut size={14} /> Sign out</button>
     </div>;
   }
-  return <button className="auth-button auth-login" onClick={() => login()}><LogIn size={14} /> Google <span className="auth-divider">·</span> <Wallet size={14} /> Wallet</button>;
+  return <button className="auth-button auth-login" onClick={() => login()}><LogIn size={14} /> Sign in <span className="auth-divider">·</span> <Wallet size={14} /> Solana</button>;
 }
