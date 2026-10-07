@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Activity, ArrowLeft, ArrowLeftRight, ArrowUpRight, Check, CheckCircle2,
+  Activity, ArrowLeftRight, ArrowUpRight, Check, CheckCircle2,
   ChevronRight, Clock3, Copy, ExternalLink, FileSearch, Fingerprint, Link2,
-  Mail, ShieldCheck, TriangleAlert, Wallet, LogIn, LogOut
+  Mail, ShieldCheck, TriangleAlert, Wallet
 } from "lucide-react";
 import type { Assessment, Evidence, Scan, Severity } from "../lib/types";
 import AuthControls from "./AuthControls";
