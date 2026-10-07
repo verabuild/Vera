@@ -928,3 +928,6 @@
 :root[data-theme="light"] .investigation-gloam-inspired .field-target-meta,
 :root[data-theme="light"] .investigation-gloam-inspired .field-verdict p{color:#666}
 :root[data-theme="light"] .investigation-gloam-inspired .field-verdict{border-color:#e0e2e5}
+
+.investigation-gloam-inspired .investigation-brand-mark{overflow:hidden}
+.investigation-gloam-inspired .investigation-brand-mark img{width:42px;height:34px;object-fit:cover;object-position:center;display:block;transform:scale(1.42)}
