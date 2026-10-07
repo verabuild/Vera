@@ -251,3 +251,94 @@
 :root[data-theme="light"] .legal-page{background:radial-gradient(ellipse 70% 35% at 50% -8%,#e6e9ee,transparent 65%),#f7f8fa}
 :root[data-theme="light"] .legal-hero>p:not(.eyebrow),:root[data-theme="light"] .legal-content p{color:#5f646d}
 @media(max-width:640px){.legal-page{padding:28px 18px 50px}.legal-hero{padding:50px 0 32px}.legal-content article{padding:24px 0}.legal-foot{align-items:flex-start;flex-direction:column}}
+
+
+/* Dedicated investigation room */
+.investigation-page,.investigation-history-page{min-height:100vh;background:radial-gradient(ellipse 75% 28% at 50% -8%,rgba(255,255,255,.055),transparent 68%),var(--bg);color:var(--white)}
+.investigation-nav{height:70px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 5%;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;background:rgba(8,8,8,.88);backdrop-filter:blur(18px)}
+.investigation-back,.investigation-nav-link,.investigation-new{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;color:var(--muted);font:10px "DM Mono",monospace;letter-spacing:.06em;cursor:pointer;text-decoration:none}
+.investigation-back{justify-self:start;color:var(--white);font-weight:700;letter-spacing:.12em}
+.investigation-back:hover,.investigation-nav-link:hover{color:var(--white)}
+.investigation-nav-center{display:flex;align-items:center;gap:8px;color:#888;font:9px "DM Mono",monospace;letter-spacing:.14em}
+.investigation-nav-actions{justify-self:end;display:flex;align-items:center;gap:18px}
+.investigation-new{padding:9px 12px;border:1px solid var(--line2);border-radius:9px;background:var(--panel);color:var(--white);transition:.2s}
+.investigation-new:hover{background:var(--panel2);transform:translateY(-1px)}
+.investigation-shell,.history-page-shell{width:min(1120px,90%);margin:0 auto;padding:34px 0 70px}
+.investigation-breadcrumb{display:flex;align-items:center;gap:7px;color:#666;font:8px "DM Mono",monospace;letter-spacing:.1em;margin-bottom:28px}
+.investigation-breadcrumb .muted{color:#3f3f3f}
+.investigation-hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:18px;align-items:stretch}
+.investigation-target,.investigation-verdict{border:1px solid var(--line);background:var(--panel);border-radius:18px}
+.investigation-target{padding:28px 30px;min-width:0}
+.investigation-type{display:inline-flex;align-items:center;gap:7px;color:#8a8a8a;font:9px "DM Mono",monospace;letter-spacing:.08em;text-transform:uppercase}
+.investigation-target h1{margin:16px 0 20px;font-size:clamp(26px,4vw,48px);line-height:1.04;letter-spacing:-.06em;font-weight:550;overflow-wrap:anywhere}
+.investigation-meta{display:flex;flex-wrap:wrap;gap:12px 18px;color:#6e6e6e;font:9px "DM Mono",monospace}
+.investigation-meta span{display:inline-flex;align-items:center;gap:6px}
+.investigation-meta svg{color:#8ee4ae}
+.investigation-verdict{display:flex;align-items:center;gap:16px;padding:26px}
+.investigation-verdict-icon{display:grid;place-items:center;width:50px;height:50px;flex:0 0 50px;border:1px solid var(--line2);border-radius:14px;background:var(--panel2)}
+.investigation-verdict strong{display:block;margin:5px 0 5px;font:700 15px "DM Mono",monospace;letter-spacing:.1em}
+.investigation-verdict p{margin:0;color:var(--muted);font-size:11px;line-height:1.6}
+.investigation-eyebrow{display:block;color:#666;font:8px "DM Mono",monospace;letter-spacing:.11em}
+.investigation-verdict-safe{border-color:#245b3c!important;background:rgba(114,229,160,.035)!important}.investigation-verdict-safe .investigation-verdict-icon,.investigation-verdict-safe strong,.investigation-verdict-safe .investigation-verdict-icon svg{color:var(--green)}
+.investigation-verdict-danger{border-color:#642c2c!important;background:rgba(255,112,112,.035)!important}.investigation-verdict-danger .investigation-verdict-icon,.investigation-verdict-danger strong{color:var(--red)}
+.investigation-verdict-caution{border-color:#5a4a21!important;background:rgba(231,196,106,.035)!important}.investigation-verdict-caution .investigation-verdict-icon,.investigation-verdict-caution strong{color:var(--amber)}
+.investigation-verdict-review .investigation-verdict-icon,.investigation-verdict-review strong{color:var(--muted)}
+.investigation-summary{display:grid;grid-template-columns:1.35fr .65fr;margin-top:12px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}
+.investigation-summary-copy{padding:30px;border-right:1px solid var(--line)}
+.investigation-summary h2{margin:8px 0 10px;font-size:clamp(22px,3vw,32px);line-height:1.05;letter-spacing:-.045em;font-weight:550}
+.investigation-summary p{margin:0;color:var(--soft);font-size:12px;line-height:1.8}
+.investigation-action{padding:30px;background:var(--panel2);display:flex;flex-direction:column;justify-content:center}
+.investigation-action p{margin-top:10px;color:var(--white);font-size:13px;line-height:1.7}
+.investigation-section{margin-top:12px;border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}
+.investigation-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:25px 28px 19px;border-bottom:1px solid var(--line)}
+.investigation-section-head h2{margin:6px 0 0;font-size:17px;letter-spacing:-.025em;font-weight:550}
+.investigation-count{display:inline-flex;align-items:center;gap:6px;color:#707070;font:8px "DM Mono",monospace;letter-spacing:.06em}
+.decisive-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line)}
+.decisive-card{display:grid;grid-template-columns:8px 1fr;gap:14px;padding:19px 22px;background:var(--panel)}
+.decisive-card .evidence-dot{margin-top:5px}.decisive-card strong{font-size:11px}.decisive-card p{margin:6px 0;color:var(--soft);font-size:10px;line-height:1.65}.decisive-card small{color:#5e5e5e;font:8px "DM Mono",monospace}
+.investigation-evidence{display:grid}
+.investigation-evidence-row{display:grid;grid-template-columns:8px minmax(0,1fr);gap:15px;padding:20px 28px;border-bottom:1px solid var(--line)}
+.investigation-evidence-row:last-child{border-bottom:0}
+.investigation-evidence-row>.evidence-dot{margin-top:6px}
+.investigation-evidence-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.investigation-evidence-title strong{font-size:11px}.investigation-evidence-title span{padding:4px 6px;border:1px solid var(--line2);border-radius:5px;color:#777;font:7px "DM Mono",monospace;letter-spacing:.05em}
+.investigation-evidence-main>p{margin:7px 0;color:var(--soft);font-size:10px;line-height:1.7}
+.investigation-evidence-main>small{color:#5e5e5e;font:8px "DM Mono",monospace}
+.coverage-number{font-size:26px;letter-spacing:-.05em;font-weight:550}
+.coverage-bar{height:5px;margin:20px 28px 16px;background:var(--panel2);border-radius:99px;overflow:hidden}.coverage-bar span{display:block;height:100%;background:#8ee4ae;border-radius:inherit;transition:width .5s ease}
+.coverage-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.coverage-check{display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--panel)}.coverage-check>div{display:flex;flex-direction:column;gap:3px}.coverage-check strong{font-size:9px}.coverage-check small{color:#666;font:7px "DM Mono",monospace;letter-spacing:.04em}
+.coverage-dot{width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#777}.coverage-checked{background:#8ee4ae;box-shadow:0 0 9px #8ee4ae55}.coverage-no_match{background:#8aa7ff}.coverage-match{background:#f15b5b;box-shadow:0 0 9px #f15b5b55}.coverage-unavailable{background:#d5a95c}
+.coverage-note{margin:0;padding:14px 28px 19px;color:#606060;font:8px "DM Mono",monospace;line-height:1.6}
+.interpretation-section{padding-bottom:25px}.interpretation-section .investigation-section-head{margin-bottom:0}.interpretation-copy{margin:0;padding:24px 28px;color:var(--soft);font-size:12px;line-height:1.85}
+.investigation-footer-card{display:flex;align-items:center;justify-content:space-between;gap:25px;margin-top:12px;padding:22px 24px;border:1px solid var(--line);border-radius:18px;background:var(--panel)}
+.investigation-footer-card>div:first-child{display:grid;grid-template-columns:auto auto;align-items:center;gap:5px 12px}.investigation-footer-card>div:first-child .investigation-eyebrow{grid-column:1/-1}.investigation-footer-card strong{font:9px "DM Mono",monospace;color:#aaa;overflow-wrap:anywhere}.investigation-footer-card button{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:#777;font:8px "DM Mono",monospace;cursor:pointer}.investigation-footer-card button:hover{color:var(--white)}
+.investigation-footer-actions{display:flex;gap:8px}.investigation-footer-actions button{padding:10px 12px;border:1px solid var(--line2);border-radius:9px;background:var(--panel2);color:var(--white);font-size:9px}.investigation-footer-actions button:last-child{background:var(--white);color:var(--bg)}
+.investigation-principle{display:flex;align-items:center;justify-content:center;gap:8px;padding:27px 0;color:#777;font:8px "DM Mono",monospace;letter-spacing:.07em;text-transform:uppercase}.investigation-principle svg{color:#8ee4ae}
+
+/* Investigation history */
+.history-page-shell{padding-top:58px}
+.history-page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:28px}
+.history-page-heading h1{margin:8px 0 10px;font-size:clamp(42px,6vw,68px);line-height:.95;letter-spacing:-.07em;font-weight:550}
+.history-page-heading p{margin:0;color:var(--muted);font-size:12px}
+.history-page-count{display:flex;flex-direction:column;align-items:flex-end}.history-page-count strong{font-size:32px;letter-spacing:-.05em}.history-page-count span{color:#666;font:8px "DM Mono",monospace}
+.history-page-list{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel)}
+.history-page-row{width:100%;display:grid;grid-template-columns:155px minmax(0,1fr) 110px 155px 16px;align-items:center;gap:18px;padding:17px 20px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--white);text-align:left;cursor:pointer;transition:background .18s,transform .18s}.history-page-row:last-child{border-bottom:0}.history-page-row:hover{background:var(--panel2)}
+.history-page-type{display:flex;align-items:center;gap:8px;color:#8a8a8a;font:8px "DM Mono",monospace;letter-spacing:.06em}.history-page-type svg{color:#aaa}
+.history-page-target{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}.history-page-verdict{display:inline-flex;align-items:center;gap:5px;font:8px "DM Mono",monospace;letter-spacing:.05em}.history-verdict-safe{color:var(--green)}.history-verdict-danger{color:var(--red)}.history-verdict-caution{color:var(--amber)}.history-verdict-review{color:#888}
+.history-page-date{color:#666;font:8px "DM Mono",monospace}.history-page-row>svg{color:#555}
+.history-page-empty{margin-top:15px;min-height:240px}.history-page-empty button{margin-top:13px;display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid var(--line2);border-radius:9px;background:var(--panel2);color:var(--white);font-size:10px;cursor:pointer}
+@media(max-width:850px){
+  .investigation-nav{grid-template-columns:auto 1fr auto;padding:0 18px}.investigation-nav-center{justify-self:center}.investigation-nav-actions{gap:0}.investigation-nav-link{display:none}
+  .investigation-shell,.history-page-shell{width:min(94%,760px);padding-top:25px}.investigation-hero,.investigation-summary{grid-template-columns:1fr}.investigation-summary-copy{border-right:0;border-bottom:1px solid var(--line)}
+  .decisive-grid,.coverage-grid{grid-template-columns:1fr}.investigation-footer-card{align-items:flex-start;flex-direction:column}.investigation-footer-actions{width:100%}.investigation-footer-actions button{flex:1}
+  .history-page-heading{align-items:flex-start;flex-direction:column}.history-page-count{align-items:flex-start}.history-page-row{grid-template-columns:1fr auto;gap:8px 12px}.history-page-type{grid-column:1}.history-page-verdict{grid-column:2;grid-row:1}.history-page-target{grid-column:1/-1}.history-page-date{grid-column:1}.history-page-row>svg{grid-column:2;grid-row:3}
+}
+@media(max-width:560px){
+  .investigation-nav-center{font-size:7px}.investigation-new{padding:8px}.investigation-shell{width:calc(100% - 28px)}.investigation-target,.investigation-verdict,.investigation-summary-copy,.investigation-action{padding:21px}.investigation-section-head{padding:20px 21px 16px}.investigation-evidence-row{padding:17px 21px}.coverage-bar{margin-left:21px;margin-right:21px}.coverage-note,.interpretation-copy{padding-left:21px;padding-right:21px}.investigation-footer-card{padding:19px}.investigation-footer-actions{flex-direction:column}
+}
+:root[data-theme="light"] .investigation-nav{background:rgba(248,249,251,.9)}
+:root[data-theme="light"] .investigation-page,:root[data-theme="light"] .investigation-history-page{background:radial-gradient(ellipse 75% 28% at 50% -8%,#e6e9ee,transparent 68%),var(--bg)}
+:root[data-theme="light"] .investigation-target,:root[data-theme="light"] .investigation-verdict,:root[data-theme="light"] .investigation-summary,:root[data-theme="light"] .investigation-section,:root[data-theme="light"] .investigation-footer-card,:root[data-theme="light"] .history-page-list{background:#fff}
+:root[data-theme="light"] .investigation-action,:root[data-theme="light"] .investigation-verdict-icon,:root[data-theme="light"] .coverage-bar,:root[data-theme="light"] .history-page-row:hover{background:#f4f5f7}
+:root[data-theme="light"] .investigation-target h1,:root[data-theme="light"] .investigation-summary h2,:root[data-theme="light"] .investigation-section-head h2,:root[data-theme="light"] .history-page-heading h1{color:#17191d}
