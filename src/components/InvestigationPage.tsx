@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  Activity, ArrowLeft, ArrowUpRight, ArrowLeftRight, Check, ChevronRight,
-  Clock3, Copy, ExternalLink, FileSearch, Fingerprint, Globe2, Link2,
-  Mail, Radar, ShieldCheck, TriangleAlert, Wallet
+  Activity, ArrowLeft, ArrowLeftRight, ArrowUpRight, Check, CheckCircle2,
+  ChevronRight, Clock3, Copy, ExternalLink, FileSearch, Fingerprint, Link2,
+  Mail, ShieldCheck, TriangleAlert, Wallet
 } from "lucide-react";
-import type { Assessment, Scan } from "../lib/types";
+import type { Assessment, Evidence, Scan, Severity } from "../lib/types";
 
 type Props = {
   scan: Scan;
@@ -13,12 +13,22 @@ type Props = {
   onInvestigateAnother: () => void;
 };
 
+type EvidenceFilter = Severity | "all";
+
 const inputIcons = {
   URL: Link2,
   MESSAGE: Mail,
   WALLET: Wallet,
   TX: ArrowLeftRight,
 } as const;
+
+const filterLabels: Record<EvidenceFilter, string> = {
+  all: "All",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+  info: "Info",
+};
 
 function verdictConfig(assessment: Assessment) {
   if (assessment.verdict === "SAFE") return {
@@ -63,16 +73,36 @@ function formatDate(value: string) {
   });
 }
 
+function statusLabel(overall: "COMPLETE" | "PARTIAL" | "CONFIRMED_FINDING") {
+  if (overall === "CONFIRMED_FINDING") return "CONFIRMED FINDING";
+  if (overall === "COMPLETE") return "INVESTIGATION COMPLETE";
+  return "INVESTIGATION PARTIAL";
+}
+
 function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnother }: Props) {
   const Icon = inputIcons[scan.type];
   const config = verdictConfig(scan.assessment);
   const VerdictIcon = config.icon;
   const report = scan.assessment.statusReport;
   const [copied, setCopied] = useState(false);
+  const [evidenceFilter, setEvidenceFilter] = useState<EvidenceFilter>("all");
+
+  const evidenceCounts = useMemo(() => {
+    const counts: Record<EvidenceFilter, number> = { all: scan.assessment.evidence.length, high: 0, medium: 0, low: 0, info: 0 };
+    for (const item of scan.assessment.evidence) counts[item.severity] += 1;
+    return counts;
+  }, [scan.assessment.evidence]);
 
   const decisiveSignals = useMemo(
     () => scan.assessment.evidence.filter((item) => item.severity === "high"),
     [scan.assessment.evidence],
+  );
+
+  const visibleEvidence = useMemo(
+    () => evidenceFilter === "all"
+      ? scan.assessment.evidence
+      : scan.assessment.evidence.filter((item) => item.severity === evidenceFilter),
+    [evidenceFilter, scan.assessment.evidence],
   );
 
   const copyId = async () => {
@@ -96,19 +126,42 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
     </header>
 
     <div className="investigation-shell">
-      <div className="investigation-breadcrumb"><span>INVESTIGATION</span><ChevronRight size={12} /><span>{scan.type}</span><ChevronRight size={12} /><span className="muted">{scan.id.slice(0, 8).toUpperCase()}</span></div>
+      <div className="investigation-breadcrumb">
+        <span>INVESTIGATION</span><ChevronRight size={12} /><span>{scan.type}</span>
+        <ChevronRight size={12} /><span className="muted">{scan.id.slice(0, 8).toUpperCase()}</span>
+      </div>
 
       <section className="investigation-hero">
         <div className="investigation-target">
           <div className="investigation-type"><Icon size={14} /> {scan.type === "URL" ? "Website / Link" : scan.type}</div>
           <h1>{scan.input}</h1>
-          <div className="investigation-meta"><span><Clock3 size={12} /> {formatDate(scan.createdAt)}</span><span><ShieldCheck size={12} /> Read-only investigation</span>{scan.assessment.network && <span>{scan.assessment.network}</span>}</div>
+          <div className="investigation-meta">
+            <span><Clock3 size={12} /> {formatDate(scan.createdAt)}</span>
+            <span><ShieldCheck size={12} /> Read-only investigation</span>
+            {scan.assessment.network && <span>{scan.assessment.network}</span>}
+          </div>
         </div>
         <div className={`investigation-verdict ${config.className}`}>
           <div className="investigation-verdict-icon"><VerdictIcon size={23} /></div>
-          <div><span className="investigation-eyebrow">VERA ASSESSMENT</span><strong>{config.label}</strong><p>{config.copy}</p></div>
+          <div>
+            <span className="investigation-eyebrow">VERA ASSESSMENT</span>
+            <strong>{config.label}</strong>
+            <p>{config.copy}</p>
+          </div>
         </div>
       </section>
+
+      {report && <section className="investigation-status-strip">
+        <div className="status-strip-main">
+          <span className="status-strip-icon"><CheckCircle2 size={15} /></span>
+          <div><span className="investigation-eyebrow">INVESTIGATION STATUS</span><strong>{statusLabel(report.overall)}</strong></div>
+        </div>
+        <div className="status-strip-stats">
+          <span><strong>{report.coverage}%</strong> coverage</span>
+          <span><strong>{report.decisiveFindings}</strong> decisive</span>
+          <span>Checked {formatDate(report.checkedAt)}</span>
+        </div>
+      </section>}
 
       <section className="investigation-summary">
         <div className="investigation-summary-copy">
@@ -140,22 +193,37 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
           <div><span className="investigation-eyebrow">EVIDENCE</span><h2>What VERA established</h2></div>
           <span className="investigation-count"><Fingerprint size={12} /> {scan.assessment.evidence.length} signals</span>
         </div>
+        <div className="evidence-filter-row" aria-label="Filter evidence by severity">
+          {(Object.keys(filterLabels) as EvidenceFilter[]).map((filter) => <button
+            key={filter}
+            type="button"
+            className={evidenceFilter === filter ? "active" : ""}
+            onClick={() => setEvidenceFilter(filter)}
+          >
+            {filterLabels[filter]} <span>{evidenceCounts[filter]}</span>
+          </button>)}
+        </div>
         <div className="investigation-evidence">
-          {scan.assessment.evidence.map((item) => <article className="investigation-evidence-row" key={item.id}>
+          {visibleEvidence.length === 0
+            ? <div className="investigation-empty"><Activity size={17} /><span>No {filterLabels[evidenceFilter].toLowerCase()} severity evidence was recorded.</span></div>
+            : visibleEvidence.map((item: Evidence) => <article className="investigation-evidence-row" key={item.id}>
             <div className={`evidence-dot dot-${item.severity}`} />
             <div className="investigation-evidence-main">
               <div className="investigation-evidence-title"><strong>{item.title}</strong><span>{item.state}</span></div>
               <p>{item.detail}</p>
-              <small>{item.source}</small>
-              {Array.isArray(item.metadata?.reports) && <div className="evidence-links">{item.metadata.reports.map((report, index) => {
-                if (typeof report !== "object" || report === null) return null;
-                const link = report as Record<string, unknown>;
+              <div className="investigation-evidence-meta">
+                <small>{item.source}</small>
+                {item.observedAt && <small>Observed {formatDate(item.observedAt)}</small>}
+              </div>
+              {Array.isArray(item.metadata?.reports) && <div className="evidence-links">{item.metadata.reports.map((reportItem, index) => {
+                if (typeof reportItem !== "object" || reportItem === null) return null;
+                const link = reportItem as Record<string, unknown>;
                 if (typeof link.url !== "string" || !(link.url.startsWith("https://") || link.url.startsWith("http://"))) return null;
                 return <a href={link.url} target="_blank" rel="noreferrer noopener" key={link.url + index}>{typeof link.title === "string" ? link.title : link.url}<ExternalLink size={11} /></a>;
               })}</div>}
-              {Array.isArray(item.metadata?.results) && <div className="evidence-links">{item.metadata.results.map((result, index) => {
-                if (typeof result !== "object" || result === null) return null;
-                const link = result as Record<string, unknown>;
+              {Array.isArray(item.metadata?.results) && <div className="evidence-links">{item.metadata.results.map((resultItem, index) => {
+                if (typeof resultItem !== "object" || resultItem === null) return null;
+                const link = resultItem as Record<string, unknown>;
                 if (typeof link.url !== "string" || !(link.url.startsWith("https://") || link.url.startsWith("http://"))) return null;
                 return <a href={link.url} target="_blank" rel="noreferrer noopener" key={link.url + index}>{typeof link.title === "string" ? link.title : link.url}<ExternalLink size={11} /></a>;
               })}</div>}
@@ -171,7 +239,10 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
         </div>
         <div className="coverage-bar"><span style={{ width: `${Math.max(0, Math.min(100, report.coverage))}%` }} /></div>
         <div className="coverage-grid">
-          {report.checks.map((check) => <div className="coverage-check" key={check.name}><span className={`coverage-dot coverage-${check.status.toLowerCase()}`} /><div><strong>{check.name}</strong><small>{checkLabel(check.status)}</small></div></div>)}
+          {report.checks.map((check) => <div className="coverage-check" key={check.name}>
+            <span className={`coverage-dot coverage-${check.status.toLowerCase()}`} />
+            <div><strong>{check.name}</strong><small>{checkLabel(check.status)}</small></div>
+          </div>)}
         </div>
         <p className="coverage-note">Unavailable checks are shown explicitly. VERA does not treat missing evidence as a clean result.</p>
       </section>}
@@ -182,8 +253,15 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
       </section>}
 
       <section className="investigation-footer-card">
-        <div><span className="investigation-eyebrow">INVESTIGATION ID</span><strong>{scan.id}</strong><button onClick={copyId}>{copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy ID</>}</button></div>
-        <div className="investigation-footer-actions"><button onClick={onInvestigations}>View all investigations <ChevronRight size={14} /></button><button onClick={onInvestigateAnother}>Investigate another <ArrowUpRight size={14} /></button></div>
+        <div>
+          <span className="investigation-eyebrow">INVESTIGATION ID</span>
+          <strong>{scan.id}</strong>
+          <button onClick={copyId}>{copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy ID</>}</button>
+        </div>
+        <div className="investigation-footer-actions">
+          <button onClick={onInvestigations}>View all investigations <ChevronRight size={14} /></button>
+          <button onClick={onInvestigateAnother}>Investigate another <ArrowUpRight size={14} /></button>
+        </div>
       </section>
 
       <div className="investigation-principle"><ShieldCheck size={15} /><span>Investigate first. Understand the evidence. Then decide.</span></div>
