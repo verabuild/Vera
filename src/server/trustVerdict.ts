@@ -98,11 +98,18 @@ export function deriveUrlVerdict(
   const surfaceUnavailable = evidence.some((item) => item.id === 'surface-unavailable');
   const surfaceStatus = numericStatus(evidence);
   const strongThreatMatch = urlhausMatch || openPhishMatch;
+  // Tavily is public-web reputation evidence, not authoritative threat intelligence.
+  // For domains in VERA's curated established-domain registry, negative search
+  // results can refer to scams, impersonation, reviews, or abuse occurring
+  // around the brand rather than the trusted domain itself. They must not by
+  // themselves downgrade an established domain to CAUTION.
+  const reputationRiskForVerdict = trustedRoot ? false : (negativeSourceCount >= 2 || reputationWarnings > 0);
+
   const corroboratingFlags = [
     urlhausMatch,
     openPhishMatch,
     chainabuseReports,
-    negativeSourceCount >= 2 || reputationWarnings > 0,
+    reputationRiskForVerdict,
     urlscanMalicious
   ].filter(Boolean).length;
 
@@ -138,8 +145,7 @@ export function deriveUrlVerdict(
     surfaceStatus >= 200 &&
     surfaceStatus < 400 &&
     !chainabuseReports &&
-    negativeSourceCount === 0 &&
-    reputationWarnings === 0 &&
+    (!trustedRoot || (negativeSourceCount === 0 && reputationWarnings === 0)) &&
     !urlscanMalicious &&
     evidence.some((item) => item.id === 'urlhaus-no-match') &&
     evidence.some((item) => item.id === 'openphish-no-match');
@@ -154,7 +160,7 @@ export function deriveUrlVerdict(
     };
   }
 
-  if (recentlyRegistered || chainabuseReports || urlscanMalicious || negativeSourceCount > 0 || reputationWarnings > 0) {
+  if (recentlyRegistered || chainabuseReports || urlscanMalicious || reputationRiskForVerdict) {
     return {
       verdict: 'CAUTION',
       headline: 'CAUTION · Risk signals require review',
