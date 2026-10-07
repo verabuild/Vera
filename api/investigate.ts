@@ -384,7 +384,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       usage: {
         remaining: quota.remaining,
         protection: quota.degraded ? 'degraded-fallback' : 'durable',
-        dailyLimit: authenticatedUserId ? 5 : 2,
+        dailyLimit: authenticatedUserId ? 10 : 5,
         period: authenticatedUserId ? 'UTC day' : 'lifetime'
       }
     };
