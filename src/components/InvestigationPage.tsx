@@ -71,7 +71,7 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
   const [copied, setCopied] = useState(false);
 
   const decisiveSignals = useMemo(
-    () => scan.assessment.evidence.filter((item) => item.severity === "high" || item.severity === "critical"),
+    () => scan.assessment.evidence.filter((item) => item.severity === "high"),
     [scan.assessment.evidence],
   );
 
