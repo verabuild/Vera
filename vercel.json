@@ -20,6 +20,14 @@
   ],
   "rewrites": [
     {
+      "source": "/investigations",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/investigation/:id",
+      "destination": "/index.html"
+    },
+    {
       "source": "/terms",
       "destination": "/index.html"
     },
