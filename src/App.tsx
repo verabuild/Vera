@@ -9,6 +9,8 @@ import { Analytics } from "@vercel/analytics/react";
 import { usePrivy } from "@privy-io/react-auth";
 import AuthControls from "./components/AuthControls";
 import LegalPage from "./components/LegalPage";
+import InvestigationPage from "./components/InvestigationPage";
+import InvestigationHistoryPage from "./components/InvestigationHistoryPage";
 import type { Network, Assessment, InputType, Scan } from "./lib/types";
 
 const modes: { id: InputType; label: string; icon: typeof Link2; description: string }[] = [
@@ -380,6 +382,8 @@ export default function App() {
   const legalPage = legalPath === "/terms" || legalPath === "/privacy" || legalPath === "/cookies" || legalPath === "/disclosures"
     ? legalPath.slice(1) as "terms" | "privacy" | "cookies" | "disclosures"
     : null;
+  const investigationMatch = legalPath.match(/^\/investigation\/([^/]+)$/);
+  const isInvestigationsPage = legalPath === "/investigations";
   const [themeMode, setThemeMode] = useState<"light" | "dark" | "auto">(() => {
     try { return (localStorage.getItem("vera-theme") as "light" | "dark" | "auto") || "dark"; } catch { return "dark"; }
   });
@@ -469,7 +473,7 @@ export default function App() {
       setAssessment(data.assessment);
       const next = [scan, ...history.filter((item) => item.input !== input.trim())];
       setHistory(next); saveScans(next);
-      window.setTimeout(() => document.getElementById("result")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+      window.location.assign(`/investigation/${encodeURIComponent(data.id)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Investigation failed");
       if (!assessment) {
@@ -492,13 +496,19 @@ export default function App() {
 
   if (legalPage) return <LegalPage page={legalPage} />;
 
-  if (legalPage) return <LegalPage page={legalPage} />;
+  if (investigationMatch) {
+    const scan = history.find((item) => item.id === decodeURIComponent(investigationMatch[1]));
+    if (!scan) return <InvestigationHistoryPage scans={history} onBack={() => window.location.assign("/")} onOpen={(item) => window.location.assign(`/investigation/${encodeURIComponent(item.id)}`)} onInvestigate={() => window.location.assign("/")} />;
+    return <InvestigationPage scan={scan} onBack={() => window.location.assign("/")} onInvestigations={() => window.location.assign("/investigations")} onInvestigateAnother={() => window.location.assign("/")} />;
+  }
+
+  if (isInvestigationsPage) return <InvestigationHistoryPage scans={history} onBack={() => window.location.assign("/")} onOpen={(item) => window.location.assign(`/investigation/${encodeURIComponent(item.id)}`)} onInvestigate={() => window.location.assign("/")} />;
 
   return <main onMouseMove={(event) => { const r = event.currentTarget.getBoundingClientRect(); setCursor({ x: ((event.clientX-r.left)/r.width)*100, y: ((event.clientY-r.top)/r.height)*100 }); }} style={{ "--mx": `${cursor.x}%`, "--my": `${cursor.y}%` } as React.CSSProperties}>
     <nav className="nav">
       <div className="brand"><img className="brand-logo" src="/vera-logo.jpg" alt="VERA" /></div>
       <div className="nav-center"><span className="nav-live" /><strong>DECISION INTELLIGENCE</strong></div>
-      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span>{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}<button className="ghost-button">How it works <ChevronRight size={14} /></button></div>
+      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span>{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}<button className="ghost-button" onClick={() => window.location.assign("/investigations")}>Investigations <ChevronRight size={14} /></button></div>
     </nav>
 
     <section className="hero">
@@ -549,7 +559,7 @@ export default function App() {
 
     <RoadmapSection />
 
-     <section className="history">
+     <section className="history" id="legacy-history">
       <div className="history-head"><div><div className="section-label">INVESTIGATION TRAIL</div><h2>Recent checks</h2></div><span className="muted"><LockKeyhole size={11} /> Stored locally in this demo</span></div>
       {history.length === 0 ? <div className="empty"><FileSearch size={20} /><div><strong>No investigations yet</strong><p>Your recent checks will appear here after you investigate something.</p></div></div> : <div className="history-list">{history.map((scan) => <button className="history-row" key={scan.id} onClick={() => restore(scan)}><span className="history-type">{scan.type}</span><span className="history-input">{scan.input}</span><StateBadge state={scan.assessment.state} /><ChevronRight size={16} /></button>)}</div>}
     </section>
