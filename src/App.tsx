@@ -513,10 +513,6 @@ export default function App() {
 
     <section className="hero">
       <div className="hero-copy">
-        <div className="hero-3d-mark" aria-hidden="true">
-          <div className="hero-3d-ring ring-a" /><div className="hero-3d-ring ring-b" />
-          <div className="hero-3d-core"><span>V</span><small>VERA</small></div>
-        </div>
         <div className="pill"><span className="pill-live" /><strong>EVIDENCE BEFORE ACTION</strong></div>
         <h1>Know <em>before</em><br />you act.</h1>
         <p>VERA turns technical signals into a clear decision before you <strong>click, connect, sign or pay.</strong></p>
@@ -526,10 +522,6 @@ export default function App() {
       <div className="scanner-shell">
         <div className="scanner-head">
           <div><p className="eyebrow">INVESTIGATION CONSOLE</p><h2>What are you about to do?</h2><p className="scanner-sub">Give VERA the thing you're unsure about. We'll show you what the evidence says.</p></div>
-          <div className="scanner-identity">
-            <span className="scanner-identity-label"><span className="scanner-identity-dot" /> ACCOUNT</span>
-            <div className="scanner-identity-control">{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}</div>
-          </div>
           <div className="scanner-orbit"><div className="orbit-ring" /><Radar size={20} /></div>
         </div>
 
