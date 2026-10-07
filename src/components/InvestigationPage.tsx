@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePrivy } from "@privy-io/react-auth";
 import {
   Activity, ArrowLeft, ArrowLeftRight, ArrowUpRight, Check, CheckCircle2,
   ChevronRight, Clock3, Copy, ExternalLink, FileSearch, Fingerprint, Link2,
