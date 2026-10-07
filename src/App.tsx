@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Activity, ArrowUpRight, BrainCircuit, Check, ChevronRight, ClipboardPaste,
-  ExternalLink, FileSearch, Fingerprint, Globe2, Link2, LockKeyhole,
-  MessageSquareText, Radar, RefreshCw, ScanSearch, ShieldCheck, Sparkles,
-  TriangleAlert, WalletCards, X, Zap, HeartCrack, Building2, BriefcaseBusiness,
+  Activity, ArrowUpRight, ArrowLeftRight, BrainCircuit, Check, ChevronRight, ClipboardPaste,
+  ExternalLink, FileSearch, Fingerprint, Link2, LockKeyhole, Mail, Radar, RefreshCw,
+  ScanSearch, ShieldCheck, TriangleAlert, Wallet, X, HeartCrack, Building2, BriefcaseBusiness,
   CircleDollarSign, BadgeAlert, ArrowDownRight
 } from "lucide-react";
 import { Analytics } from "@vercel/analytics/react";
@@ -13,10 +12,10 @@ import LegalPage from "./components/LegalPage";
 import type { Network, Assessment, InputType, Scan } from "./lib/types";
 
 const modes: { id: InputType; label: string; icon: typeof Link2; description: string }[] = [
-  { id: "URL", label: "Link", icon: Globe2, description: "Inspect a website or URL" },
-  { id: "MESSAGE", label: "Message", icon: MessageSquareText, description: "Analyse a DM, email or text" },
-  { id: "WALLET", label: "Wallet", icon: WalletCards, description: "Inspect a Solana address" },
-  { id: "TX", label: "Transaction", icon: Zap, description: "Understand transaction data" },
+  { id: "URL", label: "Link", icon: Link2, description: "Inspect a website or URL" },
+  { id: "MESSAGE", label: "Message", icon: Mail, description: "Analyse a DM, email or text" },
+  { id: "WALLET", label: "Wallet", icon: Wallet, description: "Inspect a Solana address" },
+  { id: "TX", label: "Transaction", icon: ArrowLeftRight, description: "Understand transaction data" },
 ];
 
 const STORAGE_KEY = "vera-scans-v1";
@@ -360,7 +359,7 @@ function AssessmentPanel({ assessment }: { assessment: Assessment }) {
     </div>
     <p className="assessment-copy">{assessment.explanation}</p>
     <StatusReportPanel assessment={assessment} />
-    {assessment.aiExplanation && <div className="ai-note"><div className="ai-note-head"><Sparkles size={15} /><strong>AI interpretation</strong><span>Evidence-grounded</span></div><p>{assessment.aiExplanation}</p></div>}
+    {assessment.aiExplanation && <div className="ai-note"><div className="ai-note-head"><strong>AI interpretation</strong><span>Evidence-grounded</span></div><p>{assessment.aiExplanation}</p></div>}
     <div className="action-box">
       <div className="action-icon"><ArrowUpRight size={18} /></div>
       <div><p className="eyebrow">NEXT BEST ACTION</p><p>{assessment.action}</p></div>
@@ -507,7 +506,7 @@ export default function App() {
         <div className="pill"><span className="pill-live" /><strong>EVIDENCE BEFORE ACTION</strong></div>
         <h1>Know <em>before</em><br />you act.</h1>
         <p>VERA turns technical signals into a clear decision before you <strong>click, connect, sign or pay.</strong></p>
-        <div className="hero-proof"><span><ShieldCheck size={14} /> Evidence-led</span><span><LockKeyhole size={14} /> No wallet connection needed</span><span><Zap size={14} /> Read-only by design</span></div>
+        <div className="hero-proof"><span>Evidence-led</span><span>No wallet connection needed</span><span>Read-only by design</span></div>
       </div>
 
       <div className="scanner-shell">
@@ -529,7 +528,7 @@ export default function App() {
         {signupPrompt && import.meta.env.VITE_PRIVY_APP_ID && <SignupPrompt />}
         {busy && <LiveInvestigation />}
         <button className="scan-button" onClick={scan} disabled={busy || !input.trim()}>{busy ? <><RefreshCw size={16} className="spin" /> Investigating signals…</> : <><ScanSearch size={16} /> Investigate with VERA <ArrowUpRight size={16} /></>}</button>
-        <div className="trust-note"><Check size={13} /> No wallet connection required <span /> <LockKeyhole size={12} /> Read-only investigation <span /> <Activity size={12} /> Live evidence</div>
+        <div className="trust-note">No wallet connection required <span /> Read-only investigation <span /> Live evidence</div>
       </div>
     </section>
 
