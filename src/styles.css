@@ -657,4 +657,4 @@
 :root[data-theme="light"] .primary-action strong,
 :root[data-theme="light"] .advanced-toggle-copy strong{color:#222}
 :root[data-theme="light"] .investigation-status-strip{background:#f5f6f8}
-:root[data-theme="light"] .verdict-mark,.:root[data-theme="light"] .advanced-icon{background:#f4f5f7}
+:root[data-theme="light"] .verdict-mark,:root[data-theme="light"] .advanced-icon{background:#f4f5f7}
