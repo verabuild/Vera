@@ -350,3 +350,168 @@
 :root[data-theme="light"] .investigation-status-strip,:root[data-theme="light"] .evidence-filter-row{background:#f4f5f7}.investigation-status-strip{color:var(--white)}:root[data-theme="light"] .investigation-status-strip{color:#17191d}:root[data-theme="light"] .status-strip-main strong{color:#303238}:root[data-theme="light"] .evidence-filter-row button.active{background:#fff;border-color:#d8dbe0;color:#17191d}
 @media(max-width:850px){.investigation-status-strip{align-items:flex-start;flex-direction:column;gap:12px}.status-strip-main>div{flex-direction:column;gap:3px}.status-strip-stats{flex-wrap:wrap;gap:10px 16px}}
 @media(max-width:560px){.evidence-filter-row{padding-left:21px;padding-right:21px}.investigation-status-strip{margin-top:10px;padding:14px 15px}}
+
+
+/* VERA 3D landing phase */
+.hero {
+  position: relative;
+  perspective: 1400px;
+  isolation: isolate;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: -8% -4% auto;
+  height: 78%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 68% 42%, rgba(142,228,174,.12), transparent 24%),
+    radial-gradient(circle at 28% 18%, rgba(255,255,255,.055), transparent 28%);
+  filter: blur(2px);
+  z-index: -2;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 4%;
+  width: min(900px, 90vw);
+  height: 520px;
+  transform: translateX(-50%) rotateX(68deg) translateZ(-100px);
+  transform-origin: center top;
+  border: 1px solid rgba(255,255,255,.045);
+  background:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, black, transparent 82%);
+  pointer-events: none;
+  z-index: -1;
+}
+.hero-copy {
+  position: relative;
+  transform-style: preserve-3d;
+}
+.hero-3d-mark {
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  right: -7%;
+  top: -30%;
+  transform: translateZ(70px) rotateX(8deg) rotateY(-12deg);
+  transform-style: preserve-3d;
+  pointer-events: none;
+  opacity: .72;
+  animation: vera-float 7s ease-in-out infinite;
+}
+.hero-3d-ring {
+  position: absolute;
+  inset: 8%;
+  border: 1px solid rgba(142,228,174,.25);
+  border-radius: 50%;
+  transform-style: preserve-3d;
+}
+.hero-3d-ring::after {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 50%;
+}
+.hero-3d-ring.ring-a { transform: rotateX(68deg) rotateZ(18deg); animation: vera-orbit 9s linear infinite; }
+.hero-3d-ring.ring-b { transform: rotateY(68deg) rotateZ(-24deg); animation: vera-orbit-reverse 12s linear infinite; }
+.hero-3d-core {
+  position: absolute;
+  inset: 35%;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #222, #0b0b0b 70%);
+  box-shadow: 0 0 45px rgba(142,228,174,.08), inset 0 0 24px rgba(255,255,255,.05);
+  transform: translateZ(38px);
+}
+.hero-3d-core span { font-size: 25px; font-weight: 650; letter-spacing: -.08em; }
+.hero-3d-core small { margin-top: -23px; color: #6d6d6d; font: 6px "DM Mono",monospace; letter-spacing: .15em; }
+.scanner-shell {
+  position: relative;
+  transform-style: preserve-3d;
+  box-shadow: 0 30px 90px rgba(0,0,0,.34), 0 0 80px rgba(142,228,174,.035);
+}
+.scanner-shell::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgba(255,255,255,.045);
+  border-radius: inherit;
+  transform: translateZ(-16px);
+  pointer-events: none;
+}
+.scanner-shell::after {
+  content: "";
+  position: absolute;
+  width: 45%;
+  height: 70%;
+  right: -9%;
+  top: 15%;
+  background: radial-gradient(circle, rgba(142,228,174,.13), transparent 68%);
+  filter: blur(28px);
+  transform: translateZ(-30px);
+  pointer-events: none;
+  z-index: -1;
+}
+.scanner-head { position: relative; z-index: 2; }
+.scanner-identity {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  margin-left: auto;
+  padding: 8px 9px;
+  border: 1px solid var(--line2);
+  border-radius: 11px;
+  background: rgba(255,255,255,.025);
+  box-shadow: inset 0 1px rgba(255,255,255,.035);
+}
+.scanner-identity-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #5f5f5f;
+  font: 7px "DM Mono",monospace;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+.scanner-identity-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #666;
+}
+.scanner-identity-control .auth-controls { gap: 6px; }
+.scanner-identity-control .auth-account,
+.scanner-identity-control .auth-button {
+  font-size: 8px;
+  padding: 6px 8px;
+}
+.scanner-identity-control .auth-status { font-size: 7px; }
+@keyframes vera-float {
+  0%,100% { transform: translateZ(70px) rotateX(8deg) rotateY(-12deg) translateY(0); }
+  50% { transform: translateZ(90px) rotateX(12deg) rotateY(-4deg) translateY(-10px); }
+}
+@keyframes vera-orbit { to { transform: rotateX(68deg) rotateZ(378deg); } }
+@keyframes vera-orbit-reverse { to { transform: rotateY(68deg) rotateZ(-384deg); } }
+@media (max-width: 900px) {
+  .hero-3d-mark { right: -2%; top: -22%; width: 150px; height: 150px; opacity: .48; }
+  .scanner-head { padding-right: 0; }
+  .scanner-identity { margin-left: 0; }
+}
+@media (max-width: 640px) {
+  .hero::after { width: 130vw; left: 45%; }
+  .hero-3d-mark { width: 120px; height: 120px; right: -3%; top: -13%; }
+  .scanner-head { flex-wrap: wrap; }
+  .scanner-identity { order: 2; width: 100%; justify-content: space-between; }
+  .scanner-orbit { order: 3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-3d-mark, .hero-3d-ring { animation: none; }
+}
