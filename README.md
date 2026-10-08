@@ -21,6 +21,12 @@ VERA is an evidence-first AI decision layer for online actions. It investigates 
 - Explicit VERIFIED / SUPPORTED / UNKNOWN / SUSPICIOUS / CONFIRMED_MALICIOUS states
 - No seed phrases, private keys, or autonomous transaction execution
 
+## Beta investigation limits
+- Unregistered users receive **5 investigations** without creating an account.
+- Authenticated users receive **10 investigations per UTC day**.
+- A wallet connection is not required to start an investigation.
+- These limits apply to the current beta and may change as VERA evolves.
+
 ## Environment
 Copy `.env.example` to `.env` and set secrets locally. In Vercel, configure the same variables as server-side Environment Variables.
 
