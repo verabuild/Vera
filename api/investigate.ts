@@ -135,11 +135,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (process.env.DATABASE_URL) {
         quota = await consumeUsageQuota(subjectId, periodKey, authenticatedUserId ? 10 : 5);
       } else {
-        quota = consumeFallbackQuota(req, res, subjectId, periodKey, authenticatedUserId ? 5 : 2);
+        quota = consumeFallbackQuota(req, res, subjectId, periodKey, authenticatedUserId ? 10 : 5);
       }
     } catch (error) {
       console.error('VERA durable quota error; switching to signed fallback', error);
-      quota = consumeFallbackQuota(req, res, subjectId, periodKey, authenticatedUserId ? 5 : 2);
+      quota = consumeFallbackQuota(req, res, subjectId, periodKey, authenticatedUserId ? 10 : 5);
     }
 
     if (!quota.allowed) {
