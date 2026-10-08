@@ -1,4 +1,4 @@
-# VERA — Know before you act.
+# VERA ⇴ Know before you act.
 
 VERA is an evidence-first AI decision layer for online actions. It investigates URLs, messages, Solana public wallets and transaction inputs, separates evidence from inference, and explains the next action in plain English. Its homepage also presents an interactive, source-linked overview of the human and economic impact of reported scams.
 
