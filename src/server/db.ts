@@ -135,8 +135,8 @@ export async function persistScan(
         : input.slice(0, 500);
 
     await client.query(
-      `INSERT INTO scans(id,user_id,input_type,input_hash,input_preview,network)
-       VALUES($1,$2,$3,$4,$5,$6)`,
+      `INSERT INTO scans(id,user_id,input_type,input_hash,input_preview,network,report_json)
+       VALUES($1,$2,$3,$4,$5,$6,$7)`,
       [scanId, userId, inputType, inputHash, preview, network, JSON.stringify({ id: scanId, type: inputType, input: preview, createdAt: new Date().toISOString(), assessment })]
     );
 
