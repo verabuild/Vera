@@ -934,3 +934,18 @@
   width:100%;height:100%;padding:3px;box-sizing:border-box;
   object-fit:contain;object-position:center;display:block;transform:none;
 }
+
+
+/* Investigation ID lookup */
+.investigation-reference-lookup{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,1.2fr);gap:22px;align-items:center;margin:0 0 24px;padding:22px;border:1px solid var(--workspace-line,#292b30);border-radius:14px;background:rgba(255,255,255,.025)}
+.investigation-reference-lookup>div:first-child{display:grid;gap:7px}
+.investigation-reference-lookup>div:first-child>strong{font-size:16px;letter-spacing:-.02em}
+.investigation-reference-lookup p{margin:0;color:var(--muted,#9699a1);font-size:12px;line-height:1.6}
+.investigation-reference-controls{display:flex;gap:8px;min-width:0}
+.investigation-reference-controls input{flex:1;min-width:0;height:42px;padding:0 12px;border:1px solid var(--workspace-line,#34363c);border-radius:8px;background:rgba(0,0,0,.16);color:inherit;font:inherit;font-size:12px;outline:none}
+.investigation-reference-controls input:focus{border-color:#8d929b;box-shadow:0 0 0 3px rgba(160,165,175,.12)}
+.investigation-reference-controls button{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;padding:0 13px;border:1px solid #e5e7eb;border-radius:8px;background:#f4f4f5;color:#111216;font-size:11px;font-weight:650;cursor:pointer}
+.investigation-reference-controls button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:680px){.investigation-reference-lookup{grid-template-columns:1fr;gap:14px;padding:17px}.investigation-reference-controls{flex-direction:column}.investigation-reference-controls input,.investigation-reference-controls button{height:43px;width:100%;box-sizing:border-box}}
+:root[data-theme="light"] .investigation-reference-lookup{background:#fff;border-color:#e1e3e7}
+:root[data-theme="light"] .investigation-reference-controls input{background:#f8f9fa;border-color:#dfe2e6;color:#17181a}

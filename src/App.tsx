@@ -411,6 +411,28 @@ export default function App() {
   const [cursor, setCursor] = useState({ x: 50, y: 50 });
 
   useEffect(() => setHistory(loadScans()), []);
+  const [remoteScan, setRemoteScan] = useState<Scan | null>(null);
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!investigationMatch) return;
+    const id = decodeURIComponent(investigationMatch[1]);
+    const local = history.find((item) => item.id === id);
+    if (local) { setRemoteScan(null); setLookupError(null); setLookupLoading(false); return; }
+    let cancelled = false;
+    setLookupLoading(true);
+    setLookupError(null);
+    fetch(`/api/investigation?id=${encodeURIComponent(id)}`, { cache: "no-store" })
+      .then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || "Could not find this investigation.");
+        return data.scan as Scan;
+      })
+      .then((scan) => { if (!cancelled) setRemoteScan(scan); })
+      .catch((error) => { if (!cancelled) setLookupError(error instanceof Error ? error.message : "Investigation lookup failed."); })
+      .finally(() => { if (!cancelled) setLookupLoading(false); });
+    return () => { cancelled = true; };
+  }, [investigationMatch?.[1], history]);
 
   useEffect(() => {
     const nodes = document.querySelectorAll<HTMLElement>(".impact-section, .principles, .history, .result-section, .motion-story, .scanner-shell, .hero-copy");
@@ -497,12 +519,12 @@ export default function App() {
   if (legalPage) return <LegalPage page={legalPage} />;
 
   if (investigationMatch) {
-    const scan = history.find((item) => item.id === decodeURIComponent(investigationMatch[1]));
-    if (!scan) return <InvestigationHistoryPage scans={history} onBack={() => window.location.assign("/")} onOpen={(item) => window.location.assign(`/investigation/${encodeURIComponent(item.id)}`)} onInvestigate={() => window.location.assign("/")} />;
+    const scan = history.find((item) => item.id === decodeURIComponent(investigationMatch[1])) ?? remoteScan;
+    if (!scan) return <main className="investigation-history-page"><div className="history-page-shell"><div className="history-page-heading"><div><span className="investigation-eyebrow">INVESTIGATION REFERENCE</span><h1>{lookupLoading ? "Retrieving investigation…" : "Investigation unavailable"}</h1><p>{lookupLoading ? "VERA is looking for the saved report." : lookupError || "This report may not have been saved or its ID may be incorrect."}</p></div></div><button className="investigation-new" onClick={() => window.location.assign("/investigations")}>Find another investigation <ArrowUpRight size={14} /></button><div className="investigation-principle"><ShieldCheck size={15} /><span>Investigate first. Understand the evidence. Then decide.</span></div></div></main>;
     return <InvestigationPage scan={scan} onBack={() => window.location.assign("/")} onInvestigations={() => window.location.assign("/investigations")} onInvestigateAnother={() => window.location.assign("/")} />;
   }
 
-  if (isInvestigationsPage) return <InvestigationHistoryPage scans={history} onBack={() => window.location.assign("/")} onOpen={(item) => window.location.assign(`/investigation/${encodeURIComponent(item.id)}`)} onInvestigate={() => window.location.assign("/")} />;
+  if (isInvestigationsPage) return <InvestigationHistoryPage scans={history} onBack={() => window.location.assign("/")} onOpen={(item) => window.location.assign(`/investigation/${encodeURIComponent(item.id)}`)} onInvestigate={() => window.location.assign("/")} onLookup={(id) => window.location.assign(`/investigation/${encodeURIComponent(id)}`)} />;
 
   return <main onMouseMove={(event) => { const r = event.currentTarget.getBoundingClientRect(); setCursor({ x: ((event.clientX-r.left)/r.width)*100, y: ((event.clientY-r.top)/r.height)*100 }); }} style={{ "--mx": `${cursor.x}%`, "--my": `${cursor.y}%` } as React.CSSProperties}>
     <nav className="nav">
