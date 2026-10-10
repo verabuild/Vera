@@ -524,7 +524,7 @@ export default function App() {
     return <InvestigationPage scan={scan} onBack={() => window.location.assign("/")} onInvestigations={() => window.location.assign("/investigations")} onInvestigateAnother={() => window.location.assign("/")} />;
   }
 
-  if (isInvestigationsPage) return <InvestigationHistoryPage scans={history} onBack={() => window.location.assign("/")} onOpen={(item) => window.location.assign(`/investigation/${encodeURIComponent(item.id)}`)} onInvestigate={() => window.location.assign("/")} />;
+  if (isInvestigationsPage) return <InvestigationHistoryPage scans={history} onBack={() => window.location.assign("/")} onOpen={(item) => window.location.assign(`/investigation/${encodeURIComponent(item.id)}`)} onInvestigate={() => window.location.assign("/")} onLookup={(id) => window.location.assign(`/investigation/${encodeURIComponent(id)}`)} />;
 
   return <main onMouseMove={(event) => { const r = event.currentTarget.getBoundingClientRect(); setCursor({ x: ((event.clientX-r.left)/r.width)*100, y: ((event.clientY-r.top)/r.height)*100 }); }} style={{ "--mx": `${cursor.x}%`, "--my": `${cursor.y}%` } as React.CSSProperties}>
     <nav className="nav">
