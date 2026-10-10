@@ -47,15 +47,15 @@ export default function InvestigationHistoryPage({ scans, onBack, onOpen, onInve
     </header>
 
     <div className="history-page-shell">
+      <form className="investigation-reference-lookup" onSubmit={(event) => { event.preventDefault(); const id = referenceId.trim(); if (id) onLookup(id); }}>
+        <div><span className="investigation-eyebrow">INVESTIGATION LOOKUP</span><strong>Have an Investigation ID?</strong><p>Paste an ID to reopen the original saved report. You do not need to run the investigation again.</p></div>
+        <div className="investigation-reference-controls"><input aria-label="Investigation ID" value={referenceId} onChange={(event) => setReferenceId(event.target.value)} placeholder="Paste Investigation ID" autoComplete="off" spellCheck={false} required /><button type="submit" disabled={!referenceId.trim()}><Search size={15} /> Find report</button></div>
+      </form>
+
       <div className="history-page-heading">
         <div><span className="investigation-eyebrow">INVESTIGATION TRAIL</span><h1>All investigations</h1><p>Review what you have investigated and return to the evidence.</p></div>
         <div className="history-page-count"><strong>{scans.length}</strong><span>stored locally</span></div>
       </div>
-
-      <form className="investigation-reference-lookup" onSubmit={(event) => { event.preventDefault(); const id = referenceId.trim(); if (id) onLookup(id); }}>
-        <div><span className="investigation-eyebrow">HAVE AN INVESTIGATION ID?</span><strong>Open a saved investigation</strong><p>Enter the reference shared with you to retrieve its saved results.</p></div>
-        <div className="investigation-reference-controls"><input aria-label="Investigation ID" value={referenceId} onChange={(event) => setReferenceId(event.target.value)} placeholder="Paste Investigation ID" autoComplete="off" spellCheck={false} required /><button type="submit" disabled={!referenceId.trim()}><Search size={14} /> Find investigation</button></div>
-      </form>
 
       {scans.length === 0
         ? <div className="investigation-empty history-page-empty"><FileSearch size={24} /><div><strong>No investigations yet</strong><p>Your investigation history will appear here after your first check.</p><button onClick={onInvestigate}>Start an investigation <ArrowUpRight size={14} /></button></div></div>
