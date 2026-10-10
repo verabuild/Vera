@@ -110,6 +110,9 @@ export async function persistScan(
   const db = getPool();
   if (!db) return;
 
+  scanReportSchemaPromise ||= db.query('ALTER TABLE scans ADD COLUMN IF NOT EXISTS report_json JSONB').then(() => undefined).catch((error) => { scanReportSchemaPromise = null; throw error; });
+  await scanReportSchemaPromise;
+
   const client = await db.connect();
 
   try {
