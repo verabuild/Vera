@@ -530,7 +530,7 @@ export default function App() {
     <nav className="nav">
       <div className="brand"><img className="brand-logo" src="/vera-logo.jpg" alt="VERA" /></div>
       <div className="nav-center"><span className="nav-live" /><strong>DECISION INTELLIGENCE</strong></div>
-      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span>{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}<button className="ghost-button" onClick={() => window.location.assign("/investigations")}>Investigations <ChevronRight size={14} /></button></div>
+      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span>{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}<button className="ghost-button" onClick={() => window.location.assign("/investigations")}><FileSearch size={14} /> Find a report <ChevronRight size={14} /></button></div>
     </nav>
 
     <section className="hero">
