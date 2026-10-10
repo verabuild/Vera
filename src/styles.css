@@ -995,3 +995,12 @@
 :root[data-theme="light"] .investigation-reference-lookup>div:first-child>strong{color:#17181a}
 :root[data-theme="light"] .investigation-id-card{background:linear-gradient(110deg,#fff,#f7f8fa);border-color:#d8dbe0}
 :root[data-theme="light"] .investigation-id-copy>strong{color:#17181a}
+
+
+/* Make report retrieval discoverable from the result itself, including on mobile. */
+.investigation-id-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.investigation-id-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:0 13px;border:1px solid #ddd;border-radius:8px;background:#f4f4f4;color:#080808;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer}
+.investigation-id-actions>button.find-saved-report{background:transparent;color:#f2f2f2;border-color:#555}
+.investigation-id-actions>button:hover{transform:translateY(-1px)}
+@media(max-width:560px){.investigation-id-actions{width:100%;flex-direction:column}.investigation-id-actions>button{width:100%;min-height:43px}.investigation-id-actions>button.find-saved-report{background:#1a1a1a;color:#fff;border-color:#555}}
+:root[data-theme="light"] .investigation-id-actions>button.find-saved-report{color:#17181a;border-color:#c9cdd2}
