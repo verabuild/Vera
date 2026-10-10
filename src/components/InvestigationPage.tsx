@@ -174,7 +174,7 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
 
         <section className="investigation-id-card" aria-label="Investigation ID">
           <div className="investigation-id-copy"><span className="investigation-eyebrow">INVESTIGATION ID</span><strong>{scan.id}</strong><p>Copy this reference to reopen or share this saved report.</p></div>
-          <div className="investigation-id-actions"><div className="investigation-id-actions"><button type="button" onClick={copyId}>{copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy ID</>}</button><button type="button" className="find-saved-report" onClick={onInvestigations}><FileSearch size={14} /> Find a report</button></div><button type="button" className="find-saved-report" onClick={onInvestigations}><FileSearch size={14} /> Find a report</button></div>
+          <button type="button" onClick={copyId}>{copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy ID</>}</button>
         </section>
 
         <section className="investigation-slide-deck">

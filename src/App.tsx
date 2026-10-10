@@ -11,6 +11,7 @@ import AuthControls from "./components/AuthControls";
 import LegalPage from "./components/LegalPage";
 import InvestigationPage from "./components/InvestigationPage";
 import InvestigationHistoryPage from "./components/InvestigationHistoryPage";
+import InvestigationLookupPage from "./components/InvestigationLookupPage";
 import type { Network, Assessment, InputType, Scan } from "./lib/types";
 
 const modes: { id: InputType; label: string; icon: typeof Link2; description: string }[] = [
@@ -384,6 +385,7 @@ export default function App() {
     : null;
   const investigationMatch = legalPath.match(/^\/investigation\/([^/]+)$/);
   const isInvestigationsPage = legalPath === "/investigations";
+  const isLookupPage = legalPath === "/lookup";
   const [themeMode, setThemeMode] = useState<"light" | "dark" | "auto">(() => {
     try { return (localStorage.getItem("vera-theme") as "light" | "dark" | "auto") || "dark"; } catch { return "dark"; }
   });
@@ -518,10 +520,12 @@ export default function App() {
 
   if (legalPage) return <LegalPage page={legalPage} />;
 
+  if (isLookupPage) return <InvestigationLookupPage onBack={() => window.location.assign("/")} onLookup={(id) => window.location.assign(`/investigation/${encodeURIComponent(id)}`)} />;
+
   if (investigationMatch) {
     const scan = history.find((item) => item.id === decodeURIComponent(investigationMatch[1])) ?? remoteScan;
     if (!scan) return <main className="investigation-history-page"><div className="history-page-shell"><div className="history-page-heading"><div><span className="investigation-eyebrow">INVESTIGATION REFERENCE</span><h1>{lookupLoading ? "Retrieving investigation…" : "Investigation unavailable"}</h1><p>{lookupLoading ? "VERA is looking for the saved report." : lookupError || "This report may not have been saved or its ID may be incorrect."}</p></div></div><button className="investigation-new" onClick={() => window.location.assign("/investigations")}>Find another investigation <ArrowUpRight size={14} /></button><div className="investigation-principle"><ShieldCheck size={15} /><span>Investigate first. Understand the evidence. Then decide.</span></div></div></main>;
-    return <InvestigationPage scan={scan} onBack={() => window.location.assign("/")} onInvestigations={() => window.location.assign("/investigations")} onInvestigateAnother={() => window.location.assign("/")} />;
+    return <InvestigationPage scan={scan} onBack={() => window.location.assign("/")} onInvestigations={() => window.location.assign("/lookup")} onInvestigateAnother={() => window.location.assign("/")} />;
   }
 
   if (isInvestigationsPage) return <InvestigationHistoryPage scans={history} onBack={() => window.location.assign("/")} onOpen={(item) => window.location.assign(`/investigation/${encodeURIComponent(item.id)}`)} onInvestigate={() => window.location.assign("/")} onLookup={(id) => window.location.assign(`/investigation/${encodeURIComponent(id)}`)} />;
@@ -530,7 +534,7 @@ export default function App() {
     <nav className="nav">
       <div className="brand"><img className="brand-logo" src="/vera-logo.jpg" alt="VERA" /></div>
       <div className="nav-center"><span className="nav-live" /><strong>DECISION INTELLIGENCE</strong></div>
-      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span>{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}<button className="ghost-button" onClick={() => window.location.assign("/investigations")}><FileSearch size={14} /> Find a report <ChevronRight size={14} /></button></div>
+      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span>{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}<button className="ghost-button" onClick={() => window.location.assign("/lookup")}><FileSearch size={14} /> Find a report <ChevronRight size={14} /></button></div>
     </nav>
 
     <section className="hero">
