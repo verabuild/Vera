@@ -20,6 +20,10 @@
   ],
   "rewrites": [
     {
+      "source": "/lookup",
+      "destination": "/index.html"
+    },
+    {
       "source": "/investigations",
       "destination": "/index.html"
     },
