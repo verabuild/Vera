@@ -1,4 +1,5 @@
-import { ChevronRight, FileSearch, ArrowUpRight, ArrowLeft, Link2, Mail, Wallet, ArrowLeftRight, ShieldCheck, TriangleAlert, Activity } from "lucide-react";
+import { useState } from "react";
+import { ChevronRight, FileSearch, ArrowUpRight, ArrowLeft, Link2, Mail, Wallet, ArrowLeftRight, ShieldCheck, TriangleAlert, Activity, Search } from "lucide-react";
 import type { Scan } from "../lib/types";
 
 type Props = {
@@ -6,6 +7,7 @@ type Props = {
   onBack: () => void;
   onOpen: (scan: Scan) => void;
   onInvestigate: () => void;
+  onLookup: (id: string) => void;
 };
 
 const typeLabels = {
@@ -35,7 +37,8 @@ function formatDate(value: string) {
   return date.toLocaleString([], { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-export default function InvestigationHistoryPage({ scans, onBack, onOpen, onInvestigate }: Props) {
+export default function InvestigationHistoryPage({ scans, onBack, onOpen, onInvestigate, onLookup }: Props) {
+  const [referenceId, setReferenceId] = useState("");
   return <main className="investigation-history-page">
     <header className="investigation-nav">
       <button className="investigation-back" onClick={onBack}><ArrowLeft size={15} /> VERA</button>
@@ -48,6 +51,11 @@ export default function InvestigationHistoryPage({ scans, onBack, onOpen, onInve
         <div><span className="investigation-eyebrow">INVESTIGATION TRAIL</span><h1>All investigations</h1><p>Review what you have investigated and return to the evidence.</p></div>
         <div className="history-page-count"><strong>{scans.length}</strong><span>stored locally</span></div>
       </div>
+
+      <form className="investigation-reference-lookup" onSubmit={(event) => { event.preventDefault(); const id = referenceId.trim(); if (id) onLookup(id); }}>
+        <div><span className="investigation-eyebrow">HAVE AN INVESTIGATION ID?</span><strong>Open a saved investigation</strong><p>Enter the reference shared with you to retrieve its saved results.</p></div>
+        <div className="investigation-reference-controls"><input aria-label="Investigation ID" value={referenceId} onChange={(event) => setReferenceId(event.target.value)} placeholder="Paste Investigation ID" autoComplete="off" spellCheck={false} required /><button type="submit" disabled={!referenceId.trim()}><Search size={14} /> Find investigation</button></div>
+      </form>
 
       {scans.length === 0
         ? <div className="investigation-empty history-page-empty"><FileSearch size={24} /><div><strong>No investigations yet</strong><p>Your investigation history will appear here after your first check.</p><button onClick={onInvestigate}>Start an investigation <ArrowUpRight size={14} /></button></div></div>
