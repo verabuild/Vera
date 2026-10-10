@@ -949,3 +949,49 @@
 @media(max-width:680px){.investigation-reference-lookup{grid-template-columns:1fr;gap:14px;padding:17px}.investigation-reference-controls{flex-direction:column}.investigation-reference-controls input,.investigation-reference-controls button{height:43px;width:100%;box-sizing:border-box}}
 :root[data-theme="light"] .investigation-reference-lookup{background:#fff;border-color:#e1e3e7}
 :root[data-theme="light"] .investigation-reference-controls input{background:#f8f9fa;border-color:#dfe2e6;color:#17181a}
+
+/* Make investigation lookup and report references immediately discoverable. */
+.investigation-reference-lookup{
+  position:relative;
+  margin:0 0 28px;
+  padding:clamp(18px,2.4vw,26px);
+  border-color:#3a3a3a;
+  background:linear-gradient(120deg,rgba(255,255,255,.065),rgba(255,255,255,.018));
+  box-shadow:0 16px 45px rgba(0,0,0,.16);
+}
+.investigation-reference-lookup:before{
+  content:"";
+  position:absolute;
+  left:0;top:18px;bottom:18px;width:2px;
+  background:#f3f3f3;border-radius:2px;
+}
+.investigation-reference-lookup>div:first-child>strong{font-size:18px;color:var(--white,#f5f5f5)}
+.investigation-reference-controls input{height:46px;background:#080808;border-color:#3a3a3a;font-size:13px}
+.investigation-reference-controls button{min-height:46px;font-size:12px}
+.investigation-reference-controls button:hover:not(:disabled){background:#fff;transform:translateY(-1px)}
+.investigation-id-card{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  margin:12px 0 18px;padding:17px 20px;
+  border:1px solid rgba(255,255,255,.15);border-radius:13px;
+  background:linear-gradient(110deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+}
+.investigation-id-copy{display:grid;gap:6px;min-width:0}
+.investigation-id-copy>strong{
+  color:#f4f4f4;font:500 12px "DM Mono",monospace;letter-spacing:.015em;
+  overflow-wrap:anywhere;user-select:text;
+}
+.investigation-id-copy p{margin:0;color:#777;font-size:10px;line-height:1.5}
+.investigation-id-card>button{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:0 0 auto;
+  min-height:38px;padding:0 13px;border:1px solid #ddd;border-radius:8px;
+  background:#f4f4f4;color:#080808;font-size:11px;font-weight:700;
+}
+.investigation-id-card>button:hover{background:#fff;transform:translateY(-1px)}
+@media(max-width:560px){
+  .investigation-id-card{align-items:flex-start;flex-direction:column;padding:15px;gap:12px}
+  .investigation-id-card>button{width:100%}
+}
+:root[data-theme="light"] .investigation-reference-lookup{background:linear-gradient(120deg,#fff,#f7f8fa);border-color:#d4d7dc}
+:root[data-theme="light"] .investigation-reference-lookup>div:first-child>strong{color:#17181a}
+:root[data-theme="light"] .investigation-id-card{background:linear-gradient(110deg,#fff,#f7f8fa);border-color:#d8dbe0}
+:root[data-theme="light"] .investigation-id-copy>strong{color:#17181a}
