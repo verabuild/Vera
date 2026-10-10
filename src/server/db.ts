@@ -4,6 +4,7 @@ import type { Assessment, InputType, Network } from '../lib/types.js';
 
 let pool: Pool | null = null;
 let usageSchemaPromise: Promise<void> | null = null;
+let scanReportSchemaPromise: Promise<void> | null = null;
 
 function getPool() {
   if (!process.env.DATABASE_URL) return null;
@@ -77,6 +78,27 @@ export async function consumeUsageQuota(subjectId: string, periodKey: string, li
   return { allowed: true, remaining: Math.max(0, limit - Number(result.rows[0].usage_count)) };
 }
 
+export async function getPersistedScan(scanId: string) {
+  const db = getPool();
+  if (!db) throw new Error('Database unavailable');
+
+  scanReportSchemaPromise ||= db.query(
+    'ALTER TABLE scans ADD COLUMN IF NOT EXISTS report_json JSONB'
+  ).then(() => undefined).catch((error) => {
+    scanReportSchemaPromise = null;
+    throw error;
+  });
+  await scanReportSchemaPromise;
+
+  const result = await db.query(
+    'SELECT report_json FROM scans WHERE id = $1 LIMIT 1',
+    [scanId]
+  );
+  const report = result.rows[0]?.report_json;
+  if (!report || typeof report !== 'object') return null;
+  return report;
+}
+
 export async function persistScan(
   scanId: string,
   inputType: InputType,
@@ -115,7 +137,7 @@ export async function persistScan(
     await client.query(
       `INSERT INTO scans(id,user_id,input_type,input_hash,input_preview,network)
        VALUES($1,$2,$3,$4,$5,$6)`,
-      [scanId, userId, inputType, inputHash, preview, network]
+      [scanId, userId, inputType, inputHash, preview, network, JSON.stringify({ id: scanId, type: inputType, input: preview, createdAt: new Date().toISOString(), assessment })]
     );
 
     const entityResult = await client.query(
