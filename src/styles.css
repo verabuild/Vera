@@ -1287,3 +1287,20 @@
     height: 32px;
   }
 }
+
+
+/* Floating VERA return orb: uses the shared official silver V mark. */
+.vera-return-orb{position:fixed;z-index:80;right:max(22px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));display:grid;place-items:center;width:66px;height:66px;padding:0;border:0;border-radius:50%;color:#f7f7f7;background:transparent;cursor:pointer;opacity:0;pointer-events:none;transform:translateY(12px) scale(.92);transition:opacity .24s ease,transform .24s ease;isolation:isolate;-webkit-tap-highlight-color:transparent}
+.vera-return-orb.is-visible{opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
+.vera-return-orb-halo{position:absolute;inset:-7px;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.12),rgba(255,255,255,0) 72%);filter:blur(5px);opacity:.7;transition:opacity .25s ease,transform .25s ease}
+.vera-return-orb-glass{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;border:1px solid rgba(255,255,255,.46);border-radius:50%;background:radial-gradient(circle at 30% 18%,rgba(255,255,255,.25),transparent 34%),linear-gradient(145deg,rgba(64,64,64,.94),rgba(13,13,13,.96) 58%,rgba(39,39,39,.96));box-shadow:inset 0 1px 1px rgba(255,255,255,.55),inset 0 -8px 16px rgba(0,0,0,.52),0 10px 30px rgba(0,0,0,.4),0 0 0 4px rgba(255,255,255,.035);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);transition:box-shadow .25s ease,border-color .25s ease,transform .25s ease}
+.vera-return-orb-glass:before{content:"";position:absolute;top:5px;left:14px;right:14px;height:17px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0));filter:blur(2px);pointer-events:none}
+.vera-return-orb-glass img{display:block;width:33px;height:33px;object-fit:contain;border-radius:50%}
+.vera-return-orb-label{position:absolute;right:76px;display:inline-flex;align-items:center;gap:8px;width:max-content;max-width:min(240px,calc(100vw - 112px));padding:11px 14px;border:1px solid rgba(255,255,255,.17);border-radius:11px;background:rgba(17,17,17,.88);color:#f3f3f3;font-size:11px;font-weight:600;letter-spacing:.01em;box-shadow:0 10px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.09);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);opacity:0;transform:translateX(5px);pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+.vera-return-orb-label svg{flex:0 0 auto;color:#aaa}
+.vera-return-orb:hover .vera-return-orb-glass,.vera-return-orb:focus-visible .vera-return-orb-glass{transform:translateY(-2px);border-color:rgba(255,255,255,.8);box-shadow:inset 0 1px 1px rgba(255,255,255,.65),inset 0 -8px 16px rgba(0,0,0,.45),0 14px 34px rgba(0,0,0,.45),0 0 0 5px rgba(255,255,255,.07)}
+.vera-return-orb:hover .vera-return-orb-label,.vera-return-orb:focus-visible .vera-return-orb-label{opacity:1;transform:translateX(0)}
+.vera-return-orb:focus-visible{outline:2px solid #fff;outline-offset:5px}
+:root[data-theme="light"] .vera-return-orb-glass{border-color:rgba(255,255,255,.8);background:radial-gradient(circle at 30% 18%,rgba(255,255,255,.8),transparent 34%),linear-gradient(145deg,#666,#171717 62%,#4a4a4a);box-shadow:inset 0 1px 1px rgba(255,255,255,.75),inset 0 -8px 16px rgba(0,0,0,.4),0 10px 30px rgba(20,25,30,.22),0 0 0 4px rgba(0,0,0,.035)}
+@media(max-width:560px){.vera-return-orb{right:max(16px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));width:58px;height:58px}.vera-return-orb-glass img{width:30px;height:30px}.vera-return-orb-label{right:67px;font-size:10px;padding:10px 12px}}
+@media(prefers-reduced-motion:reduce){.vera-return-orb,.vera-return-orb *{transition:none!important}}
