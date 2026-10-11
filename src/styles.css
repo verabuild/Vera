@@ -1263,3 +1263,27 @@
 @media (prefers-reduced-motion: reduce) {
   .nav, .nav::before, .nav::after { scroll-behavior: auto; }
 }
+
+
+/* Landing-page navigation logo sizing: keep the mark contained and clear of adjacent controls. */
+.nav .brand {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.nav .brand-logo {
+  width: 58px;
+  height: 34px;
+  max-width: 100%;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+.nav .nav-center,
+.nav .nav-actions {
+  min-width: 0;
+}
+@media (max-width: 850px) {
+  .nav .brand-logo {
+    width: 54px;
+    height: 32px;
+  }
+}
