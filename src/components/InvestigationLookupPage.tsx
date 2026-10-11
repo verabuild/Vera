@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { OFFICIAL_VERA_LOGO } from "../lib/brand";
 import { ArrowLeft, ArrowUpRight, FileSearch, Fingerprint, Search, ShieldCheck, Sparkles } from "lucide-react";
 
 type Props = {
@@ -10,7 +11,7 @@ export default function InvestigationLookupPage({ onBack, onLookup }: Props) {
   const [referenceId, setReferenceId] = useState("");
   return <main className="lookup-page">
     <header className="lookup-topbar">
-      <button className="lookup-brand" onClick={onBack} aria-label="Back to VERA"><span className="lookup-brand-mark"><img src="/vera-logo.jpg" alt="" /></span><span>VERA</span></button>
+      <button className="lookup-brand" onClick={onBack} aria-label="Back to VERA"><span className="lookup-brand-mark"><img src={OFFICIAL_VERA_LOGO} alt="" /></span><span>VERA</span></button>
       <span className="lookup-topbar-label"><span /> REPORT RETRIEVAL</span>
       <span className="lookup-readonly"><ShieldCheck size={13} /> READ-ONLY</span>
     </header>
