@@ -413,6 +413,21 @@ export default function App() {
   const { getAccessToken } = usePrivy();
   const [cursor, setCursor] = useState({ x: 50, y: 50 });
 
+  const [showReturnOrb, setShowReturnOrb] = useState(false);
+  useEffect(() => {
+    const scanner = document.querySelector<HTMLElement>(".scanner-shell");
+    if (!scanner || !("IntersectionObserver" in window)) return;
+    const updateVisibility = () => {
+      const rect = scanner.getBoundingClientRect();
+      setShowReturnOrb(window.scrollY > 360 && (rect.bottom < 0 || rect.top > window.innerHeight));
+    };
+    const observer = new IntersectionObserver(updateVisibility, { threshold: 0.08 });
+    observer.observe(scanner);
+    window.addEventListener("scroll", updateVisibility, { passive: true });
+    updateVisibility();
+    return () => { observer.disconnect(); window.removeEventListener("scroll", updateVisibility); };
+  }, []);
+
   useEffect(() => setHistory(loadScans()), []);
   const [remoteScan, setRemoteScan] = useState<Scan | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
@@ -589,6 +604,11 @@ export default function App() {
 
 
     <footer className="site-footer"><div className="footer-brand"><div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div><p>Know before you act.</p><small>Evidence before action. No financial execution.</small></div><nav className="footer-links" aria-label="Project links"><a href="https://verabuild.vercel.app/" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Vera <span>Live beta</span></a><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> GitHub <span>Source code</span></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> X <span>Vera</span></a><a href="mailto:verabuild1@gmail.com"><ExternalLink size={14} /> Email <span>verabuild1@gmail.com</span></a><a href="#roadmap"><ExternalLink size={14} /> Roadmap <span>6–12 month product path</span></a><a href="https://github.com/verabuild/Vera/blob/main/README.md" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Documentation <span>Project overview</span></a></nav><div className="footer-legal"><nav className="legal-links" aria-label="Legal"><a href="/terms" target="_blank" rel="noreferrer noopener">Terms</a><a href="/privacy" target="_blank" rel="noreferrer noopener">Privacy</a><a href="/cookies" target="_blank" rel="noreferrer noopener">Cookies</a><a href="/disclosures" target="_blank" rel="noreferrer noopener">Risk disclosures</a></nav><div className="theme-switch" role="group" aria-label="Colour theme">{(["light", "dark", "auto"] as const).map((theme) => <button key={theme} type="button" className={themeMode === theme ? "active" : ""} aria-pressed={themeMode === theme} onClick={() => setThemeMode(theme)}>{theme[0].toUpperCase() + theme.slice(1)}</button>)}</div><small className="footer-copyright">VERA · Decision intelligence</small></div></footer>
+    <button type="button" className={`vera-return-orb ${showReturnOrb ? "is-visible" : ""}`} aria-label="Back to investigation" aria-hidden={!showReturnOrb} tabIndex={showReturnOrb ? 0 : -1} onClick={() => document.querySelector(".scanner-shell")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" })}>
+      <span className="vera-return-orb-halo" aria-hidden="true" />
+      <span className="vera-return-orb-glass"><img src={OFFICIAL_VERA_LOGO} alt="" /></span>
+      <span className="vera-return-orb-label">Back to investigation <ArrowUpRight size={13} /></span>
+    </button>
     <Analytics />
   </main>;
 }
