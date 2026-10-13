@@ -7,6 +7,10 @@ const templatePath = path.join(outputDir, "index.html");
 const template = await readFile(templatePath, "utf8");
 
 const pages = {
+  "/case": {
+    title: "Solana Investigation Terminal | VERA",
+    description: "Trace public Solana transfers, connect transaction evidence and export a bounded on-chain investigation report."
+  },
   "/about": {
     title: "About VERA | Know before you act",
     description: "Learn why VERA exists, what it investigates, and how it helps people assess digital risk with evidence rather than assumptions."

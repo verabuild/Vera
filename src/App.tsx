@@ -4,7 +4,7 @@ import {
   Activity, ArrowUpRight, ArrowLeftRight, BrainCircuit, Check, ChevronRight, ClipboardPaste,
   ExternalLink, FileSearch, Fingerprint, Link2, LockKeyhole, Mail, Radar, RefreshCw,
   ScanSearch, ShieldCheck, TriangleAlert, Wallet, X, HeartCrack, Building2, BriefcaseBusiness,
-  CircleDollarSign, BadgeAlert, ArrowDownRight
+  CircleDollarSign, BadgeAlert, ArrowDownRight, GitBranch
 } from "lucide-react";
 import { Analytics } from "@vercel/analytics/react";
 import { usePrivy } from "@privy-io/react-auth";
@@ -14,6 +14,7 @@ import PublicPage from "./components/PublicPage";
 import InvestigationPage from "./components/InvestigationPage";
 import InvestigationHistoryPage from "./components/InvestigationHistoryPage";
 import InvestigationLookupPage from "./components/InvestigationLookupPage";
+import SolanaCaseTerminal from "./components/SolanaCaseTerminal";
 import type { Network, Assessment, InputType, Scan } from "./lib/types";
 
 const modes: { id: InputType; label: string; icon: typeof Link2; description: string }[] = [
@@ -391,6 +392,7 @@ export default function App() {
   const investigationMatch = legalPath.match(/^\/investigation\/([^/]+)$/);
   const isInvestigationsPage = legalPath === "/investigations";
   const isLookupPage = legalPath === "/lookup";
+  const isCaseTerminal = legalPath === "/case";
   const [themeMode, setThemeMode] = useState<"light" | "dark" | "auto">(() => {
     try { return (localStorage.getItem("vera-theme") as "light" | "dark" | "auto") || "dark"; } catch { return "dark"; }
   });
@@ -435,6 +437,7 @@ export default function App() {
   useEffect(() => {
     const metadata: Record<string, { title: string; description: string }> = {
       "/": { title: "VERA ⇴ Know before you act", description: "VERA helps you investigate suspicious links, messages, Solana wallets and transactions using available threat intelligence and evidence-based analysis, so you can make more informed decisions before you act." },
+      "/case": { title: "Solana Investigation Terminal | VERA", description: "Trace public Solana transfers, connect transaction evidence and export a bounded on-chain investigation report." },
       "/about": { title: "About VERA | Know before you act", description: "Learn why VERA exists, what it investigates, and how it helps people assess digital risk with evidence rather than assumptions." },
       "/how-it-works": { title: "How VERA Works | Know before you act", description: "Understand VERA's evidence-first investigation process, threat-intelligence checks, coverage limits and risk assessments." },
       "/project": { title: "Project Transparency | VERA", description: "Explore VERA's scope, current capabilities, public source code and project status." },
@@ -576,6 +579,7 @@ export default function App() {
   function restore(scan: Scan) { setMode(scan.type); setInput(scan.input); setAssessment(scan.assessment); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   if (legalPage) return <LegalPage page={legalPage} />;
+  if (isCaseTerminal) return <SolanaCaseTerminal />;
   if (publicPage) return <PublicPage page={publicPage} />;
 
   if (isLookupPage) return <InvestigationLookupPage onBack={() => window.location.assign("/")} onLookup={(id) => window.location.assign(`/investigation/${encodeURIComponent(id)}`)} />;
@@ -592,7 +596,7 @@ export default function App() {
     <nav className="nav">
       <div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div>
       <div className="nav-center"><span className="nav-live" /><strong>DECISION INTELLIGENCE</strong></div>
-      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span>{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}<button className="ghost-button" onClick={() => window.location.assign("/lookup")}><FileSearch size={14} /> Find a report <ChevronRight size={14} /></button></div>
+      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span>{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}<button className="ghost-button" onClick={() => window.location.assign("/case")}><GitBranch size={14} /> Case terminal <ChevronRight size={14} /></button><button className="ghost-button" onClick={() => window.location.assign("/lookup")}><FileSearch size={14} /> Find a report <ChevronRight size={14} /></button></div>
     </nav>
 
     <section className="hero">
@@ -624,6 +628,7 @@ export default function App() {
         <button className="scan-button" onClick={scan} disabled={busy || !input.trim()}>{busy ? <><RefreshCw size={16} className="spin" /> Investigating signals…</> : <><ScanSearch size={16} /> Investigate with VERA <ArrowUpRight size={16} /></>}</button>
         <div className="trust-note">No wallet connection required <span /> Read-only investigation <span /> Live evidence</div>
         <button className="console-lookup-entry" onClick={() => window.location.assign("/lookup")}><span className="console-lookup-icon"><FileSearch size={17} /></span><span className="console-lookup-copy"><strong>Look up an investigation</strong><small>Already have an Investigation ID? Reopen a saved report without running a new scan.</small></span><ArrowUpRight size={17} className="console-lookup-arrow" /></button>
+        <button className="console-lookup-entry" onClick={() => window.location.assign("/case")}><span className="console-lookup-icon"><GitBranch size={17} /></span><span className="console-lookup-copy"><strong>Open Solana Investigation Terminal</strong><small>Trace public wallet activity, connect transaction evidence and export a case report.</small></span><ArrowUpRight size={17} className="console-lookup-arrow" /></button>
       </div>
     </section>
 
