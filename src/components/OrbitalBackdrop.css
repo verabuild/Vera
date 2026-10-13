@@ -99,3 +99,40 @@ body {
     animation: none !important;
   }
 }
+
+/* Shared surface and type refinements across the existing product routes. */
+:root {
+  --vera-glass: rgba(255,255,255,.035);
+  --vera-glass-border: rgba(255,255,255,.11);
+}
+h2, h3, h4, input, textarea, select, button {
+  font-family: var(--vera-font-ui);
+}
+.nav, .investigation-topbar, .lookup-topbar {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.scanner-shell, .lookup-form-card, .investigation-id-card, .investigation-field,
+.slide-card, .assessment, .history, .impact-card, .principle-card {
+  border-color: var(--vera-glass-border);
+}
+.scanner-shell, .lookup-form-card, .investigation-id-card {
+  background-image: linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,255,255,.012) 54%, rgba(255,255,255,.025));
+  box-shadow: 0 24px 70px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.055);
+}
+button, a, input, textarea, select {
+  -webkit-tap-highlight-color: transparent;
+}
+:where(button, a, input, textarea, select):focus-visible {
+  outline: 2px solid rgba(235,239,244,.78);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
