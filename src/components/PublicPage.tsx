@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpRight, ExternalLink, Network, Mail, Github } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ExternalLink, Network, Mail, Code2 } from "lucide-react";
 import { OFFICIAL_VERA_LOGO } from "../lib/brand";
 
 type PublicPageKey = "about" | "how-it-works" | "project" | "contact";
@@ -85,7 +85,7 @@ export default function PublicPage({ page }: { page: PublicPageKey }) {
         </article>)}
       </section>
       <section className="public-page-resources" aria-label="Official project resources">
-        <a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><Github size={16} /><span><strong>Source code</strong><small>GitHub repository</small></span><ExternalLink size={13} /></a>
+        <a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><Code2 size={16} /><span><strong>Source code</strong><small>GitHub repository</small></span><ExternalLink size={13} /></a>
         <a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><Network size={16} /><span><strong>Project updates</strong><small>Official X account</small></span><ExternalLink size={13} /></a>
         <a href="mailto:verabuild1@gmail.com"><Mail size={16} /><span><strong>Contact</strong><small>verabuild1@gmail.com</small></span><ArrowUpRight size={13} /></a>
       </section>
