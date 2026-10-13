@@ -147,8 +147,7 @@ export async function traceSolanaCase(input: {
         transfers.push({
           signature, slot: tx.slot, blockTime: tx.blockTime ?? null, ...parsed,
           source, destination,
-          ...(sourceOwner ? { sourceTokenAccount: parsed.source } : {}),
-          ...(destinationOwner ? { destinationTokenAccount: parsed.destination } : {}),
+          ...(parsed.kind === 'TOKEN' ? { sourceTokenAccount: parsed.source, destinationTokenAccount: parsed.destination } : {}),
           sourceSeed, depth: transferDepth
         });
         if (transferDepth < maxDepth && !discovered.has(destination) && discovered.size < MAX_NODES) {
