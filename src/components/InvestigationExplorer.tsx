@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import {
-  Activity, ArrowLeftRight, CheckCircle2, CircleHelp, ExternalLink,
-  Fingerprint, Globe2, Link2, Network, Radar, ShieldAlert, Users, Wallet
+  Activity, CheckCircle2, CircleHelp, ExternalLink,
+  Fingerprint, Globe2, Link2, ShieldAlert, Users, Wallet
 } from "lucide-react";
 import type { Evidence, Scan, InvestigationCheck } from "../lib/types";
 
@@ -142,7 +142,6 @@ export default function InvestigationExplorer({ scan }: { scan: Scan }) {
         {active !== "overview" && active !== "evidence" && filteredChecks.length > 0 && <div className="intel-checks-block"><div className="intel-subhead"><strong>Related checks</strong><span>{filteredChecks.length} checks</span></div>{filteredChecks.map((check) => <CheckRow key={check.name} check={check} />)}</div>}
         {active === "evidence" && filteredEvidence.length === 0 && <EmptyEvidence title="No evidence items recorded" copy="The assessment returned no evidence items. Review the provider check states above to understand whether sources were checked, unavailable or skipped." />}
         {active === "overview" && evidence.length === 0 && checks.length === 0 && <EmptyEvidence title="No evidence coverage was returned" copy="VERA could not provide a source-backed report for this case. Treat the result as inconclusive and do not interpret missing data as safety." />}
-        {active !== "overview" && active !== "evidence" && filteredEvidence.length === 0 && filteredChecks.length === 0 && !["identity", "threats", "people", "journey", "web3"].includes(active) && <EmptyEvidence title="No evidence available" copy="This section has no source-backed findings in the current report." />}
         <div className="intel-section-foot"><Activity size={13} /><span>Report generated {new Date(scan.createdAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}. Findings describe the evidence available at that time.</span></div>
       </div>
     </div>
