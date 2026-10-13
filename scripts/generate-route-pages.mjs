@@ -47,15 +47,15 @@ function escapeAttribute(value) {
 
 function upsertMeta(html, attribute, key, value) {
   const escapedKey = key.replace(/[.*+?^$()|[\]\\]/g, "\\$&");
-  const pattern = new RegExp(\`<meta\\\\s+[^>]*\${attribute}=["']\${escapedKey}["'][^>]*>\`, "i");
-  const tag = \`<meta \${attribute}="\${key}" content="\${escapeAttribute(value)}" />\`;
+  const pattern = new RegExp("<meta\\\\s+[^>]*" + attribute + "=[\\"']" + escapedKey + "[\\"'][^>]*>", "i");
+  const tag = '<meta ' + attribute + '="' + key + '" content="' + escapeAttribute(value) + '" />';
   if (pattern.test(html)) return html.replace(pattern, tag);
-  return html.replace("</head>", \`  \${tag}\\n  </head>\`);
+  return html.replace("</head>", "  " + tag + "\\n  </head>");
 }
 
 function makePage(pathname, page) {
-  const canonical = \`https://vera-build.site\${pathname}\`;
-  let html = template.replace(/<title>[\\s\\S]*?<\\/title>/i, \`<title>\${page.title}</title>\`);
+  const canonical = "https://vera-build.site" + pathname;
+  let html = template.replace(/<title>[\\s\\S]*?<\\/title>/i, "<title>" + page.title + "</title>");
   html = upsertMeta(html, "name", "description", page.description);
   html = upsertMeta(html, "name", "robots", "index,follow");
   html = upsertMeta(html, "property", "og:title", page.title);
@@ -63,7 +63,7 @@ function makePage(pathname, page) {
   html = upsertMeta(html, "property", "og:url", canonical);
   html = upsertMeta(html, "name", "twitter:title", page.title);
   html = upsertMeta(html, "name", "twitter:description", page.description);
-  html = html.replace(/<link\\s+rel=["']canonical["'][^>]*>/i, \`<link rel="canonical" href="\${canonical}" />\`);
+  html = html.replace(/<link\\s+rel=["']canonical["'][^>]*>/i, '<link rel="canonical" href="' + canonical + '" />');
   return html;
 }
 
@@ -78,4 +78,4 @@ for (const [route, page] of Object.entries(pages)) {
   await mkdir(routeDir, { recursive: true });
   await writeFile(path.join(routeDir, "index.html"), makePage(route, page), "utf8");
 }
-console.log(\`Generated crawler-ready HTML metadata for \${Object.keys(pages).length + 1} public routes.\`);
+console.log("Generated crawler-ready HTML metadata for " + (Object.keys(pages).length + 1) + " public routes.");
