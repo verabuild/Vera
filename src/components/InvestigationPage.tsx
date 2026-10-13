@@ -161,7 +161,7 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
 
       <section className="investigation-canvas">
         <div className="investigation-canvas-head">
-          <div><span className="investigation-eyebrow">INVESTIGATION ROOM</span><h1>Understand what you are about to act on.</h1></div>
+          <div className="investigation-room-heading"><span className="investigation-eyebrow">VERA / ANALYSIS WORKSPACE</span><h1>INVESTIGATION ROOM</h1><p>Understand what you are about to act on.</p></div>
           <div className="canvas-meta">{scan.assessment.network && <span>{scan.assessment.network}</span>}<span>{formatDate(scan.createdAt)}</span></div>
         </div>
 
