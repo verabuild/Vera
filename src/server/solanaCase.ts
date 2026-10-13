@@ -104,9 +104,15 @@ export async function traceSolanaCase(input: {
     if (!batch.length) break;
     batch.forEach((signature) => seenSignatures.add(signature));
 
-    const txResults = await Promise.allSettled(batch.map((signature) =>
-      connection.getParsedTransaction(signature, { commitment: 'confirmed', maxSupportedTransactionVersion: 0 })
-    ));
+    const txResults: PromiseSettledResult<Awaited<ReturnType<typeof connection.getParsedTransaction>>>[] = [];
+    // Keep public-RPC concurrency bounded so one case does not trigger an avoidable rate-limit burst.
+    for (let offset = 0; offset < batch.length; offset += 8) {
+      const chunk = batch.slice(offset, offset + 8);
+      const chunkResults = await Promise.allSettled(chunk.map((signature) =>
+        connection.getParsedTransaction(signature, { commitment: 'confirmed', maxSupportedTransactionVersion: 0 })
+      ));
+      txResults.push(...chunkResults);
+    }
     checkedTransactions += batch.length;
     const newDestinations: string[] = [];
 
