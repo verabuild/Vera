@@ -33,7 +33,7 @@ function splitLines(value: string) {
 }
 function shorten(value: string) { return value.length > 20 ? `${value.slice(0, 9)}…${value.slice(-7)}` : value; }
 function dateLabel(value: number | null) {
-  return value ? new Date(value * 1000).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) + ' UTC' : 'Timestamp unavailable';
+  return value ? new Date(value * 1000).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }) + ' UTC' : 'Timestamp unavailable';
 }
 function amountLabel(transfer: Transfer) {
   if (transfer.amount === null) return `Raw units: ${transfer.rawAmount}`;
