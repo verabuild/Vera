@@ -1,0 +1,138 @@
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap');
+
+/*
+ * VERA Living Visual System
+ * Decorative motion only: the product remains fully usable without it.
+ */
+:root {
+  --vera-font-ui: "General Sans", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+html, body, button, input, textarea, select {
+  font-family: var(--vera-font-ui);
+}
+body {
+  isolation: isolate;
+}
+.vera-orbital-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+  opacity: .72;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
+}
+.vera-orbital-cluster {
+  position: absolute;
+  width: clamp(170px, 23vw, 360px);
+  aspect-ratio: 1;
+  filter: drop-shadow(0 18px 44px rgba(255,255,255,.035));
+  transform-style: preserve-3d;
+}
+.vera-orbital-cluster--left {
+  top: 12%;
+  left: -9%;
+  animation: vera-orbit-drift-left 24s ease-in-out infinite alternate;
+}
+.vera-orbital-cluster--right {
+  top: 42%;
+  right: -10%;
+  animation: vera-orbit-drift-right 29s ease-in-out infinite alternate;
+  animation-delay: -8s;
+}
+.vera-orbital-ring {
+  position: absolute;
+  inset: 14%;
+  border: 1px solid rgba(224, 228, 233, .34);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 26% 18%, rgba(255,255,255,.13), transparent 33%, rgba(255,255,255,.018) 58%, transparent 70%);
+  box-shadow: inset 0 0 24px rgba(255,255,255,.025), 0 0 22px rgba(255,255,255,.025);
+  transform-style: preserve-3d;
+}
+.vera-orbital-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border-top: 1px solid rgba(255,255,255,.72);
+  border-right: 1px solid rgba(255,255,255,.08);
+  opacity: .75;
+}
+.vera-orbital-ring--a { transform: rotateX(63deg) rotateZ(0deg); animation: vera-ring-a 17s linear infinite; }
+.vera-orbital-ring--b { inset: 4%; transform: rotateY(64deg) rotateZ(35deg); animation: vera-ring-b 22s linear infinite; }
+.vera-orbital-ring--c { inset: 23%; transform: rotateX(70deg) rotateZ(72deg); animation: vera-ring-c 19s linear infinite; }
+.vera-orbital-core {
+  position: absolute;
+  width: 30%;
+  aspect-ratio: 1;
+  left: 35%;
+  top: 35%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 28% 23%, rgba(255,255,255,.42), rgba(180,185,193,.11) 18%, rgba(35,37,41,.28) 48%, rgba(255,255,255,.08) 68%, transparent 72%);
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: inset -8px -10px 20px rgba(0,0,0,.4), 0 0 35px rgba(255,255,255,.045);
+  animation: vera-core-sway 8s ease-in-out infinite alternate;
+}
+@keyframes vera-ring-a { from { transform: rotateX(63deg) rotateZ(0deg); } to { transform: rotateX(63deg) rotateZ(360deg); } }
+@keyframes vera-ring-b { from { transform: rotateY(64deg) rotateZ(35deg); } to { transform: rotateY(64deg) rotateZ(-325deg); } }
+@keyframes vera-ring-c { from { transform: rotateX(70deg) rotateZ(72deg); } to { transform: rotateX(70deg) rotateZ(432deg); } }
+@keyframes vera-core-sway { from { transform: translate3d(-5px, -3px, 0) scale(.97); } to { transform: translate3d(6px, 5px, 0) scale(1.04); } }
+@keyframes vera-orbit-drift-left { from { transform: translate3d(0, -12px, 0) rotate(-8deg); } to { transform: translate3d(28px, 24px, 0) rotate(10deg); } }
+@keyframes vera-orbit-drift-right { from { transform: translate3d(0, 10px, 0) rotate(9deg); } to { transform: translate3d(-24px, -26px, 0) rotate(-12deg); } }
+
+/* Keep the artwork quiet behind text-heavy product surfaces. */
+.investigation-page ~ .vera-orbital-backdrop,
+.lookup-page ~ .vera-orbital-backdrop { opacity: .36; }
+
+@media (max-width: 760px) {
+  .vera-orbital-backdrop { opacity: .34; }
+  .vera-orbital-cluster { width: clamp(150px, 43vw, 230px); }
+  .vera-orbital-cluster--left { top: 9%; left: -22%; }
+  .vera-orbital-cluster--right { top: 50%; right: -24%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vera-orbital-cluster,
+  .vera-orbital-ring,
+  .vera-orbital-core {
+    animation: none !important;
+  }
+}
+
+/* Shared surface and type refinements across the existing product routes. */
+:root {
+  --vera-glass: rgba(255,255,255,.035);
+  --vera-glass-border: rgba(255,255,255,.11);
+}
+h2, h3, h4, input, textarea, select, button {
+  font-family: var(--vera-font-ui);
+}
+.nav, .investigation-topbar, .lookup-topbar {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.scanner-shell, .lookup-form-card, .investigation-id-card, .investigation-field,
+.slide-card, .assessment, .history, .impact-card, .principle-card {
+  border-color: var(--vera-glass-border);
+}
+.scanner-shell, .lookup-form-card, .investigation-id-card {
+  background-image: linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,255,255,.012) 54%, rgba(255,255,255,.025));
+  box-shadow: 0 24px 70px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.055);
+}
+button, a, input, textarea, select {
+  -webkit-tap-highlight-color: transparent;
+}
+:where(button, a, input, textarea, select):focus-visible {
+  outline: 2px solid rgba(235,239,244,.78);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
