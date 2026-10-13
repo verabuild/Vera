@@ -1448,3 +1448,23 @@
 
 
 @media(max-width:640px){.footer-legal{grid-template-columns:1fr;grid-template-areas:"theme" "legal" "copy";justify-items:start;row-gap:14px}.theme-switch{justify-self:start}.legal-links{gap:12px 16px}.footer-copyright{text-align:left}}
+
+
+/* Investigation room: make the workspace title the clear, full-width anchor. */
+.investigation-canvas-head{display:block;position:relative;margin-bottom:30px;padding:clamp(18px,2.4vw,30px) 0 22px;border-bottom:1px solid rgba(255,255,255,.11)}
+.investigation-room-heading{min-width:0}
+.investigation-room-heading>.investigation-eyebrow{display:inline-flex;align-items:center;gap:9px;letter-spacing:.18em;color:#9ca39f}
+.investigation-room-heading>.investigation-eyebrow:before{content:"";display:inline-block;width:18px;height:1px;background:var(--green,#72e5a0);box-shadow:0 0 10px rgba(114,229,160,.45)}
+.investigation-canvas-head .investigation-room-heading h1{max-width:none;margin:13px 0 9px;font-size:clamp(34px,5.3vw,72px);font-weight:800;line-height:.98;letter-spacing:-.065em;text-transform:uppercase}
+.investigation-room-heading p{margin:0;color:#a3a5a3;font-size:clamp(12px,1.25vw,15px);line-height:1.6}
+.investigation-canvas-head>.canvas-meta{display:flex;justify-content:flex-start;flex-wrap:wrap;margin-top:17px;color:#888}
+.investigation-page{background:transparent!important}
+.investigation-rail{background:rgba(8,9,9,.78)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.investigation-history-page{background:transparent!important}
+.lookup-page{background:transparent!important}
+@media(max-width:760px){
+ .investigation-canvas-head{padding-top:14px;margin-bottom:22px}
+ .investigation-canvas-head .investigation-room-heading h1{font-size:clamp(32px,9vw,52px);letter-spacing:-.06em;overflow-wrap:anywhere}
+ .investigation-canvas-head>.canvas-meta{margin-top:13px;gap:10px}
+ .investigation-rail{background:rgba(8,9,9,.86)!important}
+}
