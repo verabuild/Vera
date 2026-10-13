@@ -1320,9 +1320,11 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: stretch;
   gap: 2px;
-  width: min(100%, 294px);
-  min-height: 44px;
-  padding: 4px;
+  flex: 0 0 210px;
+  width: 210px;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 3px;
   overflow: hidden;
   isolation: isolate;
   border: 1px solid rgba(255,255,255,.18);
@@ -1336,10 +1338,10 @@
   content: "";
   position: absolute;
   z-index: -1;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
-  width: calc((100% - 8px - 4px) / 3);
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px - 4px) / 3);
   border: 1px solid rgba(255,255,255,.32);
   border-radius: 999px;
   background: radial-gradient(ellipse at 30% 0%, rgba(255,255,255,.34), transparent 60%), linear-gradient(145deg, rgba(255,255,255,.22), rgba(255,255,255,.075));
@@ -1355,13 +1357,13 @@
   position: relative;
   z-index: 1;
   min-width: 0;
-  min-height: 34px;
-  padding: 0 10px;
+  min-height: 28px;
+  padding: 0 7px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: #9d9d9d;
-  font: 500 11px/1 var(--vera-font-ui, Inter, system-ui, sans-serif);
+  font: 500 10px/1 var(--vera-font-ui, Inter, system-ui, sans-serif);
   cursor: pointer;
   transition: color .24s ease, text-shadow .24s ease;
   -webkit-tap-highlight-color: transparent;
@@ -1388,8 +1390,8 @@
 :root[data-theme="light"] .theme-switch button.active { color: #161719; text-shadow: none; }
 :root[data-theme="light"] .theme-switch button:focus-visible { outline-color: rgba(0,0,0,.7); }
 @media (max-width: 560px) {
-  .theme-switch { width: 100%; max-width: 294px; min-height: 46px; }
-  .theme-switch button { min-height: 36px; font-size: 11px; }
+  .theme-switch { flex-basis: 210px; width: min(210px, 100%); min-height: 38px; }
+  .theme-switch button { min-height: 30px; font-size: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .theme-switch::before, .theme-switch button { transition: none !important; }
