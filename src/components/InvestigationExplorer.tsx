@@ -19,7 +19,7 @@ const sections: Section[] = [
 ];
 
 function textOf(item: Evidence | InvestigationCheck) {
-  return [item.title, "detail" in item ? item.detail : "", item.source, "name" in item ? item.name : ""]
+  return ["title" in item ? item.title : item.name, "detail" in item ? item.detail : "", item.source, "name" in item ? item.name : ""]
     .filter(Boolean).join(" ").toLowerCase();
 }
 
