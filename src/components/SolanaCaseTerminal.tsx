@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import {
-  Activity, ArrowDownLeft, ArrowUpRight, Check, ChevronLeft, Clipboard, Download,
-  FileSearch, Fingerprint, GitBranch, Network as NetworkIcon, Search, ShieldAlert,
+  Activity, ArrowUpRight, ChevronLeft, Clipboard, Download,
+  Fingerprint, GitBranch, Network as NetworkIcon, Search, ShieldAlert,
   ShieldCheck, Wallet, XCircle
 } from 'lucide-react';
 import type { Network } from '../lib/types';
