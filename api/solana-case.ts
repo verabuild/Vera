@@ -2,6 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { Network } from '../src/lib/types.js';
 import { traceSolanaCase } from '../src/server/solanaCase.js';
 import { consumeFallbackQuota, getAnonymousSubject } from '../src/server/anonymousSession.js';
+import { consumeUsageQuota } from '../src/server/db.js';
+import { privyServerConfigured, verifyPrivyAccessToken } from '../src/server/privyAuth.js';
 
 function json(res: VercelResponse, status: number, body: unknown) {
   res.status(status).setHeader('Content-Type', 'application/json').json(body);
@@ -9,7 +11,7 @@ function json(res: VercelResponse, status: number, body: unknown) {
 
 function listOf(value: unknown, max: number) {
   if (typeof value !== 'string') return [];
-  return [...new Set(value.split(/[\n,\s]+/).map((part) => part.trim()).filter(Boolean))].slice(0, max);
+  return [...new Set(value.split(/[\n,\s]+/).map((part) => part.trim()).filter(Boolean))];
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -18,27 +20,53 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' });
 
-  const subject = getAnonymousSubject(req, res);
-  if (!subject) {
-    return json(res, 503, {
-      error: 'Case investigation is not configured on the server.',
-      detail: 'Anonymous usage protection must be configured before this endpoint can run.'
-    });
-  }
-
-  const quota = consumeFallbackQuota(req, res, `anonymous:${subject}`, 'lifetime', 5);
-  if (!quota.allowed) return json(res, 429, { error: 'You have used your five free investigations. Sign in through the main VERA scanner for your daily allowance.' });
-
   const body = req.body ?? {};
   const network: Network = body.network === 'devnet' ? 'devnet' : 'mainnet';
   const addresses = listOf(body.addresses, 8);
   const signatures = listOf(body.signatures, 5);
 
+  if (addresses.length > 8 || signatures.length > 5) {
+    return json(res, 400, { error: 'A case can include up to eight wallet addresses and five transaction signatures.' });
+  }
   if (!addresses.length && !signatures.length) {
     return json(res, 400, { error: 'Add at least one Solana wallet address or transaction signature.' });
   }
-  if (addresses.length > 8 || signatures.length > 5) {
-    return json(res, 400, { error: 'A case can include up to eight wallet addresses and five transaction signatures.' });
+  if (signatures.some((signature) => !/^[1-9A-HJ-NP-Za-km-z]{64,88}$/.test(signature))) {
+    return json(res, 400, { error: 'One or more transaction signatures are incomplete or malformed. Paste the full Solana signature.' });
+  }
+
+  const authorization = req.headers.authorization;
+  const bearer = typeof authorization === 'string' && authorization.startsWith('Bearer ')
+    ? authorization.slice(7).trim() : '';
+  let authenticatedUserId: string | null = null;
+  if (bearer) {
+    if (!privyServerConfigured()) return json(res, 503, { error: 'Sign-in verification is not configured on the server yet.' });
+    try { authenticatedUserId = await verifyPrivyAccessToken(bearer); }
+    catch { return json(res, 401, { error: 'Your sign-in session is invalid or expired. Please sign in again.' }); }
+    if (!authenticatedUserId) return json(res, 401, { error: 'Your sign-in session could not be verified. Please sign in again.' });
+  }
+
+  const periodKey = authenticatedUserId ? new Date().toISOString().slice(0, 10) : 'lifetime';
+  const subjectId = authenticatedUserId
+    ? `privy:${authenticatedUserId}`
+    : (() => { const subject = getAnonymousSubject(req, res); return subject ? `anonymous:${subject}` : null; })();
+  if (!subjectId) return json(res, 503, { error: 'Case investigation is not configured on the server.', detail: 'Anonymous usage protection must be configured before this endpoint can run.' });
+
+  let quota: { allowed: boolean; remaining: number };
+  try {
+    quota = process.env.DATABASE_URL
+      ? await consumeUsageQuota(subjectId, periodKey, authenticatedUserId ? 10 : 5)
+      : consumeFallbackQuota(req, res, subjectId, periodKey, authenticatedUserId ? 10 : 5);
+  } catch {
+    if (!process.env.VERA_ANON_SECRET || process.env.VERA_ANON_SECRET.length < 32) {
+      return json(res, 503, { error: 'Usage protection is unavailable. No case trace was run.' });
+    }
+    quota = consumeFallbackQuota(req, res, subjectId, periodKey, authenticatedUserId ? 10 : 5);
+  }
+  if (!quota.allowed) {
+    return json(res, 429, authenticatedUserId
+      ? { error: 'You have used your ten investigations for today. Your allowance resets at 00:00 UTC.' }
+      : { error: 'You have used your five free investigations. Sign in through VERA for ten investigations per day.' });
   }
 
   try {
