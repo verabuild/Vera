@@ -91,12 +91,6 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
     [scan.assessment.evidence],
   );
 
-  const visibleEvidence = useMemo(
-    () => evidenceFilter === "all"
-      ? scan.assessment.evidence
-      : scan.assessment.evidence.filter((item) => item.severity === evidenceFilter),
-    [evidenceFilter, scan.assessment.evidence],
-  );
 
   useEffect(() => {
     setRevealCount(0);
