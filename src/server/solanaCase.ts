@@ -131,7 +131,7 @@ export async function traceSolanaCase(input: {
         const sourceDepth = depthByAddress.get(parsed.source) ?? depth;
         const transferDepth = Math.min(sourceDepth, depth + 1);
         transfers.push({
-          signature, slot: tx.slot, blockTime: tx.blockTime, ...parsed, sourceSeed, depth: transferDepth
+          signature, slot: tx.slot, blockTime: tx.blockTime ?? null, ...parsed, sourceSeed, depth: transferDepth
         });
         if (transferDepth < maxDepth && !discovered.has(parsed.destination) && discovered.size < MAX_NODES) {
           discovered.add(parsed.destination);
