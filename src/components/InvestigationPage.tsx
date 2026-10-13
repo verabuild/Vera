@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Activity, ArrowLeftRight, ArrowUpRight, Check, CheckCircle2,
-  ChevronRight, Clock3, Copy, ExternalLink, FileSearch, Fingerprint, Link2,
+  Activity, ArrowLeftRight, ArrowUpRight, Check, Copy, FileSearch, Link2,
   Mail, ShieldCheck, TriangleAlert, Wallet
 } from "lucide-react";
-import type { Assessment, Evidence, Scan, Severity } from "../lib/types";
+import type { Assessment, Scan } from "../lib/types";
 import AuthControls from "./AuthControls";
 import InvestigationExplorer from "./InvestigationExplorer";
 import { OFFICIAL_VERA_LOGO } from "../lib/brand";
@@ -16,22 +15,12 @@ type Props = {
   onInvestigateAnother: () => void;
 };
 
-type EvidenceFilter = Severity | "all";
-
 const inputIcons = {
   URL: Link2,
   MESSAGE: Mail,
   WALLET: Wallet,
   TX: ArrowLeftRight,
 } as const;
-
-const filterLabels: Record<EvidenceFilter, string> = {
-  all: "All",
-  high: "High",
-  medium: "Medium",
-  low: "Low",
-  info: "Info",
-};
 
 function verdictConfig(assessment: Assessment) {
   if (assessment.verdict === "SAFE") return {
@@ -58,10 +47,6 @@ function verdictConfig(assessment: Assessment) {
     icon: Activity,
     className: "investigation-verdict-review",
   };
-}
-
-function checkLabel(status: string) {
-  return status.replaceAll("_", " ");
 }
 
 function formatDate(value: string) {
@@ -99,16 +84,7 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
   }, [scan.input, scan.type]);
   const report = scan.assessment.statusReport;
   const [copied, setCopied] = useState(false);
-  const [evidenceFilter, setEvidenceFilter] = useState<EvidenceFilter>("all");
-  const [expandedEvidence, setExpandedEvidence] = useState<string | null>(null);
   const [revealCount, setRevealCount] = useState(0);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-
-  const evidenceCounts = useMemo(() => {
-    const counts: Record<EvidenceFilter, number> = { all: scan.assessment.evidence.length, high: 0, medium: 0, low: 0, info: 0 };
-    for (const item of scan.assessment.evidence) counts[item.severity] += 1;
-    return counts;
-  }, [scan.assessment.evidence]);
 
   const decisiveSignals = useMemo(
     () => scan.assessment.evidence.filter((item) => item.severity === "high"),
@@ -120,13 +96,6 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
       ? scan.assessment.evidence
       : scan.assessment.evidence.filter((item) => item.severity === evidenceFilter),
     [evidenceFilter, scan.assessment.evidence],
-  );
-
-  const timeline = useMemo(
-    () => [...scan.assessment.evidence]
-      .filter((item) => item.observedAt)
-      .sort((a, b) => new Date(a.observedAt ?? 0).getTime() - new Date(b.observedAt ?? 0).getTime()),
-    [scan.assessment.evidence],
   );
 
   useEffect(() => {
