@@ -1731,3 +1731,174 @@
   .investigation-explorer,.intel-section-content{animation:none!important}
   .intel-nav-item{transition:none!important}
 }
+
+
+/* VERA living workspace: dimensional chrome, tactile navigation and restrained motion. */
+.investigation-explorer{
+  position:relative;
+  isolation:isolate;
+  border-color:#303033;
+  background:
+    radial-gradient(ellipse 70% 42% at 100% 0%,rgba(255,255,255,.045),transparent 70%),
+    linear-gradient(145deg,#0d0d0f 0%,#080809 56%,#0a0a0b 100%);
+  transform:translateZ(0);
+}
+.investigation-explorer:before{
+  content:"";
+  position:absolute;inset:0;pointer-events:none;z-index:-1;border-radius:inherit;
+  background:linear-gradient(115deg,rgba(255,255,255,.035),transparent 24%,transparent 74%,rgba(255,255,255,.018));
+}
+.intel-workspace-heading{position:relative;overflow:hidden;min-height:146px}
+.intel-workspace-copy{position:relative;z-index:2;max-width:650px}
+.intel-workspace-state{
+  display:inline-flex;align-items:center;gap:7px;margin-top:13px;
+  color:#77777a;font:7px "DM Mono",monospace;letter-spacing:.1em;
+}
+.intel-state-pulse{
+  width:5px;height:5px;border-radius:50%;background:#d6d6d3;
+  box-shadow:0 0 0 0 rgba(220,220,216,.28);
+  animation:intelStatusPulse 2.8s ease-out infinite;
+}
+.intel-chrome-orb{
+  position:absolute;z-index:1;right:174px;top:20px;width:88px;height:88px;
+  display:grid;place-items:center;perspective:520px;pointer-events:none;
+  opacity:.78;filter:drop-shadow(0 10px 22px rgba(255,255,255,.07));
+}
+.intel-orb-core{
+  position:absolute;inset:15px;border-radius:50%;
+  background:
+    radial-gradient(ellipse at 28% 18%,#fff 0%,#d9d9d9 7%,#777 18%,transparent 35%),
+    radial-gradient(ellipse at 65% 75%,#090909 0%,#242426 24%,#b9b9b8 42%,#454548 58%,#080809 77%);
+  box-shadow:inset -7px -8px 13px #000,inset 4px 3px 9px rgba(255,255,255,.78),0 0 28px rgba(255,255,255,.08);
+  transform-style:preserve-3d;animation:intelOrbFloat 6s ease-in-out infinite,intelOrbTurn 15s linear infinite;
+}
+.intel-orb-ring{
+  position:absolute;inset:9px;border:1px solid rgba(228,228,226,.44);border-radius:50%;
+  transform-style:preserve-3d;box-shadow:0 0 12px rgba(255,255,255,.04),inset 0 0 10px rgba(255,255,255,.04);
+}
+.intel-orb-ring-one{transform:rotateX(67deg) rotateY(-22deg);animation:intelRingOne 8s ease-in-out infinite}
+.intel-orb-ring-two{inset:4px;border-color:rgba(200,200,198,.25);transform:rotateY(67deg) rotateX(18deg);animation:intelRingTwo 10s ease-in-out infinite}
+.intel-orb-glint{
+  position:absolute;width:18px;height:5px;top:24px;left:26px;border-radius:50%;
+  background:rgba(255,255,255,.92);filter:blur(5px);transform:rotate(-38deg);
+  animation:intelGlint 5.5s ease-in-out infinite;
+}
+.intel-workspace-metrics{position:relative;z-index:2}
+.intel-section-nav{
+  position:relative;
+  background:
+    radial-gradient(ellipse 130% 38% at 0 0,rgba(255,255,255,.035),transparent 80%),
+    linear-gradient(180deg,#0a0a0b,#080809);
+  perspective:900px;
+}
+.intel-nav-item{
+  position:relative;overflow:hidden;isolation:isolate;
+  transform:perspective(700px) translateZ(0);
+  transform-origin:left center;
+  will-change:transform,background-color,border-color;
+  transition:transform .24s cubic-bezier(.2,.75,.25,1),background .24s ease,border-color .24s ease,color .24s ease,box-shadow .24s ease;
+}
+.intel-nav-item:before{
+  content:"";position:absolute;z-index:-1;left:0;top:19%;bottom:19%;width:2px;
+  border-radius:2px;background:#ededeb;opacity:0;transform:scaleY(.3);
+  transition:transform .25s cubic-bezier(.2,.75,.25,1),opacity .2s ease;
+}
+.intel-nav-item:after{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(105deg,transparent 22%,rgba(255,255,255,.055) 48%,transparent 73%);
+  transform:translateX(-115%);transition:transform .55s ease;
+}
+.intel-nav-item:hover{
+  color:#f0f0ed;background:linear-gradient(105deg,#171719,#101011);
+  border-color:#29292b;transform:perspective(700px) rotateY(-2deg) translateX(2px) translateZ(2px);
+}
+.intel-nav-item:hover:after{transform:translateX(115%)}
+.intel-nav-item.active{
+  transform:perspective(700px) translateZ(5px);
+  box-shadow:inset 2px 0 #d8d8d4,0 5px 18px rgba(0,0,0,.18);
+}
+.intel-nav-item.active:before{opacity:1;transform:scaleY(1)}
+.intel-nav-item.active svg{filter:drop-shadow(0 0 5px rgba(255,255,255,.15))}
+.intel-nav-item:active{transform:perspective(700px) scale(.985) translateZ(0)}
+.intel-nav-item:focus-visible{
+  outline:2px solid #d8d8d4;outline-offset:2px;border-color:transparent;
+}
+.intel-nav-count{min-width:15px;text-align:center;transition:color .2s ease,transform .2s ease}
+.intel-nav-item:hover .intel-nav-count,.intel-nav-item.active .intel-nav-count{color:#dededb;transform:translateX(-1px)}
+.intel-section-content{transform-origin:top center;animation:intelPanelEnter .32s cubic-bezier(.2,.75,.25,1) both}
+.intel-section-title .intel-section-icon{
+  box-shadow:inset 0 1px rgba(255,255,255,.05),0 5px 18px rgba(0,0,0,.16);
+  transition:transform .3s ease,border-color .3s ease,background .3s ease;
+}
+.intel-section-content:hover .intel-section-icon{border-color:#414143;background:linear-gradient(145deg,#18181a,#0d0d0e);transform:translateY(-1px) rotateX(5deg)}
+.intel-overview-card{
+  position:relative;overflow:hidden;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
+}
+.intel-overview-card:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(120deg,rgba(255,255,255,.045),transparent 45%);
+  opacity:0;transition:opacity .25s ease;
+}
+.intel-overview-card:hover{transform:translateY(-3px) perspective(700px) rotateX(1.5deg);border-color:#414143;box-shadow:0 12px 28px rgba(0,0,0,.2)}
+.intel-overview-card:hover:after{opacity:1}
+.intel-check-row{transition:background .2s ease,padding .2s ease}
+.intel-check-row:hover{background:rgba(255,255,255,.018);padding-left:6px;padding-right:6px}
+.intel-evidence-item{position:relative;transition:background .22s ease,padding .22s ease}
+.intel-evidence-item:hover{background:linear-gradient(90deg,rgba(255,255,255,.025),transparent);padding-left:7px;padding-right:5px}
+.intel-source-links a{transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease}
+.intel-source-links a:hover{transform:translateY(-1px);background:rgba(255,255,255,.035)}
+.intel-empty-state{animation:intelEmptyEnter .35s ease both}
+@keyframes intelOrbFloat{0%,100%{transform:translateY(0) rotateX(0deg) rotateY(0deg)}50%{transform:translateY(-5px) rotateX(8deg) rotateY(-7deg)}}
+@keyframes intelOrbTurn{from{filter:brightness(.86)}50%{filter:brightness(1.12)}to{filter:brightness(.86)}}
+@keyframes intelRingOne{0%,100%{transform:rotateX(67deg) rotateY(-22deg) rotateZ(-10deg)}50%{transform:rotateX(73deg) rotateY(12deg) rotateZ(14deg)}}
+@keyframes intelRingTwo{0%,100%{transform:rotateY(67deg) rotateX(18deg) rotateZ(0deg)}50%{transform:rotateY(54deg) rotateX(28deg) rotateZ(-18deg)}}
+@keyframes intelGlint{0%,100%{opacity:.45;transform:translate(-2px,1px) rotate(-38deg)}50%{opacity:.95;transform:translate(16px,9px) rotate(-38deg)}}
+@keyframes intelStatusPulse{0%{box-shadow:0 0 0 0 rgba(220,220,216,.28)}70%,100%{box-shadow:0 0 0 6px rgba(220,220,216,0)}}
+@keyframes intelPanelEnter{from{opacity:0;transform:translateY(9px) scale(.995);filter:blur(2px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@keyframes intelEmptyEnter{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media(max-width:760px){
+  .intel-workspace-heading{min-height:158px;padding-right:18px}
+  .intel-chrome-orb{right:8px;top:12px;width:74px;height:74px;opacity:.32}
+  .intel-workspace-copy{max-width:100%;padding-right:44px}
+  .intel-workspace-state{margin-top:10px}
+  .intel-section-nav{
+    display:flex;flex-direction:row;align-items:stretch;gap:6px;
+    overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;
+    scrollbar-width:thin;scrollbar-color:#343436 transparent;
+    padding:10px;border-right:0;border-bottom:1px solid #222223;
+  }
+  .intel-nav-item{
+    flex:0 0 auto;width:auto;min-width:132px;grid-template-columns:14px 15px minmax(0,1fr) auto;
+    scroll-snap-align:start;padding:11px 9px;
+  }
+  .intel-nav-note{display:none}
+  .intel-nav-item:hover{transform:translateY(-1px)}
+  .intel-nav-item.active{transform:translateY(-1px)}
+}
+@media(max-width:430px){
+  .intel-workspace-heading{min-height:165px;padding:19px 15px}
+  .intel-workspace-copy{padding-right:18px}
+  .intel-workspace-heading h2{max-width:240px}
+  .intel-chrome-orb{right:4px;top:6px;width:62px;height:62px;opacity:.24}
+  .intel-section-nav{padding:8px}
+  .intel-nav-item{min-width:126px}
+}
+:root[data-theme="light"] .investigation-explorer{
+  background:radial-gradient(ellipse 70% 42% at 100% 0%,rgba(30,34,40,.04),transparent 70%),linear-gradient(145deg,#fff,#f7f8fa 56%,#fff);
+  border-color:#dfe1e5;box-shadow:0 24px 80px rgba(0,0,0,.07);
+}
+:root[data-theme="light"] .intel-section-nav{background:linear-gradient(180deg,#f8f9fb,#f3f4f6);border-color:#e0e2e6}
+:root[data-theme="light"] .intel-nav-item{color:#626873}
+:root[data-theme="light"] .intel-nav-item:hover,:root[data-theme="light"] .intel-nav-item.active{color:#1c2027;background:linear-gradient(105deg,#fff,#f0f1f3);border-color:#d5d8dd}
+:root[data-theme="light"] .intel-nav-item.active{box-shadow:inset 2px 0 #30343b,0 5px 18px rgba(0,0,0,.05)}
+:root[data-theme="light"] .intel-nav-item:before{background:#292d33}
+:root[data-theme="light"] .intel-workspace-state{color:#737983}
+:root[data-theme="light"] .intel-overview-card{background:linear-gradient(145deg,#fff,#f6f7f9);border-color:#e0e2e6}
+:root[data-theme="light"] .intel-overview-card>strong{color:#20242a}
+:root[data-theme="light"] .intel-overview-card p,:root[data-theme="light"] .intel-section-title p,:root[data-theme="light"] .intel-evidence-main>p{color:#666d77}
+@media(prefers-reduced-motion:reduce){
+  .intel-state-pulse,.intel-orb-core,.intel-orb-ring,.intel-orb-glint{animation:none!important}
+  .intel-nav-item,.intel-nav-item:before,.intel-nav-item:after,.intel-overview-card,.intel-check-row,.intel-evidence-item,.intel-source-links a,.intel-section-title .intel-section-icon{transition:none!important}
+  .intel-section-content,.intel-empty-state{animation:none!important}
+  .intel-nav-item:hover,.intel-nav-item.active,.intel-nav-item:active,.intel-overview-card:hover,.intel-source-links a:hover{transform:none!important}
+}
