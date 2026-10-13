@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import {
-  Activity, ArrowUpRight, ChevronLeft, Clipboard, Download,
+  Activity, ArrowUpRight, ChevronLeft, Clipboard, Download, Ellipsis, ExternalLink,
   Fingerprint, GitBranch, Network as NetworkIcon, Search, ShieldAlert,
-  ShieldCheck, Wallet, XCircle
+  ShieldCheck, Wallet, XCircle, ChartNoAxesCombined, FileText
 } from 'lucide-react';
 import type { Network } from '../lib/types';
 import { OFFICIAL_VERA_LOGO } from '../lib/brand';
@@ -12,11 +12,18 @@ type Transfer = {
   signature: string; slot: number; blockTime: number | null; source: string; destination: string;
   sourceTokenAccount?: string; destinationTokenAccount?: string;
   asset: string; mint?: string; rawAmount: string; amount: number | null; decimals?: number;
-  kind: 'SOL' | 'TOKEN'; sourceSeed: boolean; depth: number;
+  kind: 'SOL' | 'TOKEN'; sourceSeed: boolean; depth: number; sourceProvider?: 'Helius';
 };
 type TraceResult = {
   network: Network; generatedAt: string; seeds: string[]; nodes: string[]; transfers: Transfer[];
   checkedTransactions: number; truncated: boolean; limitations: string[];
+  externalIntelligence?: {
+    providers: Record<'helius' | 'breadcrumbs' | 'dexscreener', { state: string; detail: string }>;
+    historyTransfers: Transfer[];
+    labels: Array<{ address: string; label: string; tags: string[]; sourceUrl: string }>;
+    riskSignals: Array<{ address: string; riskScore: string; tags: string[]; incomingHop: number | null; outgoingHop: number | null; sourceUrl: string }>;
+    markets: Array<{ mint: string; pairUrl: string; dexId: string; priceUsd: string | null; liquidityUsd: number | null; volume24h: number | null }>;
+  };
 };
 
 const EXAMPLE_WALLETS = 'GUXCBv2rkBSYZth6hfi1jqe5fa9g5P3VQZjtVNGmBzqo\n7giwwYn1wNJwCuuQbiUjFgdyWb9ZBAyDPgHS3W1syJEj\n9R9tx1cXxN1CbdyMvQKVnsWNGGmnGcc8kEK8QMCNcB2g\n8CPcov5BDnegcfK3MFQBcJS63Ut6qGgPWPpsQfZ4MUKt\nGtyw72PaH7Ubz1jUNyyDDie6PMHnN5cz9d6v5A9cZzoA\nCxkdNnA3cMzU9xGPFyaXM2Lr2nEwm1hkv66xYjMdKor2\nBmFdpraQhkiDQE6SnfG5omcA1VwzqfXrwtNYBwWTymy6';
@@ -42,8 +49,35 @@ export default function SolanaCaseTerminal() {
   const [error, setError] = useState('');
   const [result, setResult] = useState<TraceResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [caseNotes, setCaseNotes] = useState('');
   const parsedAddresses = useMemo(() => splitLines(addresses), [addresses]);
   const parsedSignatures = useMemo(() => splitLines(signatures), [signatures]);
+  const allTransfers = useMemo(() => {
+    if (!result) return [];
+    const combined = [...result.transfers, ...(result.externalIntelligence?.historyTransfers ?? [])];
+    return [...new Map(combined.map((item) => [`${item.signature}:${item.source}:${item.destination}:${item.mint ?? item.kind}:${item.rawAmount}`, item])).values()];
+  }, [result]);
+  const graphNodes = useMemo(() => {
+    if (!result) return [];
+    const addresses = [...new Set(allTransfers.flatMap((item) => [item.source, item.destination]).concat(result.seeds))].slice(0, 14);
+    return addresses.map((address, index) => {
+      const angle = (Math.PI * 2 * index / Math.max(addresses.length, 1)) - Math.PI / 2;
+      return { address, x: 380 + Math.cos(angle) * (addresses.length > 7 ? 285 : 225), y: 165 + Math.sin(angle) * 112, seed: result.seeds.includes(address) };
+    });
+  }, [allTransfers, result]);
+  const activityBins = useMemo(() => {
+    const bins = new Map<string, { label: string; count: number; incoming: number; outgoing: number }>();
+    for (const transfer of allTransfers) {
+      const key = transfer.blockTime ? new Date(transfer.blockTime * 1000).toISOString().slice(0, 10) : 'unknown';
+      const bin = bins.get(key) ?? { label: key === 'unknown' ? 'Unknown time' : key.slice(5), count: 0, incoming: 0, outgoing: 0 };
+      bin.count += 1;
+      if (result?.seeds.includes(transfer.destination)) bin.incoming += 1;
+      if (result?.seeds.includes(transfer.source)) bin.outgoing += 1;
+      bins.set(key, bin);
+    }
+    return [...bins.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-12).map(([, value]) => value);
+  }, [allTransfers, result]);
 
   async function investigate() {
     setBusy(true); setError(''); setResult(null);
@@ -65,13 +99,13 @@ export default function SolanaCaseTerminal() {
 
   async function copyEvidence() {
     if (!result) return;
-    const report = JSON.stringify(result, null, 2);
+    const report = JSON.stringify({ ...result, investigatorNotes: caseNotes.trim() || null }, null, 2);
     try { await navigator.clipboard.writeText(report); setCopied(true); window.setTimeout(() => setCopied(false), 1800); }
     catch { setError('Clipboard access was blocked. Use Export JSON to save the evidence report instead.'); }
   }
   function exportEvidence() {
     if (!result) return;
-    const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ ...result, investigatorNotes: caseNotes.trim() || null }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url; anchor.download = `vera-solana-case-${new Date().toISOString().slice(0, 10)}.json`;
@@ -79,6 +113,7 @@ export default function SolanaCaseTerminal() {
   }
 
   return <main className="case-terminal">
+    <div className="case-dna-backdrop" aria-hidden="true"><svg viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="case-dna-metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#4b5059" stopOpacity=".12"/><stop offset=".42" stopColor="#f4f6fa" stopOpacity=".9"/><stop offset=".62" stopColor="#8c929c" stopOpacity=".6"/><stop offset="1" stopColor="#3a3f47" stopOpacity=".08"/></linearGradient><linearGradient id="case-dna-rung" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#7f8793" stopOpacity=".08"/><stop offset=".5" stopColor="#f7f8fa" stopOpacity=".68"/><stop offset="1" stopColor="#7f8793" stopOpacity=".08"/></linearGradient></defs>{[0,1].map((strand) => <path key={strand} className={`case-dna-strand case-dna-strand-${strand}`} d={Array.from({length:41},(_,i)=>{const y=i*24;const x=600+(strand===0?1:-1)*Math.sin(i*Math.PI/5)*126;return `${i===0?'M':'L'} ${x} ${y}`;}).join(' ')} fill="none" stroke="url(#case-dna-metal)" strokeWidth="5" strokeLinecap="round"/>)}{Array.from({length:40},(_,i)=>{const y=i*24;const x1=600+Math.sin(i*Math.PI/5)*126;const x2=600-Math.sin(i*Math.PI/5)*126;return <line key={i} className="case-dna-rung" x1={x1} y1={y} x2={x2} y2={y} stroke="url(#case-dna-rung)" strokeWidth="2.2"/>;})}</svg><span className="case-dna-halo case-dna-halo-a"/><span className="case-dna-halo case-dna-halo-b"/></div>
     <header className="case-topbar">
       <a className="case-brand" href="/" aria-label="VERA home"><img src={OFFICIAL_VERA_LOGO} alt="" /><span>VERA</span></a>
       <div className="case-topbar-center"><span /> SOLANA INVESTIGATION TERMINAL</div>
@@ -130,13 +165,13 @@ export default function SolanaCaseTerminal() {
 
     {result && <section className="case-results" aria-live="polite">
       <div className="case-results-head"><div><span className="case-kicker">02 / TRACE RESULTS</span><h2>What the chain returned.</h2><p>Generated {new Date(result.generatedAt).toLocaleString()} · {result.network.toUpperCase()}</p></div><div className="case-export-actions"><button type="button" onClick={copyEvidence}><Clipboard size={14} /> {copied ? 'Copied' : 'Copy evidence'}</button><button type="button" onClick={exportEvidence}><Download size={14} /> Export JSON</button></div></div>
-      <div className="case-metric-grid"><article><span>OBSERVED TRANSFERS</span><strong>{result.transfers.length}</strong></article><article><span>ADDRESSES IN GRAPH</span><strong>{result.nodes.length}</strong></article><article><span>TRANSACTIONS CHECKED</span><strong>{result.checkedTransactions}</strong></article><article><span>TRACE COVERAGE</span><strong>{result.truncated ? 'CAPPED' : 'RECENT'}</strong></article></div>
+      <div className="case-metric-grid"><article><span>OBSERVED TRANSFERS</span><strong>{allTransfers.length}</strong></article><article><span>ADDRESSES IN GRAPH</span><strong>{graphNodes.length}</strong></article><article><span>TRANSACTIONS CHECKED</span><strong>{result.checkedTransactions}</strong></article><article><span>TRACE COVERAGE</span><strong>{result.truncated ? 'CAPPED' : 'RECENT'}</strong></article></div>
       {result.truncated && <div className="case-warning"><ShieldAlert size={15} /> This trace reached its safety limits. It may omit relevant transfers and must not be treated as complete.</div>}
-      <div className="case-graph-panel"><div className="case-graph-heading"><div><span>TRANSFER GRAPH / TABLE VIEW</span><h3>Observed movement</h3></div><span className="case-readonly-tag"><span /> READ-ONLY EVIDENCE</span></div>
-        {result.transfers.length ? <div className="case-transfer-list">{result.transfers.map((transfer, index) => <article className="case-transfer" key={`${transfer.signature}-${transfer.source}-${transfer.destination}-${index}`}>
+      <div className="case-graph-panel"><div className="case-graph-heading"><div><span>TRANSFER GRAPH / TABLE VIEW</span><h3>Observed movement</h3></div><div className="case-graph-tools"><span className="case-readonly-tag"><span /> READ-ONLY EVIDENCE</span><div className="case-more-wrap"><button className="case-more-button" type="button" aria-expanded={moreOpen} aria-label="More investigation views" onClick={() => setMoreOpen((open) => !open)}><Ellipsis size={17}/><span>More</span></button>{moreOpen && <div className="case-more-menu" role="menu"><button type="button" role="menuitem" onClick={() => { document.getElementById('case-network-graph')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); setMoreOpen(false); }}>Network graph</button><button type="button" role="menuitem" onClick={() => { document.getElementById('case-activity-chart')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); setMoreOpen(false); }}>Activity charts</button><button type="button" role="menuitem" onClick={() => { document.getElementById('case-external-intelligence')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); setMoreOpen(false); }}>External intelligence</button><button type="button" role="menuitem" onClick={() => { document.getElementById('case-notes')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); setMoreOpen(false); }}>Case notes</button><button type="button" role="menuitem" onClick={() => { document.getElementById('case-limitations')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); setMoreOpen(false); }}>Evidence limits</button></div>}</div></div></div>
+        {allTransfers.length ? <div className="case-transfer-list">{allTransfers.map((transfer, index) => <article className="case-transfer" key={`${transfer.signature}-${transfer.source}-${transfer.destination}-${index}`}>
           <div className="case-transfer-flow"><span className={transfer.sourceSeed ? 'case-node case-node-seed' : 'case-node'} title={transfer.source}>{shorten(transfer.source)}</span><div className="case-flow-line"><span>{transfer.kind === 'SOL' ? 'SOL' : 'TOKEN'}</span><ArrowUpRight size={14} /></div><span className="case-node" title={transfer.destination}>{shorten(transfer.destination)}</span></div>
           <div className="case-transfer-data"><strong>{amountLabel(transfer)}</strong><span>{dateLabel(transfer.blockTime)}</span><span>Slot {transfer.slot.toLocaleString()}</span></div>
-          <div className="case-transfer-meta"><span>{transfer.asset}</span>{transfer.kind === "TOKEN" && transfer.sourceTokenAccount && transfer.destinationTokenAccount && <span className="case-token-accounts" title={"Source token account: " + transfer.sourceTokenAccount + "\nDestination token account: " + transfer.destinationTokenAccount}>Token accounts: {shorten(transfer.sourceTokenAccount)} → {shorten(transfer.destinationTokenAccount)}</span>}<a href={`https://solscan.io/tx/${encodeURIComponent(transfer.signature)}${result.network === 'devnet' ? '?cluster=devnet' : ''}`} target="_blank" rel="noreferrer noopener">View transaction <ArrowUpRight size={12} /></a><button type="button" onClick={() => navigator.clipboard?.writeText(transfer.signature)} title="Copy signature"><Clipboard size={12} /> Copy signature</button></div>
+          <div className="case-transfer-meta"><span>{transfer.asset}{transfer.sourceProvider ? ` · ${transfer.sourceProvider} parsed history` : ' · Solana RPC'}</span>{transfer.kind === "TOKEN" && transfer.sourceTokenAccount && transfer.destinationTokenAccount && <span className="case-token-accounts" title={"Source token account: " + transfer.sourceTokenAccount + "\nDestination token account: " + transfer.destinationTokenAccount}>Token accounts: {shorten(transfer.sourceTokenAccount)} → {shorten(transfer.destinationTokenAccount)}</span>}<a href={`https://solscan.io/tx/${encodeURIComponent(transfer.signature)}${result.network === 'devnet' ? '?cluster=devnet' : ''}`} target="_blank" rel="noreferrer noopener">View transaction <ArrowUpRight size={12} /></a><button type="button" onClick={() => navigator.clipboard?.writeText(transfer.signature)} title="Copy signature"><Clipboard size={12} /> Copy signature</button></div>
         </article>)}</div> : <div className="case-empty-result"><GitBranch size={21} /><strong>No parseable transfers returned</strong><p>VERA did not find recent parseable transfer instructions in the transactions returned by the selected RPC. Try adding the full transaction signature or another known intermediary address.</p></div>}
       </div>
       <div className="case-evidence-limitations"><div><ShieldCheck size={16} /><strong>Interpretation guardrails</strong></div>{result.limitations.map((item) => <p key={item}>{item}</p>)}</div>
