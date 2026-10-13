@@ -85,7 +85,7 @@ export default function LegalPage({ page }: { page: LegalKey }) {
         <p className="eyebrow">{content.eyebrow}</p>
         <h1>{content.title}</h1>
         <p>{content.intro}</p>
-        <div className="legal-meta"><CheckCircle2 size={13} /> Beta policy · Last updated October 6, 2026</div>
+        <div className="legal-meta"><CheckCircle2 size={13} /> Policy version · Updated October 13, 2026</div>
       </div>
       <section className="legal-content">
         {content.sections.map((section) => <article key={section.heading}><h2>{section.heading}</h2><p>{section.body}</p></article>)}
