@@ -20,6 +20,22 @@
   ],
   "rewrites": [
     {
+      "source": "/contact",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/project",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/how-it-works",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/index.html"
+    },
+    {
       "source": "/lookup",
       "destination": "/index.html"
     },
