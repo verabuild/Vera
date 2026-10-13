@@ -1,0 +1,233 @@
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap');
+
+/*
+ * VERA Liquid Chrome Ring System
+ * Independent, decorative rings with restrained black-chrome and green reflections.
+ */
+:root {
+  --vera-font-ui: "General Sans", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+html, body, button, input, textarea, select {
+  font-family: var(--vera-font-ui);
+}
+body {
+  isolation: isolate;
+}
+.vera-liquid-rings {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+  opacity: .78;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 76%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 76%, transparent 100%);
+}
+.vera-liquid-ring {
+  position: absolute;
+  display: block;
+  width: var(--ring-size, 116px);
+  aspect-ratio: 1;
+  border: var(--ring-thickness, 11px) solid transparent;
+  border-radius: 50%;
+  box-sizing: border-box;
+  background:
+    linear-gradient(145deg, rgba(7,9,10,.96), rgba(22,26,27,.92) 38%, rgba(3,4,5,.98) 72%) padding-box,
+    conic-gradient(from var(--shine-angle, 35deg),
+      #080a0b 0deg,
+      #596165 24deg,
+      #f2f5f5 43deg,
+      #303739 62deg,
+      #090b0c 92deg,
+      #171d1b 126deg,
+      #27845a 151deg,
+      #07100c 177deg,
+      #aeb7b8 218deg,
+      #202628 246deg,
+      #f9fbfb 274deg,
+      #111516 310deg,
+      #080a0b 360deg) border-box;
+  box-shadow:
+    inset 2px 2px 4px rgba(255,255,255,.18),
+    inset -4px -5px 9px rgba(0,0,0,.82),
+    0 0 13px rgba(202,216,213,.07),
+    0 0 26px rgba(21,137,84,.045);
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.vera-liquid-ring::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 1px solid rgba(244,248,247,.48);
+  border-left-color: rgba(30,145,91,.72);
+  border-bottom-color: rgba(0,0,0,.95);
+  opacity: .84;
+  filter: blur(.25px);
+}
+.vera-liquid-ring::after {
+  content: "";
+  position: absolute;
+  inset: 15%;
+  border-radius: 50%;
+  border: 1px solid rgba(226,235,232,.12);
+  box-shadow: 0 0 12px rgba(28,151,94,.07);
+}
+.vera-liquid-ring--1 {
+  --ring-size: clamp(88px, 10vw, 154px);
+  --ring-thickness: clamp(8px, .9vw, 13px);
+  top: 12%;
+  left: 2.2%;
+  animation: vera-ring-flow-1 13s ease-in-out infinite alternate;
+}
+.vera-liquid-ring--2 {
+  --ring-size: clamp(68px, 7vw, 112px);
+  --ring-thickness: 9px;
+  top: 35%;
+  left: 8.5%;
+  animation: vera-ring-flow-2 10s ease-in-out infinite alternate;
+  animation-delay: -3s;
+}
+.vera-liquid-ring--3 {
+  --ring-size: clamp(102px, 12vw, 178px);
+  --ring-thickness: clamp(9px, 1vw, 14px);
+  top: 65%;
+  left: 1%;
+  animation: vera-ring-flow-3 16s ease-in-out infinite alternate;
+  animation-delay: -6s;
+}
+.vera-liquid-ring--4 {
+  --ring-size: clamp(58px, 6vw, 94px);
+  --ring-thickness: 8px;
+  top: 82%;
+  left: 12%;
+  animation: vera-ring-flow-4 12s ease-in-out infinite alternate;
+  animation-delay: -4s;
+}
+.vera-liquid-ring--5 {
+  --ring-size: clamp(94px, 11vw, 166px);
+  --ring-thickness: clamp(8px, .95vw, 13px);
+  top: 17%;
+  right: 2%;
+  animation: vera-ring-flow-5 15s ease-in-out infinite alternate;
+  animation-delay: -7s;
+}
+.vera-liquid-ring--6 {
+  --ring-size: clamp(64px, 7vw, 108px);
+  --ring-thickness: 9px;
+  top: 42%;
+  right: 8%;
+  animation: vera-ring-flow-6 11s ease-in-out infinite alternate;
+  animation-delay: -2s;
+}
+.vera-liquid-ring--7 {
+  --ring-size: clamp(108px, 12vw, 182px);
+  --ring-thickness: clamp(9px, 1vw, 14px);
+  top: 66%;
+  right: 1%;
+  animation: vera-ring-flow-7 17s ease-in-out infinite alternate;
+  animation-delay: -9s;
+}
+.vera-liquid-ring--8 {
+  --ring-size: clamp(54px, 5.5vw, 86px);
+  --ring-thickness: 7px;
+  top: 88%;
+  right: 13%;
+  animation: vera-ring-flow-8 12s ease-in-out infinite alternate;
+  animation-delay: -5s;
+}
+@keyframes vera-ring-flow-1 {
+  from { transform: perspective(650px) rotateX(58deg) rotateY(-23deg) rotateZ(-18deg) translate3d(-3px, -12px, 0); }
+  to { transform: perspective(650px) rotateX(32deg) rotateY(24deg) rotateZ(42deg) translate3d(26px, 24px, 0); }
+}
+@keyframes vera-ring-flow-2 {
+  from { transform: perspective(500px) rotateX(20deg) rotateY(60deg) rotateZ(24deg) translate3d(4px, 8px, 0); }
+  to { transform: perspective(500px) rotateX(66deg) rotateY(18deg) rotateZ(148deg) translate3d(-15px, -24px, 0); }
+}
+@keyframes vera-ring-flow-3 {
+  from { transform: perspective(700px) rotateX(68deg) rotateY(14deg) rotateZ(62deg) translate3d(0, 10px, 0); }
+  to { transform: perspective(700px) rotateX(28deg) rotateY(-32deg) rotateZ(155deg) translate3d(25px, -18px, 0); }
+}
+@keyframes vera-ring-flow-4 {
+  from { transform: perspective(450px) rotateX(25deg) rotateY(-42deg) rotateZ(12deg) translate3d(-5px, 0, 0); }
+  to { transform: perspective(450px) rotateX(62deg) rotateY(25deg) rotateZ(-76deg) translate3d(20px, -20px, 0); }
+}
+@keyframes vera-ring-flow-5 {
+  from { transform: perspective(650px) rotateX(42deg) rotateY(32deg) rotateZ(68deg) translate3d(5px, 5px, 0); }
+  to { transform: perspective(650px) rotateX(70deg) rotateY(-28deg) rotateZ(-32deg) translate3d(-24px, 24px, 0); }
+}
+@keyframes vera-ring-flow-6 {
+  from { transform: perspective(500px) rotateX(62deg) rotateY(-18deg) rotateZ(-35deg) translate3d(0, -10px, 0); }
+  to { transform: perspective(500px) rotateX(28deg) rotateY(48deg) rotateZ(82deg) translate3d(18px, 18px, 0); }
+}
+@keyframes vera-ring-flow-7 {
+  from { transform: perspective(700px) rotateX(32deg) rotateY(38deg) rotateZ(25deg) translate3d(0, 8px, 0); }
+  to { transform: perspective(700px) rotateX(66deg) rotateY(-22deg) rotateZ(126deg) translate3d(-28px, -20px, 0); }
+}
+@keyframes vera-ring-flow-8 {
+  from { transform: perspective(450px) rotateX(52deg) rotateY(22deg) rotateZ(70deg) translate3d(0, 0, 0); }
+  to { transform: perspective(450px) rotateX(24deg) rotateY(-44deg) rotateZ(168deg) translate3d(-18px, -16px, 0); }
+}
+
+/* Keep decorative movement subdued on dense investigation surfaces. */
+.investigation-page .vera-liquid-rings,
+.lookup-page .vera-liquid-rings,
+.investigation-history-page .vera-liquid-rings { opacity: .42; }
+
+@media (max-width: 760px) {
+  .vera-liquid-rings { opacity: .28; }
+  .vera-liquid-ring--1 { top: 9%; left: -28px; }
+  .vera-liquid-ring--2 { top: 29%; left: -20px; }
+  .vera-liquid-ring--3 { top: 60%; left: -44px; }
+  .vera-liquid-ring--4 { top: 83%; left: 7%; }
+  .vera-liquid-ring--5 { top: 14%; right: -34px; }
+  .vera-liquid-ring--6 { top: 39%; right: -24px; }
+  .vera-liquid-ring--7 { top: 66%; right: -48px; }
+  .vera-liquid-ring--8 { top: 86%; right: 6%; }
+}
+@media (max-width: 420px) {
+  .vera-liquid-ring--4, .vera-liquid-ring--8 { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vera-liquid-ring { animation: none !important; }
+}
+
+/* Shared surface and type refinements across the existing product routes. */
+:root {
+  --vera-glass: rgba(255,255,255,.035);
+  --vera-glass-border: rgba(255,255,255,.11);
+}
+h2, h3, h4, input, textarea, select, button {
+  font-family: var(--vera-font-ui);
+}
+.nav, .investigation-topbar, .lookup-topbar {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.scanner-shell, .lookup-form-card, .investigation-id-card, .investigation-field,
+.slide-card, .assessment, .history, .impact-card, .principle-card {
+  border-color: var(--vera-glass-border);
+}
+.scanner-shell, .lookup-form-card, .investigation-id-card {
+  background-image: linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,255,255,.012) 54%, rgba(255,255,255,.025));
+  box-shadow: 0 24px 70px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.055);
+}
+button, a, input, textarea, select {
+  -webkit-tap-highlight-color: transparent;
+}
+:where(button, a, input, textarea, select):focus-visible {
+  outline: 2px solid rgba(235,239,244,.78);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
