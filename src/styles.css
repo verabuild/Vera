@@ -82,7 +82,7 @@
 .footer-links a:hover,.footer-links a:hover span{color:#fff}
 .footer-copyright{grid-column:1/-1;text-align:right}
 @media(max-width:850px){.site-footer{grid-template-columns:1fr;gap:24px}.footer-links{width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}.footer-copyright{text-align:left}}
-@media(max-width:640px){.footer-legal{grid-template-columns:1fr;grid-template-areas:"theme" "legal" "copy";justify-items:start;row-gap:14px}.theme-switch{justify-self:start}.legal-links{gap:12px 16px}.footer-copyright{text-align:left}}
+
 
 
 /* Footer legal links and persistent colour-mode control */
@@ -1445,3 +1445,6 @@
 .lookup-page .lookup-help-row strong{font-size:13px;font-weight:700}
 :root[data-theme="light"] .investigation-page .rail-input,:root[data-theme="light"] .investigation-page .rail-meta span,:root[data-theme="light"] .investigation-page .field-target-meta,:root[data-theme="light"] .investigation-page .field-verdict p,:root[data-theme="light"] .investigation-page .slide-primary>p,:root[data-theme="light"] .investigation-page .signal-row p{color:#555b64}
 @media(max-width:760px){.investigation-page .investigation-canvas-head{align-items:flex-start;flex-direction:column;gap:12px}.investigation-page .canvas-meta{flex-wrap:wrap;white-space:normal}.investigation-page .investigation-stat-row span{font-size:9px}.investigation-page .investigation-stat-row strong{font-size:14px}}
+
+
+@media(max-width:640px){.footer-legal{grid-template-columns:1fr;grid-template-areas:"theme" "legal" "copy";justify-items:start;row-gap:14px}.theme-switch{justify-self:start}.legal-links{gap:12px 16px}.footer-copyright{text-align:left}}
