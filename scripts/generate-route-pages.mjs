@@ -53,6 +53,26 @@ function upsertMeta(html, attribute, key, value) {
   return html.replace("</head>", "  " + tag + "\n  </head>");
 }
 
+async function verifyPage(filePath, pathname, page) {
+  const html = await readFile(filePath, "utf8");
+  const canonical = "https://vera-build.site" + pathname;
+  const expected = [
+    "<title>" + page.title + "</title>",
+    '<meta name="description" content="' + escapeAttribute(page.description) + '" />',
+    '<meta name="robots" content="index,follow" />',
+    '<link rel="canonical" href="' + canonical + '" />',
+    '<meta property="og:title" content="' + escapeAttribute(page.title) + '" />',
+    '<meta property="og:description" content="' + escapeAttribute(page.description) + '" />',
+    '<meta property="og:url" content="' + canonical + '" />',
+    '<meta name="twitter:title" content="' + escapeAttribute(page.title) + '" />',
+    '<meta name="twitter:description" content="' + escapeAttribute(page.description) + '" />'
+  ];
+  const missing = expected.filter((fragment) => !html.includes(fragment));
+  if (missing.length) {
+    throw new Error("Generated metadata verification failed for " + pathname + ": " + missing.join("; "));
+  }
+}
+
 function makePage(pathname, page) {
   const canonical = "https://vera-build.site" + pathname;
   let html = template.replace(/<title>[\s\S]*?<\/title>/i, "<title>" + page.title + "</title>");
@@ -72,10 +92,13 @@ const homepage = {
   description: "VERA helps you investigate suspicious links, messages, Solana wallets and transactions using available threat intelligence and evidence-based analysis, so you can make more informed decisions before you act."
 };
 await writeFile(templatePath, makePage("/", homepage), "utf8");
+await verifyPage(templatePath, "/", homepage);
 
 for (const [route, page] of Object.entries(pages)) {
   const routeDir = path.join(outputDir, route.slice(1));
   await mkdir(routeDir, { recursive: true });
-  await writeFile(path.join(routeDir, "index.html"), makePage(route, page), "utf8");
+  const routeFile = path.join(routeDir, "index.html");
+  await writeFile(routeFile, makePage(route, page), "utf8");
+  await verifyPage(routeFile, route, page);
 }
 console.log("Generated crawler-ready HTML metadata for " + (Object.keys(pages).length + 1) + " public routes.");
