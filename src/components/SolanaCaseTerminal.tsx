@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { usePrivy } from '@privy-io/react-auth';
 import {
   Activity, ArrowDownLeft, ArrowUpRight, Check, ChevronLeft, Clipboard, Download,
   FileSearch, Fingerprint, GitBranch, Network as NetworkIcon, Search, ShieldAlert,
@@ -32,6 +33,7 @@ function amountLabel(transfer: Transfer) {
 }
 
 export default function SolanaCaseTerminal() {
+  const { getAccessToken } = usePrivy();
   const [addresses, setAddresses] = useState('');
   const [signatures, setSignatures] = useState('');
   const [network, setNetwork] = useState<Network>('mainnet');
@@ -45,8 +47,9 @@ export default function SolanaCaseTerminal() {
   async function investigate() {
     setBusy(true); setError(''); setResult(null);
     try {
+      const accessToken = import.meta.env.VITE_PRIVY_APP_ID ? await getAccessToken() : null;
       const response = await fetch('/api/solana-case', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) },
         credentials: 'same-origin',
         body: JSON.stringify({ addresses, signatures, network })
       });
