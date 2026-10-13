@@ -1,8 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /investigation/
-Disallow: /investigations
-Disallow: /lookup
 
 Sitemap: https://vera-build.site/sitemap.xml
