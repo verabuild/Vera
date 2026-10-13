@@ -89,7 +89,7 @@ export async function traceSolanaCase(input: {
     const frontier = [...discovered].filter((address) => depthByAddress.get(address) === depth);
     if (frontier.length) {
       const signatureResults = await Promise.allSettled(frontier.map((address) =>
-        connection.getSignaturesForAddress(new PublicKey(address), { limit: 20 })
+        connection.getSignaturesForAddress(new PublicKey(address), { limit: 8 })
       ));
       for (const result of signatureResults) {
         if (result.status === 'fulfilled') {
