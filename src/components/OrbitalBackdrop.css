@@ -1,8 +1,8 @@
 @import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap');
 
 /*
- * VERA Living Visual System
- * Decorative motion only: the product remains fully usable without it.
+ * VERA Liquid Chrome Ring System
+ * Independent, decorative rings with restrained black-chrome and green reflections.
  */
 :root {
   --vera-font-ui: "General Sans", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -13,91 +13,186 @@ html, body, button, input, textarea, select {
 body {
   isolation: isolate;
 }
-.vera-orbital-backdrop {
+.vera-liquid-rings {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
   pointer-events: none;
   contain: strict;
-  opacity: .72;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
+  opacity: .78;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 76%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 76%, transparent 100%);
 }
-.vera-orbital-cluster {
+.vera-liquid-ring {
   position: absolute;
-  width: clamp(170px, 23vw, 360px);
+  display: block;
+  width: var(--ring-size, 116px);
   aspect-ratio: 1;
-  filter: drop-shadow(0 18px 44px rgba(255,255,255,.035));
-  transform-style: preserve-3d;
-}
-.vera-orbital-cluster--left {
-  top: 12%;
-  left: -9%;
-  animation: vera-orbit-drift-left 24s ease-in-out infinite alternate;
-}
-.vera-orbital-cluster--right {
-  top: 42%;
-  right: -10%;
-  animation: vera-orbit-drift-right 29s ease-in-out infinite alternate;
-  animation-delay: -8s;
-}
-.vera-orbital-ring {
-  position: absolute;
-  inset: 14%;
-  border: 1px solid rgba(224, 228, 233, .34);
+  border: var(--ring-thickness, 11px) solid transparent;
   border-radius: 50%;
-  background: radial-gradient(ellipse at 26% 18%, rgba(255,255,255,.13), transparent 33%, rgba(255,255,255,.018) 58%, transparent 70%);
-  box-shadow: inset 0 0 24px rgba(255,255,255,.025), 0 0 22px rgba(255,255,255,.025);
+  box-sizing: border-box;
+  background:
+    linear-gradient(145deg, rgba(7,9,10,.96), rgba(22,26,27,.92) 38%, rgba(3,4,5,.98) 72%) padding-box,
+    conic-gradient(from var(--shine-angle, 35deg),
+      #080a0b 0deg,
+      #596165 24deg,
+      #f2f5f5 43deg,
+      #303739 62deg,
+      #090b0c 92deg,
+      #171d1b 126deg,
+      #27845a 151deg,
+      #07100c 177deg,
+      #aeb7b8 218deg,
+      #202628 246deg,
+      #f9fbfb 274deg,
+      #111516 310deg,
+      #080a0b 360deg) border-box;
+  box-shadow:
+    inset 2px 2px 4px rgba(255,255,255,.18),
+    inset -4px -5px 9px rgba(0,0,0,.82),
+    0 0 13px rgba(202,216,213,.07),
+    0 0 26px rgba(21,137,84,.045);
   transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
 }
-.vera-orbital-ring::after {
+.vera-liquid-ring::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -2px;
   border-radius: inherit;
-  border-top: 1px solid rgba(255,255,255,.72);
-  border-right: 1px solid rgba(255,255,255,.08);
-  opacity: .75;
+  border: 1px solid rgba(244,248,247,.48);
+  border-left-color: rgba(30,145,91,.72);
+  border-bottom-color: rgba(0,0,0,.95);
+  opacity: .84;
+  filter: blur(.25px);
 }
-.vera-orbital-ring--a { transform: rotateX(63deg) rotateZ(0deg); animation: vera-ring-a 17s linear infinite; }
-.vera-orbital-ring--b { inset: 4%; transform: rotateY(64deg) rotateZ(35deg); animation: vera-ring-b 22s linear infinite; }
-.vera-orbital-ring--c { inset: 23%; transform: rotateX(70deg) rotateZ(72deg); animation: vera-ring-c 19s linear infinite; }
-.vera-orbital-core {
+.vera-liquid-ring::after {
+  content: "";
   position: absolute;
-  width: 30%;
-  aspect-ratio: 1;
-  left: 35%;
-  top: 35%;
+  inset: 15%;
   border-radius: 50%;
-  background: radial-gradient(circle at 28% 23%, rgba(255,255,255,.42), rgba(180,185,193,.11) 18%, rgba(35,37,41,.28) 48%, rgba(255,255,255,.08) 68%, transparent 72%);
-  border: 1px solid rgba(255,255,255,.18);
-  box-shadow: inset -8px -10px 20px rgba(0,0,0,.4), 0 0 35px rgba(255,255,255,.045);
-  animation: vera-core-sway 8s ease-in-out infinite alternate;
+  border: 1px solid rgba(226,235,232,.12);
+  box-shadow: 0 0 12px rgba(28,151,94,.07);
 }
-@keyframes vera-ring-a { from { transform: rotateX(63deg) rotateZ(0deg); } to { transform: rotateX(63deg) rotateZ(360deg); } }
-@keyframes vera-ring-b { from { transform: rotateY(64deg) rotateZ(35deg); } to { transform: rotateY(64deg) rotateZ(-325deg); } }
-@keyframes vera-ring-c { from { transform: rotateX(70deg) rotateZ(72deg); } to { transform: rotateX(70deg) rotateZ(432deg); } }
-@keyframes vera-core-sway { from { transform: translate3d(-5px, -3px, 0) scale(.97); } to { transform: translate3d(6px, 5px, 0) scale(1.04); } }
-@keyframes vera-orbit-drift-left { from { transform: translate3d(0, -12px, 0) rotate(-8deg); } to { transform: translate3d(28px, 24px, 0) rotate(10deg); } }
-@keyframes vera-orbit-drift-right { from { transform: translate3d(0, 10px, 0) rotate(9deg); } to { transform: translate3d(-24px, -26px, 0) rotate(-12deg); } }
+.vera-liquid-ring--1 {
+  --ring-size: clamp(88px, 10vw, 154px);
+  --ring-thickness: clamp(8px, .9vw, 13px);
+  top: 12%;
+  left: 2.2%;
+  animation: vera-ring-flow-1 13s ease-in-out infinite alternate;
+}
+.vera-liquid-ring--2 {
+  --ring-size: clamp(68px, 7vw, 112px);
+  --ring-thickness: 9px;
+  top: 35%;
+  left: 8.5%;
+  animation: vera-ring-flow-2 10s ease-in-out infinite alternate;
+  animation-delay: -3s;
+}
+.vera-liquid-ring--3 {
+  --ring-size: clamp(102px, 12vw, 178px);
+  --ring-thickness: clamp(9px, 1vw, 14px);
+  top: 65%;
+  left: 1%;
+  animation: vera-ring-flow-3 16s ease-in-out infinite alternate;
+  animation-delay: -6s;
+}
+.vera-liquid-ring--4 {
+  --ring-size: clamp(58px, 6vw, 94px);
+  --ring-thickness: 8px;
+  top: 82%;
+  left: 12%;
+  animation: vera-ring-flow-4 12s ease-in-out infinite alternate;
+  animation-delay: -4s;
+}
+.vera-liquid-ring--5 {
+  --ring-size: clamp(94px, 11vw, 166px);
+  --ring-thickness: clamp(8px, .95vw, 13px);
+  top: 17%;
+  right: 2%;
+  animation: vera-ring-flow-5 15s ease-in-out infinite alternate;
+  animation-delay: -7s;
+}
+.vera-liquid-ring--6 {
+  --ring-size: clamp(64px, 7vw, 108px);
+  --ring-thickness: 9px;
+  top: 42%;
+  right: 8%;
+  animation: vera-ring-flow-6 11s ease-in-out infinite alternate;
+  animation-delay: -2s;
+}
+.vera-liquid-ring--7 {
+  --ring-size: clamp(108px, 12vw, 182px);
+  --ring-thickness: clamp(9px, 1vw, 14px);
+  top: 66%;
+  right: 1%;
+  animation: vera-ring-flow-7 17s ease-in-out infinite alternate;
+  animation-delay: -9s;
+}
+.vera-liquid-ring--8 {
+  --ring-size: clamp(54px, 5.5vw, 86px);
+  --ring-thickness: 7px;
+  top: 88%;
+  right: 13%;
+  animation: vera-ring-flow-8 12s ease-in-out infinite alternate;
+  animation-delay: -5s;
+}
+@keyframes vera-ring-flow-1 {
+  from { transform: perspective(650px) rotateX(58deg) rotateY(-23deg) rotateZ(-18deg) translate3d(-3px, -12px, 0); }
+  to { transform: perspective(650px) rotateX(32deg) rotateY(24deg) rotateZ(42deg) translate3d(26px, 24px, 0); }
+}
+@keyframes vera-ring-flow-2 {
+  from { transform: perspective(500px) rotateX(20deg) rotateY(60deg) rotateZ(24deg) translate3d(4px, 8px, 0); }
+  to { transform: perspective(500px) rotateX(66deg) rotateY(18deg) rotateZ(148deg) translate3d(-15px, -24px, 0); }
+}
+@keyframes vera-ring-flow-3 {
+  from { transform: perspective(700px) rotateX(68deg) rotateY(14deg) rotateZ(62deg) translate3d(0, 10px, 0); }
+  to { transform: perspective(700px) rotateX(28deg) rotateY(-32deg) rotateZ(155deg) translate3d(25px, -18px, 0); }
+}
+@keyframes vera-ring-flow-4 {
+  from { transform: perspective(450px) rotateX(25deg) rotateY(-42deg) rotateZ(12deg) translate3d(-5px, 0, 0); }
+  to { transform: perspective(450px) rotateX(62deg) rotateY(25deg) rotateZ(-76deg) translate3d(20px, -20px, 0); }
+}
+@keyframes vera-ring-flow-5 {
+  from { transform: perspective(650px) rotateX(42deg) rotateY(32deg) rotateZ(68deg) translate3d(5px, 5px, 0); }
+  to { transform: perspective(650px) rotateX(70deg) rotateY(-28deg) rotateZ(-32deg) translate3d(-24px, 24px, 0); }
+}
+@keyframes vera-ring-flow-6 {
+  from { transform: perspective(500px) rotateX(62deg) rotateY(-18deg) rotateZ(-35deg) translate3d(0, -10px, 0); }
+  to { transform: perspective(500px) rotateX(28deg) rotateY(48deg) rotateZ(82deg) translate3d(18px, 18px, 0); }
+}
+@keyframes vera-ring-flow-7 {
+  from { transform: perspective(700px) rotateX(32deg) rotateY(38deg) rotateZ(25deg) translate3d(0, 8px, 0); }
+  to { transform: perspective(700px) rotateX(66deg) rotateY(-22deg) rotateZ(126deg) translate3d(-28px, -20px, 0); }
+}
+@keyframes vera-ring-flow-8 {
+  from { transform: perspective(450px) rotateX(52deg) rotateY(22deg) rotateZ(70deg) translate3d(0, 0, 0); }
+  to { transform: perspective(450px) rotateX(24deg) rotateY(-44deg) rotateZ(168deg) translate3d(-18px, -16px, 0); }
+}
 
-/* Keep the artwork quiet behind text-heavy product surfaces. */
-.investigation-page ~ .vera-orbital-backdrop,
-.lookup-page ~ .vera-orbital-backdrop { opacity: .36; }
+/* Keep decorative movement subdued on dense investigation surfaces. */
+.investigation-page .vera-liquid-rings,
+.lookup-page .vera-liquid-rings,
+.investigation-history-page .vera-liquid-rings { opacity: .42; }
 
 @media (max-width: 760px) {
-  .vera-orbital-backdrop { opacity: .34; }
-  .vera-orbital-cluster { width: clamp(150px, 43vw, 230px); }
-  .vera-orbital-cluster--left { top: 9%; left: -22%; }
-  .vera-orbital-cluster--right { top: 50%; right: -24%; }
+  .vera-liquid-rings { opacity: .28; }
+  .vera-liquid-ring--1 { top: 9%; left: -28px; }
+  .vera-liquid-ring--2 { top: 29%; left: -20px; }
+  .vera-liquid-ring--3 { top: 60%; left: -44px; }
+  .vera-liquid-ring--4 { top: 83%; left: 7%; }
+  .vera-liquid-ring--5 { top: 14%; right: -34px; }
+  .vera-liquid-ring--6 { top: 39%; right: -24px; }
+  .vera-liquid-ring--7 { top: 66%; right: -48px; }
+  .vera-liquid-ring--8 { top: 86%; right: 6%; }
+}
+@media (max-width: 420px) {
+  .vera-liquid-ring--4, .vera-liquid-ring--8 { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .vera-orbital-cluster,
-  .vera-orbital-ring,
-  .vera-orbital-core {
-    animation: none !important;
-  }
+  .vera-liquid-ring { animation: none !important; }
 }
 
 /* Shared surface and type refinements across the existing product routes. */
