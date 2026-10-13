@@ -589,8 +589,6 @@ export default function App() {
 
     <ImpactSection />
 
-    {assessment && <section className="result-section" id="result"><div className="section-label">INVESTIGATION RESULT</div><AssessmentPanel assessment={assessment} /><button className="secondary-button" onClick={clear}><X size={14} /> Start new investigation</button></section>}
-
     <section className="principles">
       <div className="section-intro"><div className="section-label">THE VERA METHOD</div><h2>From raw signals to a <strong>clear next move.</strong></h2><p>VERA separates what was observed from what it means, so you can act with context instead of guesswork.</p></div>
       <div className="principle-grid">
