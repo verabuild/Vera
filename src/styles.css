@@ -1605,7 +1605,7 @@
 
 
 /* VERA Solana investigation terminal */
-.case-terminal{width:100%;max-width:none;min-height:100svh;margin:0;padding:0 clamp(18px,5.5vw,84px) 28px;background:#070809;color:#f1f2f3;overflow:hidden}
+.case-terminal{position:relative;z-index:1;width:100%;max-width:none;min-height:100svh;margin:0;padding:0 clamp(18px,5.5vw,84px) 28px;background:#070809;color:#f1f2f3;overflow:hidden}
 .case-topbar{height:76px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;border-bottom:1px solid #25272b}
 .case-brand{display:flex;align-items:center;gap:10px;color:#f5f5f5;text-decoration:none;font-weight:800;letter-spacing:.2em;font-size:12px}
 .case-brand img{width:43px;height:38px;object-fit:contain;filter:drop-shadow(0 0 15px rgba(255,255,255,.13))}
