@@ -444,9 +444,9 @@ export default function App() {
       "/cookies": { title: "Cookies | VERA", description: "Learn how VERA uses first-party cookies, browser storage and related service technologies." },
       "/disclosures": { title: "Risk Disclosures | VERA", description: "Understand VERA's verdicts, evidence limitations, third-party data coverage and investigation risks." }
     };
-    const path = window.location.pathname.replace(/\\/+$/, "") || "/";
+    const path = window.location.pathname.replace(/\/+$/, "") || "/";
     const current = metadata[path] ?? { title: "VERA investigation | Know before you act", description: "Review an evidence-based VERA investigation. Findings may be incomplete and do not guarantee safety." };
-    const noIndex = /^\\/(investigation(?:\\/|$)|investigations$|lookup$)/.test(path);
+    const noIndex = /^\/(investigation(?:\/|$)|investigations$|lookup$)/.test(path);
     document.title = current.title;
     const setMeta = (attribute: "name" | "property", key: string, value: string) => {
       let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
