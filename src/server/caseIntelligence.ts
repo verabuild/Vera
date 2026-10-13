@@ -146,12 +146,13 @@ async function dexscreenerMarkets(mints: string[], network: Network) {
   return { state: markets.length ? 'READY' as const : succeeded ? 'NO_MATCH' as const : 'UNAVAILABLE' as const, detail: markets.length ? `Market context found for ${new Set(markets.map((item) => item.mint)).size} token mint(s). Liquidity and volume are snapshots, not proof of legitimacy.` : succeeded ? 'No matching Solana market pairs were returned.' : 'DEX Screener could not be reached.', markets };
 }
 
-export async function enrichSolanaCase(input: { addresses: string[]; transfers: Array<{ mint?: string }>; network: Network }): Promise<CaseIntelligence> {
+export async function enrichSolanaCase(input: { addresses: string[]; transfers: Array<{ mint?: string; source?: string; destination?: string }>; network: Network }): Promise<CaseIntelligence> {
   const seeds = [...new Set(input.addresses)];
+  const intelligenceAddresses = [...new Set([...seeds, ...input.transfers.flatMap((transfer) => [transfer.source, transfer.destination]).filter((address): address is string => Boolean(address))])].slice(0, 8);
   const mints = input.transfers.map((transfer) => transfer.mint).filter((mint): mint is string => Boolean(mint));
   const [helius, breadcrumbs, dexscreener] = await Promise.all([
     heliusHistory(seeds, input.network).catch(() => ({ state: 'UNAVAILABLE' as const, detail: 'Helius history lookup failed or timed out.', transfers: [] as EnrichedTransfer[] })),
-    breadcrumbsIntelligence(seeds, input.network).catch(() => ({ state: 'UNAVAILABLE' as const, detail: 'Breadcrumbs lookup failed or timed out.', labels: [] as CaseIntelligence['labels'], riskSignals: [] as CaseIntelligence['riskSignals'] })),
+    breadcrumbsIntelligence(intelligenceAddresses, input.network).catch(() => ({ state: 'UNAVAILABLE' as const, detail: 'Breadcrumbs lookup failed or timed out.', labels: [] as CaseIntelligence['labels'], riskSignals: [] as CaseIntelligence['riskSignals'] })),
     dexscreenerMarkets(mints, input.network).catch(() => ({ state: 'UNAVAILABLE' as const, detail: 'DEX Screener lookup failed or timed out.', markets: [] as CaseIntelligence['markets'] }))
   ]);
   return {
