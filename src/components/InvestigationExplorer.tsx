@@ -111,7 +111,8 @@ export default function InvestigationExplorer({ scan }: { scan: Scan }) {
 
   return <section className="investigation-explorer" aria-label="Investigation intelligence workspace">
     <div className="intel-workspace-heading">
-      <div><span className="investigation-eyebrow">INTELLIGENCE WORKSPACE</span><h2>Explore the evidence</h2><p>Move from the assessment to the signals behind it. Each section reflects evidence recorded for this case.</p></div>
+      <div className="intel-workspace-copy"><span className="investigation-eyebrow">INTELLIGENCE WORKSPACE</span><h2>Explore the evidence</h2><p>Move from the assessment to the signals behind it. Each section reflects evidence recorded for this case.</p><span className="intel-workspace-state"><span className="intel-state-pulse" /> REPORT CONTEXT LOADED</span></div>
+      <div className="intel-chrome-orb" aria-hidden="true"><span className="intel-orb-core" /><span className="intel-orb-ring intel-orb-ring-one" /><span className="intel-orb-ring intel-orb-ring-two" /><span className="intel-orb-glint" /></div>
       <div className="intel-workspace-metrics"><span><strong>{evidence.length}</strong> signals</span><span><strong>{checks.length}</strong> checks</span></div>
     </div>
     <div className="intel-workspace-layout">
@@ -119,13 +120,13 @@ export default function InvestigationExplorer({ scan }: { scan: Scan }) {
         {sections.map((section, index) => {
           const SectionIcon = section.icon;
           const count = section.id === "overview" ? undefined : section.id === "evidence" ? evidence.length : evidence.filter((item) => matchesSection(item, section.id as Exclude<SectionId, "overview" | "evidence">)).length;
-          return <button type="button" key={section.id} className={active === section.id ? "intel-nav-item active" : "intel-nav-item"} onClick={() => setActive(section.id)} aria-current={active === section.id ? "page" : undefined}>
+          return <button type="button" key={section.id} className={active === section.id ? "intel-nav-item active" : "intel-nav-item"} onClick={() => setActive(section.id)} aria-current={active === section.id ? "page" : undefined} aria-controls="intel-active-panel">
             <span className="intel-nav-index">0{index + 1}</span><SectionIcon size={15} /><span className="intel-nav-label">{section.label}</span>{count !== undefined && <span className="intel-nav-count">{count}</span>}
           </button>;
         })}
         <div className="intel-nav-note"><ShieldAlert size={13} /><span>Missing data is shown as unknown, not as proof of safety.</span></div>
       </nav>
-      <div className="intel-section-content" key={active}>
+      <div className="intel-section-content" id="intel-active-panel" key={active} aria-live="polite">
         <div className="intel-section-title"><span className="intel-section-icon"><Icon size={18} /></span><div><h3>{selectedSection.label}</h3><p>{selectedSection.description}</p></div></div>
         {active === "overview" && <div className="intel-overview-grid">
           <article className="intel-overview-card"><span className="investigation-eyebrow">RECORDED SIGNALS</span><strong>{evidence.length}</strong><p>Evidence items returned for this investigation.</p></article>
