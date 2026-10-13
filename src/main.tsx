@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 import App from "./App";
-import OrbitalBackdrop from "./components/OrbitalBackdrop";
+import LiquidRings from "./components/LiquidRings";
 import "./styles.css";
 
 const appId = import.meta.env.VITE_PRIVY_APP_ID;
@@ -29,13 +29,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         }}
       >
         <>
-          <OrbitalBackdrop />
+          <LiquidRings />
           <App />
         </>
       </PrivyProvider>
     ) : (
       <>
-        <OrbitalBackdrop />
+        <LiquidRings />
         <App />
       </>
     )}
