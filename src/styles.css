@@ -1843,3 +1843,15 @@ body:has(.case-terminal) .vera-liquid-rings { display: none; }
   .case-dna-backdrop svg,.case-dna-strand { animation: none !important; }
   .case-activity-bar-track span { transition: none !important; }
 }
+
+
+.case-research-tools-intro { margin: 0 0 10px; color: #777d88; font-size: 9px; line-height: 1.7; }
+.case-research-tools { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 7px; }
+.case-research-tools a { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 4px 8px; padding: 11px; border: 1px solid #2b2e35; border-radius: 8px; color: #c8ccd4; text-decoration: none; background: rgba(255,255,255,.015); }
+.case-research-tools a:hover { border-color: #6a707c; background: rgba(255,255,255,.04); }
+.case-research-tools strong { font-size: 10px; line-height: 1.4; }
+.case-research-tools span { grid-column: 1; color: #7e8490; font-size: 8px; line-height: 1.5; }
+.case-research-tools svg { grid-column: 2; grid-row: 1 / span 2; color: #9da3af; }
+:root[data-theme="light"] .case-research-tools a { background: #fafbfc; border-color: #d9dce2; color: #30323a; }
+@media(max-width:900px) { .case-research-tools { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media(max-width:380px) { .case-research-tools { grid-template-columns: 1fr; } }
