@@ -118,7 +118,7 @@ export default function InvestigationExplorer({ scan }: { scan: Scan }) {
       <nav className="intel-section-nav" aria-label="Investigation sections">
         {sections.map((section, index) => {
           const SectionIcon = section.icon;
-          const count = section.id === "overview" ? undefined : section.id === "evidence" ? evidence.length : evidence.filter((item) => matchesSection(item, section.id)).length;
+          const count = section.id === "overview" ? undefined : section.id === "evidence" ? evidence.length : evidence.filter((item) => matchesSection(item, section.id as Exclude<SectionId, "overview" | "evidence">)).length;
           return <button type="button" key={section.id} className={active === section.id ? "intel-nav-item active" : "intel-nav-item"} onClick={() => setActive(section.id)} aria-current={active === section.id ? "page" : undefined}>
             <span className="intel-nav-index">0{index + 1}</span><SectionIcon size={15} /><span className="intel-nav-label">{section.label}</span>{count !== undefined && <span className="intel-nav-count">{count}</span>}
           </button>;
