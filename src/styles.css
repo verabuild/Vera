@@ -1728,3 +1728,8 @@
 :root[data-theme="light"] .case-field textarea,:root[data-theme="light"] .case-network-picker>div{background:#f8f9fb;color:#17181b;border-color:#d4d7de}
 :root[data-theme="light"] .case-metric-grid article,:root[data-theme="light"] .case-transfer,:root[data-theme="light"] .case-node{background:#f8f9fb;border-color:#e1e3e8;color:#25262a}
 :root[data-theme="light"] .case-transfer-data strong,:root[data-theme="light"] .case-method-row strong,:root[data-theme="light"] .case-method-card h3{color:#202126}
+
+
+.case-load-example{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 10px;border:1px solid #303238;border-radius:7px;background:#101114;color:#c4c7ce;font-size:10px;transition:border-color .2s,color .2s}
+.case-load-example:hover{border-color:#666c78;color:#fff}
+:root[data-theme="light"] .case-load-example{background:#f7f8fa;border-color:#d7dae1;color:#373941}
