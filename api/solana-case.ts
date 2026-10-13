@@ -9,7 +9,7 @@ function json(res: VercelResponse, status: number, body: unknown) {
   res.status(status).setHeader('Content-Type', 'application/json').json(body);
 }
 
-function listOf(value: unknown, max: number) {
+function listOf(value: unknown) {
   if (typeof value !== 'string') return [];
   return [...new Set(value.split(/[\n,\s]+/).map((part) => part.trim()).filter(Boolean))];
 }
@@ -22,8 +22,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const body = req.body ?? {};
   const network: Network = body.network === 'devnet' ? 'devnet' : 'mainnet';
-  const addresses = listOf(body.addresses, 8);
-  const signatures = listOf(body.signatures, 5);
+  const addresses = listOf(body.addresses);
+  const signatures = listOf(body.signatures);
 
   if (addresses.length > 8 || signatures.length > 5) {
     return json(res, 400, { error: 'A case can include up to eight wallet addresses and five transaction signatures.' });
