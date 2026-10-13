@@ -448,7 +448,7 @@ export default function App() {
     const current = metadata[path] ?? { title: "VERA investigation | Know before you act", description: "Review an evidence-based VERA investigation. Findings may be incomplete and do not guarantee safety." };
     const noIndex = /^\\/(investigation(?:\\/|$)|investigations$|lookup$)/.test(path);
     document.title = current.title;
-    const setMeta = (selector: string, attribute: "name" | "property", key: string, value: string) => {
+    const setMeta = (attribute: "name" | "property", key: string, value: string) => {
       let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
       if (!element) {
         element = document.createElement("meta");
@@ -457,17 +457,17 @@ export default function App() {
       }
       element.content = value;
     };
-    setMeta("description", "name", "description", current.description);
-    setMeta("robots", "name", "robots", noIndex ? "noindex,nofollow" : "index,follow");
-    setMeta("og:title", "property", "og:title", current.title);
-    setMeta("og:description", "property", "og:description", current.description);
+    setMeta("name", "description", current.description);
+    setMeta("name", "robots", noIndex ? "noindex,nofollow" : "index,follow");
+    setMeta("property", "og:title", current.title);
+    setMeta("property", "og:description", current.description);
     const canonicalUrl = `https://vera-build.site${path === "/" ? "/" : path}`;
     let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
     canonical.href = canonicalUrl;
-    setMeta("og:url", "property", "og:url", canonicalUrl);
-    setMeta("twitter:title", "name", "twitter:title", current.title);
-    setMeta("twitter:description", "name", "twitter:description", current.description);
+    setMeta("property", "og:url", canonicalUrl);
+    setMeta("name", "twitter:title", current.title);
+    setMeta("name", "twitter:description", current.description);
   }, []);
   useEffect(() => setHistory(loadScans()), []);
   const [remoteScan, setRemoteScan] = useState<Scan | null>(null);
