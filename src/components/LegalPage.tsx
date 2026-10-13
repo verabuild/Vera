@@ -34,7 +34,7 @@ const pages: Record<LegalKey, {
     icon: ShieldCheck,
     sections: [
       { heading: "What VERA processes", body: "Depending on the investigation mode, VERA processes the URL, message text, Solana address or transaction signature you submit, together with technical evidence returned by connected sources. Signed-in users also provide the account identifier needed to authenticate and enforce usage limits." },
-      { heading: "What VERA stores", body: "For MESSAGE and TX investigations, VERA stores a cryptographic hash and a redacted preview rather than the raw submitted content. URL and WALLET investigations may store the submitted identifier and a short preview so the scan and evidence records can be associated correctly." },
+      { heading: "What VERA stores", body: "When backend persistence is enabled, MESSAGE and TX investigations store a cryptographic hash and a redacted preview rather than the raw submitted content. URL and WALLET investigations may store the submitted identifier and a short preview so the scan and evidence records can be associated correctly. Recent investigation history is also stored locally in your browser." },
       { heading: "Third-party processing", body: "A URL investigation can send the target URL or hostname to relevant threat-intelligence, reputation, DNS, RDAP, website and blockchain-related services used by VERA. A message containing a link may cause the detected link to be checked through the same pipeline. AI explanation may also process the submitted input and collected evidence through the configured Gemini service. Those providers have their own privacy and retention policies." },
       { heading: "Authentication", body: "VERA uses Privy for optional sign-in with email, Google or a Solana wallet. Authentication tokens are verified server-side. VERA does not require a wallet connection simply to investigate a link, message, address or transaction." },
       { heading: "Cookies and local storage", body: "VERA uses a signed first-party anonymous-session cookie and, when needed, a signed quota cookie to enforce beta usage limits. The selected colour theme and recent scan history are stored locally in your browser. See the Cookies page for more detail." },
@@ -85,7 +85,7 @@ export default function LegalPage({ page }: { page: LegalKey }) {
         <p className="eyebrow">{content.eyebrow}</p>
         <h1>{content.title}</h1>
         <p>{content.intro}</p>
-        <div className="legal-meta"><CheckCircle2 size={13} /> Beta policy · Last updated October 6, 2026</div>
+        <div className="legal-meta"><CheckCircle2 size={13} /> Policy version · Updated October 13, 2026</div>
       </div>
       <section className="legal-content">
         {content.sections.map((section) => <article key={section.heading}><h2>{section.heading}</h2><p>{section.body}</p></article>)}

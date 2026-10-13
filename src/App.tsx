@@ -10,6 +10,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { usePrivy } from "@privy-io/react-auth";
 import AuthControls from "./components/AuthControls";
 import LegalPage from "./components/LegalPage";
+import PublicPage from "./components/PublicPage";
 import InvestigationPage from "./components/InvestigationPage";
 import InvestigationHistoryPage from "./components/InvestigationHistoryPage";
 import InvestigationLookupPage from "./components/InvestigationLookupPage";
@@ -384,6 +385,9 @@ export default function App() {
   const legalPage = legalPath === "/terms" || legalPath === "/privacy" || legalPath === "/cookies" || legalPath === "/disclosures"
     ? legalPath.slice(1) as "terms" | "privacy" | "cookies" | "disclosures"
     : null;
+  const publicPage = legalPath === "/about" || legalPath === "/how-it-works" || legalPath === "/project" || legalPath === "/contact"
+    ? legalPath.slice(1) as "about" | "how-it-works" | "project" | "contact"
+    : null;
   const investigationMatch = legalPath.match(/^\/investigation\/([^/]+)$/);
   const isInvestigationsPage = legalPath === "/investigations";
   const isLookupPage = legalPath === "/lookup";
@@ -428,6 +432,43 @@ export default function App() {
     return () => { observer.disconnect(); window.removeEventListener("scroll", updateVisibility); };
   }, []);
 
+  useEffect(() => {
+    const metadata: Record<string, { title: string; description: string }> = {
+      "/": { title: "VERA ⇴ Know before you act", description: "VERA helps you investigate suspicious links, messages, Solana wallets and transactions using available threat intelligence and evidence-based analysis, so you can make more informed decisions before you act." },
+      "/about": { title: "About VERA | Know before you act", description: "Learn why VERA exists, what it investigates, and how it helps people assess digital risk with evidence rather than assumptions." },
+      "/how-it-works": { title: "How VERA Works | Know before you act", description: "Understand VERA's evidence-first investigation process, threat-intelligence checks, coverage limits and risk assessments." },
+      "/project": { title: "Project Transparency | VERA", description: "Explore VERA's scope, current capabilities, public source code and project status." },
+      "/contact": { title: "Contact VERA | Know before you act", description: "Contact the VERA project about privacy requests, investigation corrections, feedback or potential security issues." },
+      "/privacy": { title: "Privacy Policy | VERA", description: "Read how VERA processes investigation inputs, uses service providers, stores records and supports privacy requests." },
+      "/terms": { title: "Terms of Use | VERA", description: "Review the terms governing use of VERA's beta investigation and decision-support service." },
+      "/cookies": { title: "Cookies | VERA", description: "Learn how VERA uses first-party cookies, browser storage and related service technologies." },
+      "/disclosures": { title: "Risk Disclosures | VERA", description: "Understand VERA's verdicts, evidence limitations, third-party data coverage and investigation risks." }
+    };
+    const path = window.location.pathname.replace(/\/+$/, "") || "/";
+    const current = metadata[path] ?? { title: "VERA investigation | Know before you act", description: "Review an evidence-based VERA investigation. Findings may be incomplete and do not guarantee safety." };
+    const noIndex = /^\/(investigation(?:\/|$)|investigations$|lookup$)/.test(path);
+    document.title = current.title;
+    const setMeta = (attribute: "name" | "property", key: string, value: string) => {
+      let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
+      if (!element) {
+        element = document.createElement("meta");
+        element.setAttribute(attribute, key);
+        document.head.appendChild(element);
+      }
+      element.content = value;
+    };
+    setMeta("name", "description", current.description);
+    setMeta("name", "robots", noIndex ? "noindex,nofollow" : "index,follow");
+    setMeta("property", "og:title", current.title);
+    setMeta("property", "og:description", current.description);
+    const canonicalUrl = `https://vera-build.site${path === "/" ? "/" : path}`;
+    let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement("link"); canonical.rel = "canonical"; document.head.appendChild(canonical); }
+    canonical.href = canonicalUrl;
+    setMeta("property", "og:url", canonicalUrl);
+    setMeta("name", "twitter:title", current.title);
+    setMeta("name", "twitter:description", current.description);
+  }, []);
   useEffect(() => setHistory(loadScans()), []);
   const [remoteScan, setRemoteScan] = useState<Scan | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
@@ -535,6 +576,7 @@ export default function App() {
   function restore(scan: Scan) { setMode(scan.type); setInput(scan.input); setAssessment(scan.assessment); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   if (legalPage) return <LegalPage page={legalPage} />;
+  if (publicPage) return <PublicPage page={publicPage} />;
 
   if (isLookupPage) return <InvestigationLookupPage onBack={() => window.location.assign("/")} onLookup={(id) => window.location.assign(`/investigation/${encodeURIComponent(id)}`)} />;
 
@@ -601,7 +643,7 @@ export default function App() {
     <RoadmapSection />
 
 
-    <footer className="site-footer"><div className="footer-brand"><div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div><p>Know before you act.</p><small>Evidence before action. No financial execution.</small></div><nav className="footer-links" aria-label="Project links"><a href="https://vera-build.site/" rel="noreferrer"><ExternalLink size={14} /> Vera <span>Live beta</span></a><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> GitHub <span>Source code</span></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> X <span>Vera</span></a><a href="mailto:verabuild1@gmail.com"><ExternalLink size={14} /> Email <span>verabuild1@gmail.com</span></a><a href="#roadmap"><ExternalLink size={14} /> Roadmap <span>6–12 month product path</span></a><a href="https://github.com/verabuild/Vera/blob/main/README.md" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Documentation <span>Project overview</span></a></nav><div className="footer-legal"><nav className="legal-links" aria-label="Legal"><a href="/terms" target="_blank" rel="noreferrer noopener">Terms</a><a href="/privacy" target="_blank" rel="noreferrer noopener">Privacy</a><a href="/cookies" target="_blank" rel="noreferrer noopener">Cookies</a><a href="/disclosures" target="_blank" rel="noreferrer noopener">Risk disclosures</a></nav><div className={`theme-switch theme-switch--${themeMode}`} role="group" aria-label="Colour theme">{(["light", "dark", "auto"] as const).map((theme) => <button key={theme} type="button" className={themeMode === theme ? "active" : ""} aria-pressed={themeMode === theme} onClick={() => setThemeMode(theme)}>{theme[0].toUpperCase() + theme.slice(1)}</button>)}</div><small className="footer-copyright">VERA · Decision intelligence</small></div></footer>
+    <footer className="site-footer"><div className="footer-brand"><div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div><p>Know before you act.</p><small>Evidence before action. No financial execution.</small></div><nav className="footer-links" aria-label="Project links"><a href="https://vera-build.site/" rel="noreferrer"><ExternalLink size={14} /> VERA <span>Live beta</span></a><a href="/about"><ExternalLink size={14} /> About <span>Why VERA exists</span></a><a href="/how-it-works"><ExternalLink size={14} /> Methodology <span>How evidence is assessed</span></a><a href="/project"><ExternalLink size={14} /> Project <span>Transparency and source</span></a><a href="/contact"><ExternalLink size={14} /> Contact <span>Questions and reports</span></a><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> GitHub <span>Source code</span></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> X <span>Official project account</span></a><a href="mailto:verabuild1@gmail.com"><ExternalLink size={14} /> Email <span>verabuild1@gmail.com</span></a><a href="#roadmap"><ExternalLink size={14} /> Roadmap <span>Product direction</span></a><a href="https://github.com/verabuild/Vera/blob/main/README.md" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Documentation <span>Project overview</span></a></nav><div className="footer-legal"><nav className="legal-links" aria-label="Legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/cookies">Cookies</a><a href="/disclosures">Risk disclosures</a></nav><div className={`theme-switch theme-switch--${themeMode}`} role="group" aria-label="Colour theme">{(["light", "dark", "auto"] as const).map((theme) => <button key={theme} type="button" className={themeMode === theme ? "active" : ""} aria-pressed={themeMode === theme} onClick={() => setThemeMode(theme)}>{theme[0].toUpperCase() + theme.slice(1)}</button>)}</div><small className="footer-copyright">VERA · Decision intelligence</small></div></footer>
     <button type="button" className={`vera-return-orb ${showReturnOrb ? "is-visible" : ""}`} aria-label="Back to investigation" aria-hidden={!showReturnOrb} tabIndex={showReturnOrb ? 0 : -1} onClick={() => document.querySelector(".scanner-shell")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" })}>
       <span className="vera-return-orb-halo" aria-hidden="true" />
       <span className="vera-return-orb-glass"><img className="vera-return-orb-mark" src={OFFICIAL_VERA_LOGO} alt="" style={{ maskImage: `url("${OFFICIAL_VERA_LOGO}")`, WebkitMaskImage: `url("${OFFICIAL_VERA_LOGO}")`, maskMode: "luminance", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", maskPosition: "center", WebkitMaskPosition: "center", maskSize: "contain", WebkitMaskSize: "contain" }} /></span>

@@ -16,9 +16,52 @@
           "value": "no-store"
         }
       ]
+    },
+    {
+      "source": "/lookup",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/investigations",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/investigation/:id",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ],
   "rewrites": [
+    {
+      "source": "/contact",
+      "destination": "/contact/index.html"
+    },
+    {
+      "source": "/project",
+      "destination": "/project/index.html"
+    },
+    {
+      "source": "/how-it-works",
+      "destination": "/how-it-works/index.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about/index.html"
+    },
     {
       "source": "/lookup",
       "destination": "/index.html"
@@ -33,19 +76,19 @@
     },
     {
       "source": "/terms",
-      "destination": "/index.html"
+      "destination": "/terms/index.html"
     },
     {
       "source": "/privacy",
-      "destination": "/index.html"
+      "destination": "/privacy/index.html"
     },
     {
       "source": "/cookies",
-      "destination": "/index.html"
+      "destination": "/cookies/index.html"
     },
     {
       "source": "/disclosures",
-      "destination": "/index.html"
+      "destination": "/disclosures/index.html"
     }
   ]
 }
