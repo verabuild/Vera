@@ -10,6 +10,7 @@ import { OFFICIAL_VERA_LOGO } from '../lib/brand';
 
 type Transfer = {
   signature: string; slot: number; blockTime: number | null; source: string; destination: string;
+  sourceTokenAccount?: string; destinationTokenAccount?: string;
   asset: string; mint?: string; rawAmount: string; amount: number | null; decimals?: number;
   kind: 'SOL' | 'TOKEN'; sourceSeed: boolean; depth: number;
 };
