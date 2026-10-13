@@ -140,27 +140,27 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
           <div className="canvas-meta">{scan.assessment.network && <span>{scan.assessment.network}</span>}<span>{formatDate(scan.createdAt)}</span></div>
         </div>
 
-        <section className="investigation-field">
-          <div className="field-glint" aria-hidden="true" />
-          <div className="field-target"><span className="investigation-eyebrow">TARGET</span><div className="field-target-row"><Icon size={16} /><strong title={scan.input}>{scan.input}</strong></div><span className="field-target-meta">VERA inspected this target using available security, reputation, infrastructure and on-chain evidence.</span></div>
-          <div className={`field-verdict ${config.className}`}><div className="field-verdict-mark"><VerdictIcon size={25} /></div><div><span className="investigation-eyebrow">ASSESSMENT</span><strong>{config.label}</strong><p>{config.copy}</p></div></div>
-        </section>
 
-        {report && <section className="investigation-stat-row"><div><span>Coverage</span><strong>{report.coverage}%</strong></div><div><span>Decisive signals</span><strong>{report.decisiveFindings}</strong></div><div><span>Checks</span><strong>{report.checks.length}</strong></div><div><span>Mode</span><strong>Read-only</strong></div></section>}
+        <InvestigationExplorer scan={scan} />
+
+        <section className="investigation-field investigation-summary-strip">
+          <div className={`field-verdict ${config.className}`}>
+            <div className="field-verdict-mark"><VerdictIcon size={22} /></div>
+            <div><span className="investigation-eyebrow">ASSESSMENT</span><strong>{config.label}</strong><p>{config.copy}</p></div>
+          </div>
+          <div className="field-target">
+            <span className="investigation-eyebrow">TARGET</span>
+            <div className="field-target-row"><Icon size={16} /><strong title={scan.input}>{scan.input}</strong></div>
+            <span className="field-target-meta">Read the recorded evidence and provider coverage before deciding what to do next.</span>
+          </div>
+        </section>
 
         <section className="investigation-id-card" aria-label="Investigation ID">
           <div className="investigation-id-copy"><span className="investigation-eyebrow">INVESTIGATION ID</span><strong>{scan.id}</strong><p>Copy this reference to reopen or share this saved report.</p></div>
-          <div className="investigation-id-actions"><button type="button" onClick={copyId}>{copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy ID</>}</button><button type="button" className="find-saved-report" onClick={onInvestigations}><FileSearch size={14} /> Look up another ID</button></div>
-        </section>
-
-        <section className="investigation-slide-deck">
-          <article className="slide-card slide-primary"><div className="slide-card-index">01 / DECISION</div><span className="investigation-eyebrow">WHY THIS RESULT</span><h2>{scan.assessment.headline}</h2><p>{scan.assessment.explanation}</p><div className="slide-action"><span className="investigation-eyebrow">NEXT BEST ACTION</span><strong>{scan.assessment.action}</strong></div></article>
-          <article className="slide-card slide-signals"><div className="slide-card-index">02 / SIGNALS</div><div className="investigation-section-head compact"><div><span className="investigation-eyebrow">DECISIVE SIGNALS</span><h2>What moved the assessment</h2></div><span className="investigation-count">{decisiveSignals.length}</span></div><div className="signal-stack">{(decisiveSignals.length ? decisiveSignals.slice(0, 3) : scan.assessment.evidence.slice(0, 3)).map((item, index) => <article className={`signal-row evidence-reveal ${index < revealCount ? "is-visible" : ""}`} key={item.id}><span className={`evidence-dot dot-${item.severity}`} /><div><strong>{item.title}</strong><p>{item.detail}</p><small>{item.source}</small></div></article>)}{scan.assessment.evidence.length === 0 && <div className="investigation-empty"><Activity size={17} /> No evidence was recorded.</div>}</div></article>
+          <div className="investigation-id-actions"><button type="button" onClick={copyId}>{copied ? "Copied" : "Copy ID"}</button><button type="button" className="find-saved-report" onClick={onInvestigations}><FileSearch size={14} /> Look up another ID</button></div>
         </section>
 
         <section className="investigation-next-strip"><div><span className="investigation-eyebrow">KEEP MOVING</span><strong>Have another link, wallet or message to check?</strong><span>Start a fresh investigation without leaving this workspace.</span></div><button onClick={onInvestigateAnother}>Investigate another <ArrowUpRight size={14} /></button></section>
-
-        <InvestigationExplorer scan={scan} />
         <div className="investigation-principle"><ShieldCheck size={15} /><span>Investigate first. Understand the evidence. Then decide.</span></div>
       </section>
     </div>
