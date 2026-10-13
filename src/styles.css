@@ -1468,3 +1468,81 @@
  .investigation-canvas-head>.canvas-meta{margin-top:13px;gap:10px}
  .investigation-rail{background:rgba(8,9,9,.86)!important}
 }
+
+
+/* Evidence detail alignment and timeline rhythm */
+.investigation-gloam-inspired .investigation-evidence-row {
+  min-width: 0;
+  align-items: start;
+}
+.investigation-gloam-inspired .investigation-evidence-toggle,
+.investigation-gloam-inspired .investigation-evidence-main {
+  min-width: 0;
+  width: 100%;
+}
+.investigation-gloam-inspired .investigation-evidence-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.investigation-gloam-inspired .investigation-evidence-title strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.investigation-gloam-inspired .investigation-evidence-title > span {
+  flex: 0 0 auto;
+}
+.investigation-gloam-inspired .evidence-expanded {
+  grid-column: 2;
+  min-width: 0;
+  width: 100%;
+  margin-top: 8px;
+  padding: 13px 15px;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+.investigation-gloam-inspired .evidence-expanded > p {
+  font-size: 12px;
+  line-height: 1.65;
+  color: #b8b8b5;
+  overflow-wrap: anywhere;
+}
+.investigation-gloam-inspired .evidence-expanded .evidence-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.investigation-gloam-inspired .evidence-expanded .evidence-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.investigation-gloam-inspired .investigation-depth-card + .investigation-depth-card {
+  margin-top: 8px;
+}
+.investigation-gloam-inspired .investigation-timeline {
+  padding-top: 12px;
+  padding-bottom: 16px;
+}
+.investigation-gloam-inspired .investigation-timeline .timeline-content {
+  padding-bottom: 12px;
+}
+@media (max-width: 640px) {
+  .investigation-gloam-inspired .investigation-evidence-row {
+    column-gap: 10px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .investigation-gloam-inspired .evidence-expanded {
+    padding: 11px 12px;
+  }
+  .investigation-gloam-inspired .investigation-timeline {
+    padding: 10px 14px 12px;
+  }
+}
