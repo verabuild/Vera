@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { Network } from '../src/lib/types.js';
 import { traceSolanaCase } from '../src/server/solanaCase.js';
+import { enrichSolanaCase } from '../src/server/caseIntelligence.js';
 import { consumeFallbackQuota, getAnonymousSubject } from '../src/server/anonymousSession.js';
 import { consumeUsageQuota } from '../src/server/db.js';
 import { privyServerConfigured, verifyPrivyAccessToken } from '../src/server/privyAuth.js';
@@ -71,7 +72,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const result = await traceSolanaCase({ addresses, signatures, network, maxDepth: 2 });
-    return json(res, 200, { ok: true, result, remaining: quota.remaining });
+    const externalIntelligence = await enrichSolanaCase({ addresses: result.seeds, transfers: result.transfers, network });
+    return json(res, 200, { ok: true, result: { ...result, externalIntelligence }, remaining: quota.remaining });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     const invalidKey = /Invalid public key|Non-base58 character|Invalid character/i.test(message);
