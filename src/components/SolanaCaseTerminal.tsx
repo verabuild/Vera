@@ -96,7 +96,7 @@ export default function SolanaCaseTerminal() {
 
     <section className="case-workspace">
       <div className="case-input-column">
-        <div className="case-section-heading"><span>01 / CASE INTAKE</span><h2>Start with what you know.</h2><p>Paste public wallet addresses and full Solana transaction signatures. You can include several of each.</p></div>
+        <div className="case-section-heading"><span>01 / CASE INTAKE</span><h2>Start with what you know.</h2><p>Paste public wallet addresses and full Solana transaction signatures. You can include several of each.</p><button className="case-load-example" type="button" onClick={() => { setAddresses(EXAMPLE_WALLETS); setSignatures(""); setResult(null); setError(""); }}>Load reported case addresses <ArrowUpRight size={12} /></button></div>
         <div className="case-field">
           <label htmlFor="case-addresses"><span><Wallet size={14} /> Wallet addresses</span><small>{parsedAddresses.length}/8 max</small></label>
           <textarea id="case-addresses" value={addresses} onChange={(event) => setAddresses(event.target.value)} placeholder="One public Solana address per line" rows={5} spellCheck={false} />
