@@ -8,6 +8,8 @@ export type CaseTransfer = {
   blockTime: number | null;
   source: string;
   destination: string;
+  sourceTokenAccount?: string;
+  destinationTokenAccount?: string;
   asset: string;
   mint?: string;
   rawAmount: string;
