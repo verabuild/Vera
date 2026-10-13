@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpRight, ExternalLink, ShieldCheck, BookOpen, Network, Mail, Github } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ExternalLink, Network, Mail, Github } from "lucide-react";
 import { OFFICIAL_VERA_LOGO } from "../lib/brand";
 
 type PublicPageKey = "about" | "how-it-works" | "project" | "contact";
