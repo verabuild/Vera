@@ -48,19 +48,19 @@
   "rewrites": [
     {
       "source": "/contact",
-      "destination": "/index.html"
+      "destination": "/contact/index.html"
     },
     {
       "source": "/project",
-      "destination": "/index.html"
+      "destination": "/project/index.html"
     },
     {
       "source": "/how-it-works",
-      "destination": "/index.html"
+      "destination": "/how-it-works/index.html"
     },
     {
       "source": "/about",
-      "destination": "/index.html"
+      "destination": "/about/index.html"
     },
     {
       "source": "/lookup",
@@ -76,19 +76,19 @@
     },
     {
       "source": "/terms",
-      "destination": "/index.html"
+      "destination": "/terms/index.html"
     },
     {
       "source": "/privacy",
-      "destination": "/index.html"
+      "destination": "/privacy/index.html"
     },
     {
       "source": "/cookies",
-      "destination": "/index.html"
+      "destination": "/cookies/index.html"
     },
     {
       "source": "/disclosures",
-      "destination": "/index.html"
+      "destination": "/disclosures/index.html"
     }
   ]
 }
