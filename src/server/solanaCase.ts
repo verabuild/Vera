@@ -121,23 +121,39 @@ export async function traceSolanaCase(input: {
       if (result.status !== 'fulfilled' || !result.value || result.value.meta?.err) continue;
       const tx = result.value;
       const message = tx.transaction.message;
+      const accountKeys = message.accountKeys.map((account) => account.pubkey.toBase58());
+      const tokenAccountOwners = new Map<string, string>();
+      for (const balance of [...(tx.meta?.preTokenBalances ?? []), ...(tx.meta?.postTokenBalances ?? [])]) {
+        const tokenAccount = accountKeys[balance.accountIndex];
+        if (tokenAccount && typeof balance.owner === 'string') tokenAccountOwners.set(tokenAccount, balance.owner);
+      }
       const instructions: unknown[] = [...message.instructions];
       for (const inner of tx.meta?.innerInstructions ?? []) instructions.push(...inner.instructions);
       const signature = batch[index];
       for (const instruction of instructions) {
         const parsed = parsedTransfer(instruction);
         if (!parsed) continue;
-        const sourceSeed = seeds.includes(parsed.source);
-        const sourceDepth = depthByAddress.get(parsed.source) ?? depth;
+        // SPL transfer instructions identify token accounts, not necessarily the wallet owners.
+        // Resolve owners from the transaction's pre/post token-balance metadata when available.
+        const sourceOwner = parsed.kind === 'TOKEN' ? tokenAccountOwners.get(parsed.source) : undefined;
+        const destinationOwner = parsed.kind === 'TOKEN' ? tokenAccountOwners.get(parsed.destination) : undefined;
+        const source = sourceOwner ?? parsed.source;
+        const destination = destinationOwner ?? parsed.destination;
+        const sourceSeed = seeds.includes(source) || seeds.includes(parsed.source);
+        const sourceDepth = depthByAddress.get(source) ?? depthByAddress.get(parsed.source) ?? depth;
         const transferDepth = Math.min(sourceDepth, depth + 1);
         transfers.push({
-          signature, slot: tx.slot, blockTime: tx.blockTime ?? null, ...parsed, sourceSeed, depth: transferDepth
+          signature, slot: tx.slot, blockTime: tx.blockTime ?? null, ...parsed,
+          source, destination,
+          ...(sourceOwner ? { sourceTokenAccount: parsed.source } : {}),
+          ...(destinationOwner ? { destinationTokenAccount: parsed.destination } : {}),
+          sourceSeed, depth: transferDepth
         });
-        if (transferDepth < maxDepth && !discovered.has(parsed.destination) && discovered.size < MAX_NODES) {
-          discovered.add(parsed.destination);
-          depthByAddress.set(parsed.destination, transferDepth + 1);
-          newDestinations.push(parsed.destination);
-        } else if (discovered.size >= MAX_NODES && !discovered.has(parsed.destination)) {
+        if (transferDepth < maxDepth && !discovered.has(destination) && discovered.size < MAX_NODES) {
+          discovered.add(destination);
+          depthByAddress.set(destination, transferDepth + 1);
+          newDestinations.push(destination);
+        } else if (discovered.size >= MAX_NODES && !discovered.has(destination)) {
           truncated = true;
         }
       }
@@ -162,6 +178,7 @@ export async function traceSolanaCase(input: {
     truncated,
     limitations: [
       'This report covers only recent address history returned by the selected RPC and is not a complete historical trace.',
+      'Observed transfers are not automatically attributed to the reported theft; review the incident timeline and transaction context before linking them to a case.',
       'A transaction connection proves an on-chain transfer, not common ownership, criminal intent or a person’s real-world identity.',
       'Token transfers are shown only where Solana returned parseable transfer instructions. Swaps, bridges, pooled accounts and unsupported instructions may require specialist review.',
       'Exchange labels and account ownership are not inferred from an address alone.'
