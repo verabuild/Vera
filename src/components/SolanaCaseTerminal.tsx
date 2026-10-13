@@ -132,15 +132,15 @@ export default function SolanaCaseTerminal() {
 
     <section className="case-workspace">
       <div className="case-input-column">
-        <div className="case-section-heading"><span>01 / CASE INTAKE</span><h2>Start with what you know.</h2><p>Paste public wallet addresses and full Solana transaction signatures. You can include several of each.</p><button className="case-load-example" type="button" onClick={() => { setAddresses(EXAMPLE_WALLETS); setSignatures(""); setResult(null); setError(""); }}>Load reported case addresses <ArrowUpRight size={12} /></button></div>
+        <div className="case-section-heading"><span>01 / CASE INTAKE</span><h2>Start with what you know.</h2><p>Paste public wallet addresses and full Solana transaction signatures. You can include several of each.</p><button className="case-load-example" type="button" onClick={() => { setAddresses(EXAMPLE_WALLETS); setSignatures(""); setResult(null); setError(""); setCaseNotes(""); }}>Load reported case addresses <ArrowUpRight size={12} /></button></div>
         <div className="case-field">
           <label htmlFor="case-addresses"><span><Wallet size={14} /> Wallet addresses</span><small>{parsedAddresses.length}/8 max</small></label>
-          <textarea id="case-addresses" value={addresses} onChange={(event) => setAddresses(event.target.value)} placeholder="One public Solana address per line" rows={5} spellCheck={false} />
+          <textarea id="case-addresses" value={addresses} onChange={(event) => { setAddresses(event.target.value); setCaseNotes(""); }} placeholder="One public Solana address per line" rows={5} spellCheck={false} />
           <small className="case-field-hint">Include victim wallets and known intermediary or destination addresses.</small>
         </div>
         <div className="case-field">
           <label htmlFor="case-signatures"><span><Activity size={14} /> Transaction signatures</span><small>{parsedSignatures.length}/5 max</small></label>
-          <textarea id="case-signatures" value={signatures} onChange={(event) => setSignatures(event.target.value)} placeholder="Paste complete transaction signatures" rows={3} spellCheck={false} />
+          <textarea id="case-signatures" value={signatures} onChange={(event) => { setSignatures(event.target.value); setCaseNotes(""); }} placeholder="Paste complete transaction signatures" rows={3} spellCheck={false} />
           <small className="case-field-hint">Use the full signature, not an abbreviated explorer URL.</small>
         </div>
         <div className="case-network-picker"><span>NETWORK</span><div><button type="button" className={network === 'mainnet' ? 'active' : ''} onClick={() => setNetwork('mainnet')}>Mainnet</button><button type="button" className={network === 'devnet' ? 'active' : ''} onClick={() => setNetwork('devnet')}>Devnet</button></div></div>
