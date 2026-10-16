@@ -11,6 +11,8 @@ import { usePrivy } from "@privy-io/react-auth";
 import AuthControls from "./components/AuthControls";
 import LegalPage from "./components/LegalPage";
 import PublicPage from "./components/PublicPage";
+import HowItWorksPage from "./components/HowItWorksPage";
+import FAQPage from "./components/FAQPage";
 import InvestigationPage from "./components/InvestigationPage";
 import InvestigationHistoryPage from "./components/InvestigationHistoryPage";
 import InvestigationLookupPage from "./components/InvestigationLookupPage";
@@ -386,7 +388,9 @@ export default function App() {
   const legalPage = legalPath === "/terms" || legalPath === "/privacy" || legalPath === "/cookies" || legalPath === "/disclosures"
     ? legalPath.slice(1) as "terms" | "privacy" | "cookies" | "disclosures"
     : null;
-  const publicPage = legalPath === "/about" || legalPath === "/how-it-works" || legalPath === "/project" || legalPath === "/contact"
+  const isHowItWorksPage = legalPath === "/how-it-works";
+  const isFAQPage = legalPath === "/faq";
+  const publicPage = legalPath === "/about" || legalPath === "/project" || legalPath === "/contact"
     ? legalPath.slice(1) as "about" | "how-it-works" | "project" | "contact"
     : null;
   const investigationMatch = legalPath.match(/^\/investigation\/([^/]+)$/);
@@ -440,6 +444,7 @@ export default function App() {
       "/case": { title: "Solana Investigation Terminal | VERA", description: "Trace public Solana transfers, connect transaction evidence and export a bounded on-chain investigation report." },
       "/about": { title: "About VERA | Know before you act", description: "Learn why VERA exists, what it investigates, and how it helps people assess digital risk with evidence rather than assumptions." },
       "/how-it-works": { title: "How VERA Works | Know before you act", description: "Understand VERA's evidence-first investigation process, threat-intelligence checks, coverage limits and risk assessments." },
+      "/faq": { title: "Frequently Asked Questions | VERA", description: "Clear answers about VERA investigations, results, Solana tracing, privacy, safety and limitations." },
       "/project": { title: "Project Transparency | VERA", description: "Explore VERA's scope, current capabilities, public source code and project status." },
       "/contact": { title: "Contact VERA | Know before you act", description: "Contact the VERA project about privacy requests, investigation corrections, feedback or potential security issues." },
       "/privacy": { title: "Privacy Policy | VERA", description: "Read how VERA processes investigation inputs, uses service providers, stores records and supports privacy requests." },
@@ -579,6 +584,8 @@ export default function App() {
   function restore(scan: Scan) { setMode(scan.type); setInput(scan.input); setAssessment(scan.assessment); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   if (legalPage) return <LegalPage page={legalPage} />;
+  if (isHowItWorksPage) return <HowItWorksPage />;
+  if (isFAQPage) return <FAQPage />;
   if (isCaseTerminal) return <SolanaCaseTerminal />;
   if (publicPage) return <PublicPage page={publicPage} />;
 
@@ -607,7 +614,7 @@ export default function App() {
         <div className="hero-proof"><span>Evidence-led</span><span>No wallet connection needed</span><span>Read-only by design</span></div>
       </div>
 
-      <div className="scanner-shell">
+      <div className="scanner-shell" id="investigate">
         <div className="scanner-head">
           <div><p className="eyebrow">INVESTIGATION CONSOLE</p><h2>What are you about to do?</h2><p className="scanner-sub">Give VERA the thing you're unsure about. We'll show you what the evidence says.</p></div>
           <div className="scanner-orbit"><div className="orbit-ring" /><Radar size={20} /></div>
@@ -648,7 +655,7 @@ export default function App() {
     <RoadmapSection />
 
 
-    <footer className="site-footer"><div className="footer-brand"><div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div><p>Know before you act.</p><small>Evidence before action. No financial execution.</small></div><nav className="footer-links" aria-label="Project links"><a href="https://vera-build.site/" rel="noreferrer"><ExternalLink size={14} /> VERA <span>Live beta</span></a><a href="/about"><ExternalLink size={14} /> About <span>Why VERA exists</span></a><a href="/how-it-works"><ExternalLink size={14} /> Methodology <span>How evidence is assessed</span></a><a href="/project"><ExternalLink size={14} /> Project <span>Transparency and source</span></a><a href="/contact"><ExternalLink size={14} /> Contact <span>Questions and reports</span></a><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> GitHub <span>Source code</span></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> X <span>Official project account</span></a><a href="mailto:verabuild1@gmail.com"><ExternalLink size={14} /> Email <span>verabuild1@gmail.com</span></a><a href="#roadmap"><ExternalLink size={14} /> Roadmap <span>Product direction</span></a><a href="https://github.com/verabuild/Vera/blob/main/README.md" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Documentation <span>Project overview</span></a></nav><div className="footer-legal"><nav className="legal-links" aria-label="Legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/cookies">Cookies</a><a href="/disclosures">Risk disclosures</a></nav><div className={`theme-switch theme-switch--${themeMode}`} role="group" aria-label="Colour theme">{(["light", "dark", "auto"] as const).map((theme) => <button key={theme} type="button" className={themeMode === theme ? "active" : ""} aria-pressed={themeMode === theme} onClick={() => setThemeMode(theme)}>{theme[0].toUpperCase() + theme.slice(1)}</button>)}</div><small className="footer-copyright">VERA · Decision intelligence</small></div></footer>
+    <footer className="site-footer"><div className="footer-brand"><div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div><p>Know before you act.</p><small>Evidence before action. No financial execution.</small></div><nav className="footer-links" aria-label="Project links"><a href="https://vera-build.site/" rel="noreferrer"><ExternalLink size={14} /> VERA <span>Live beta</span></a><a href="/about"><ExternalLink size={14} /> About <span>Why VERA exists</span></a><a href="/faq"><ExternalLink size={14} /> FAQ <span>Answers and limitations</span></a><a href="/how-it-works"><ExternalLink size={14} /> Methodology <span>How evidence is assessed</span></a><a href="/project"><ExternalLink size={14} /> Project <span>Transparency and source</span></a><a href="/contact"><ExternalLink size={14} /> Contact <span>Questions and reports</span></a><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> GitHub <span>Source code</span></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> X <span>Official project account</span></a><a href="mailto:verabuild1@gmail.com"><ExternalLink size={14} /> Email <span>verabuild1@gmail.com</span></a><a href="#roadmap"><ExternalLink size={14} /> Roadmap <span>Product direction</span></a><a href="https://github.com/verabuild/Vera/blob/main/README.md" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Documentation <span>Project overview</span></a></nav><div className="footer-legal"><nav className="legal-links" aria-label="Legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/cookies">Cookies</a><a href="/disclosures">Risk disclosures</a></nav><div className={`theme-switch theme-switch--${themeMode}`} role="group" aria-label="Colour theme">{(["light", "dark", "auto"] as const).map((theme) => <button key={theme} type="button" className={themeMode === theme ? "active" : ""} aria-pressed={themeMode === theme} onClick={() => setThemeMode(theme)}>{theme[0].toUpperCase() + theme.slice(1)}</button>)}</div><small className="footer-copyright">VERA · Decision intelligence</small></div></footer>
     <button type="button" className={`vera-return-orb ${showReturnOrb ? "is-visible" : ""}`} aria-label="Back to investigation" aria-hidden={!showReturnOrb} tabIndex={showReturnOrb ? 0 : -1} onClick={() => document.querySelector(".scanner-shell")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" })}>
       <span className="vera-return-orb-halo" aria-hidden="true" />
       <span className="vera-return-orb-glass"><img className="vera-return-orb-mark" src={OFFICIAL_VERA_LOGO} alt="" style={{ maskImage: `url("${OFFICIAL_VERA_LOGO}")`, WebkitMaskImage: `url("${OFFICIAL_VERA_LOGO}")`, maskMode: "luminance", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", maskPosition: "center", WebkitMaskPosition: "center", maskSize: "contain", WebkitMaskSize: "contain" }} /></span>
