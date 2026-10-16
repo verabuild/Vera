@@ -12,10 +12,11 @@ People do not need another list of warnings. They need a reliable decision befor
 
 No wallet connection is required for core investigations.
 
-- 2 free investigations without connection
-- Connect or sign in to unlock up to 5 investigations per day
+- Anonymous sessions: 5 investigations
+- Authenticated accounts: 10 investigations per UTC day
+- Limits are beta defaults and must be verified against deployed configuration
 
-## 12-month roadmap
+## Current implementation snapshot (October 2026)\n\nAlready implemented: URL/message/wallet/transaction investigation, source-linked provider status, Solana Mainnet/Devnet read-only checks, a bounded Solana case terminal with direct/connected transfer filters, Helius/Breadcrumbs optional enrichment, DEX Screener market context, JSON evidence export, and the legal-information routes. These are implemented capabilities, not a guarantee that every provider is configured or available in every environment.\n\nStill requiring verification or further engineering: known-signature regression tests; token-account owner edge cases; provider failure and stale-data handling; robust privacy/access checks for persisted reports; systematic URL false-positive/false-negative fixtures; decoded transaction-intent and authority-change analysis; and independent legal/privacy review. See README.md for the release checklist.\n\n## 12-month roadmap
 
 | Phase | Window | Outcome | Priority builds |
 |---|---|---|---|
