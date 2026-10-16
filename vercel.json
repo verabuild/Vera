@@ -56,7 +56,11 @@
     },
     {
       "source": "/how-it-works",
-      "destination": "/how-it-works/index.html"
+      "destination": "/index.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/index.html"
     },
     {
       "source": "/about",
