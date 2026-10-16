@@ -66,6 +66,7 @@ export default function SolanaCaseTerminal() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [caseNotes, setCaseNotes] = useState('');
+  const [flowFilter, setFlowFilter] = useState<'all' | 'direct' | 'connected'>('direct');
   const parsedAddresses = useMemo(() => splitLines(addresses), [addresses]);
   const parsedSignatures = useMemo(() => splitLines(signatures), [signatures]);
   const allTransfers = useMemo(() => {
@@ -73,6 +74,10 @@ export default function SolanaCaseTerminal() {
     const combined = [...result.transfers, ...(result.externalIntelligence?.historyTransfers ?? [])];
     return [...new Map(combined.map((item) => [`${item.signature}:${item.source}:${item.destination}:${item.mint ?? item.kind}:${item.rawAmount}`, item])).values()];
   }, [result]);
+  const directTransfers = useMemo(() => allTransfers.filter((transfer) => result?.seeds.includes(transfer.source) || result?.seeds.includes(transfer.destination)), [allTransfers, result]);
+  const connectedTransfers = useMemo(() => allTransfers.filter((transfer) => !result?.seeds.includes(transfer.source) && !result?.seeds.includes(transfer.destination)), [allTransfers, result]);
+  const visibleFlowTransfers = flowFilter === 'direct' ? directTransfers : flowFilter === 'connected' ? connectedTransfers : allTransfers;
+
   const graphNodes = useMemo(() => {
     if (!result) return [];
     const addresses = [...new Set(allTransfers.flatMap((item) => [item.source, item.destination]).concat(result.seeds))].slice(0, 14);
@@ -240,12 +245,28 @@ export default function SolanaCaseTerminal() {
             <p className="case-intelligence-footnote">The visual is a bounded representation of the returned transfer records. It does not infer common control, beneficial ownership or criminal involvement.</p>
           </section>}
 
-          {activeWorkspace === 'flow' && <section className="case-graph-panel case-workspace-card"><div className="case-graph-heading"><div><span>TRANSACTION-LEVEL RECORDS</span><h3>Observed movement</h3></div><span className="case-readonly-tag"><span/> {allTransfers.length} RECORDS</span></div>
-            {allTransfers.length ? <div className="case-transfer-list">{allTransfers.map((transfer,index) => <article className="case-transfer" key={transfer.signature + '-' + transfer.source + '-' + transfer.destination + '-' + index}>
-              <div className="case-transfer-flow"><span className={transfer.sourceSeed ? 'case-node case-node-seed' : 'case-node'} title={transfer.source}>{shorten(transfer.source)}</span><div className="case-flow-line"><span>{transfer.kind === 'SOL' ? 'SOL' : 'TOKEN'}</span><ArrowUpRight size={14}/></div><span className="case-node" title={transfer.destination}>{shorten(transfer.destination)}</span></div>
+          {activeWorkspace === 'flow' && <section className="case-graph-panel case-workspace-card"><div className="case-graph-heading"><div><span>TRANSACTION-LEVEL RECORDS</span><h3>Transfers connected to this case</h3><p>Direct transfers involve a starting address. Connected transfers involve another address discovered while tracing.</p></div><span className="case-readonly-tag"><span/> {allTransfers.length} TOTAL RECORDS</span></div>
+            <div className="case-flow-summary-grid">
+              <article><span>DIRECT TRANSFERS</span><strong>{directTransfers.length}</strong><small>Sender or recipient is one of your starting addresses</small></article>
+              <article><span>CONNECTED TRANSFERS</span><strong>{connectedTransfers.length}</strong><small>Other transfer legs found through the bounded trace</small></article>
+              <article><span>STARTING ADDRESSES</span><strong>{result.seeds.length}</strong><small>Addresses entered for this investigation</small></article>
+            </div>
+            <div className="case-flow-filter" role="group" aria-label="Filter transaction records">
+              <button type="button" className={flowFilter === 'direct' ? 'active' : ''} onClick={() => setFlowFilter('direct')}>Direct first <span>{directTransfers.length}</span></button>
+              <button type="button" className={flowFilter === 'connected' ? 'active' : ''} onClick={() => setFlowFilter('connected')}>Connected addresses <span>{connectedTransfers.length}</span></button>
+              <button type="button" className={flowFilter === 'all' ? 'active' : ''} onClick={() => setFlowFilter('all')}>All records <span>{allTransfers.length}</span></button>
+            </div>
+            {visibleFlowTransfers.length ? <div className="case-transfer-list">{visibleFlowTransfers.map((transfer,index) => {
+              const sourceIsSeed = result.seeds.includes(transfer.source);
+              const destinationIsSeed = result.seeds.includes(transfer.destination);
+              const isDirect = sourceIsSeed || destinationIsSeed;
+              return <article className="case-transfer" key={transfer.signature + '-' + transfer.source + '-' + transfer.destination + '-' + index}>
+              <div className="case-transfer-classification"><span className={isDirect ? 'case-flow-badge is-direct' : 'case-flow-badge is-connected'}>{isDirect ? 'DIRECT · STARTING WALLET' : 'CONNECTED · INDIRECT'}</span><span>{isDirect ? 'Touches an address entered for this case' : 'Does not directly touch a starting address'}</span></div>
+              <div className="case-transfer-flow"><span className={(sourceIsSeed ? 'case-node case-node-seed' : 'case-node')} title={transfer.source}>{shorten(transfer.source)}{sourceIsSeed ? ' · START' : ''}</span><div className="case-flow-line"><span>{transfer.kind === 'SOL' ? 'SOL' : 'TOKEN'}</span><ArrowUpRight size={14}/></div><span className={destinationIsSeed ? 'case-node case-node-seed' : 'case-node'} title={transfer.destination}>{shorten(transfer.destination)}{destinationIsSeed ? ' · START' : ''}</span></div>
               <div className="case-transfer-data"><strong>{amountLabel(transfer)}</strong><span>{dateLabel(transfer.blockTime)}</span><span>Slot {transfer.slot.toLocaleString()}</span></div>
               <div className="case-transfer-meta"><span>{transfer.asset}{transfer.sourceProvider ? ' · ' + transfer.sourceProvider + ' parsed history' : ' · Solana RPC'}</span>{transfer.kind === 'TOKEN' && transfer.sourceTokenAccount && transfer.destinationTokenAccount && <span className="case-token-accounts" title={'Source token account: ' + transfer.sourceTokenAccount + '\nDestination token account: ' + transfer.destinationTokenAccount}>Token accounts: {shorten(transfer.sourceTokenAccount)} → {shorten(transfer.destinationTokenAccount)}</span>}<a href={'https://solscan.io/tx/' + encodeURIComponent(transfer.signature) + (result.network === 'devnet' ? '?cluster=devnet' : '')} target="_blank" rel="noreferrer noopener">View transaction <ArrowUpRight size={12}/></a><button type="button" onClick={() => navigator.clipboard?.writeText(transfer.signature)} title="Copy signature"><Clipboard size={12}/> Copy signature</button></div>
-            </article>)}</div> : <div className="case-empty-result"><GitBranch size={21}/><strong>No parseable transfers returned</strong><p>VERA did not find recent parseable transfer instructions in the transactions returned by the selected RPC. Try adding the full transaction signature or another known intermediary address.</p></div>}
+            </article>; })}</div> : <div className="case-empty-result"><GitBranch size={21}/><strong>{flowFilter === 'direct' ? 'No direct transfers found in this trace' : flowFilter === 'connected' ? 'No additional connected transfers found' : 'No parseable transfers returned'}</strong><p>{flowFilter === 'direct' ? 'No returned transfer record has a sender or recipient matching the starting addresses. This can happen when the RPC returns limited history or token-account ownership cannot be resolved.' : 'VERA did not find matching parseable transfer instructions in the available records. Try a full transaction signature or a known intermediary address.'}</p></div>}
+            <p className="case-intelligence-footnote">Direct means the displayed sender or recipient matches a starting address. Connected records do not directly touch a starting address in the displayed transfer, and do not prove common ownership or wrongdoing. Token-account owner resolution can be incomplete.</p>
           </section>}
 
           {activeWorkspace === 'activity' && <section className="case-analysis-card case-workspace-card"><div className="case-analysis-heading"><div><span>OBSERVED ACTIVITY / UTC DATE BUCKETS</span><h3>Transfer activity</h3><p>Counts of records returned for each date. This is not a USD-value or balance-over-time chart.</p></div><ChartNoAxesCombined size={18}/></div>
