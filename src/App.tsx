@@ -11,6 +11,8 @@ import { usePrivy } from "@privy-io/react-auth";
 import AuthControls from "./components/AuthControls";
 import LegalPage from "./components/LegalPage";
 import PublicPage from "./components/PublicPage";
+import HowItWorksPage from "./components/HowItWorksPage";
+import FAQPage from "./components/FAQPage";
 import InvestigationPage from "./components/InvestigationPage";
 import InvestigationHistoryPage from "./components/InvestigationHistoryPage";
 import InvestigationLookupPage from "./components/InvestigationLookupPage";
@@ -386,7 +388,9 @@ export default function App() {
   const legalPage = legalPath === "/terms" || legalPath === "/privacy" || legalPath === "/cookies" || legalPath === "/disclosures"
     ? legalPath.slice(1) as "terms" | "privacy" | "cookies" | "disclosures"
     : null;
-  const publicPage = legalPath === "/about" || legalPath === "/how-it-works" || legalPath === "/project" || legalPath === "/contact"
+  const isHowItWorksPage = legalPath === "/how-it-works";
+  const isFAQPage = legalPath === "/faq";
+  const publicPage = legalPath === "/about" || legalPath === "/project" || legalPath === "/contact"
     ? legalPath.slice(1) as "about" | "how-it-works" | "project" | "contact"
     : null;
   const investigationMatch = legalPath.match(/^\/investigation\/([^/]+)$/);
@@ -440,6 +444,7 @@ export default function App() {
       "/case": { title: "Solana Investigation Terminal | VERA", description: "Trace public Solana transfers, connect transaction evidence and export a bounded on-chain investigation report." },
       "/about": { title: "About VERA | Know before you act", description: "Learn why VERA exists, what it investigates, and how it helps people assess digital risk with evidence rather than assumptions." },
       "/how-it-works": { title: "How VERA Works | Know before you act", description: "Understand VERA's evidence-first investigation process, threat-intelligence checks, coverage limits and risk assessments." },
+      "/faq": { title: "Frequently Asked Questions | VERA", description: "Clear answers about VERA investigations, results, Solana tracing, privacy, safety and limitations." },
       "/project": { title: "Project Transparency | VERA", description: "Explore VERA's scope, current capabilities, public source code and project status." },
       "/contact": { title: "Contact VERA | Know before you act", description: "Contact the VERA project about privacy requests, investigation corrections, feedback or potential security issues." },
       "/privacy": { title: "Privacy Policy | VERA", description: "Read how VERA processes investigation inputs, uses service providers, stores records and supports privacy requests." },
@@ -579,6 +584,8 @@ export default function App() {
   function restore(scan: Scan) { setMode(scan.type); setInput(scan.input); setAssessment(scan.assessment); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   if (legalPage) return <LegalPage page={legalPage} />;
+  if (isHowItWorksPage) return <HowItWorksPage />;
+  if (isFAQPage) return <FAQPage />;
   if (isCaseTerminal) return <SolanaCaseTerminal />;
   if (publicPage) return <PublicPage page={publicPage} />;
 
