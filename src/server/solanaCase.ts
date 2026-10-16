@@ -141,21 +141,35 @@ export async function traceSolanaCase(input: {
         const destinationOwner = parsed.kind === 'TOKEN' ? tokenAccountOwners.get(parsed.destination) : undefined;
         const source = sourceOwner ?? parsed.source;
         const destination = destinationOwner ?? parsed.destination;
+        // Keep only transfer legs that touch an address already reached by this trace.
+        // A transaction may contain unrelated transfer instructions; those must not be
+        // presented as connected to the investigated wallet merely because they share a signature.
+        const sourceKnown = discovered.has(source) || discovered.has(parsed.source);
+        const destinationKnown = discovered.has(destination) || discovered.has(parsed.destination);
+        if (!sourceKnown && !destinationKnown) continue;
+
+        const sourceDepth = depthByAddress.get(source) ?? depthByAddress.get(parsed.source);
+        const destinationDepth = depthByAddress.get(destination) ?? depthByAddress.get(parsed.destination);
+        const knownDepths = [sourceDepth, destinationDepth].filter((value): value is number => value !== undefined);
+        const transferDepth = knownDepths.length ? Math.min(...knownDepths) : depth;
         const sourceSeed = seeds.includes(source) || seeds.includes(parsed.source);
-        const sourceDepth = depthByAddress.get(source) ?? depthByAddress.get(parsed.source) ?? depth;
-        const transferDepth = Math.min(sourceDepth, depth + 1);
         transfers.push({
           signature, slot: tx.slot, blockTime: tx.blockTime ?? null, ...parsed,
           source, destination,
           ...(parsed.kind === 'TOKEN' ? { sourceTokenAccount: parsed.source, destinationTokenAccount: parsed.destination } : {}),
           sourceSeed, depth: transferDepth
         });
-        if (transferDepth < maxDepth && !discovered.has(destination) && discovered.size < MAX_NODES) {
-          discovered.add(destination);
-          depthByAddress.set(destination, transferDepth + 1);
-          newDestinations.push(destination);
-        } else if (discovered.size >= MAX_NODES && !discovered.has(destination)) {
-          truncated = true;
+
+        // Traverse in either direction while preserving the real source -> destination direction.
+        for (const [counterparty, isKnown] of [[source, sourceKnown], [destination, destinationKnown]] as const) {
+          if (isKnown || discovered.has(counterparty)) continue;
+          if (transferDepth < maxDepth && discovered.size < MAX_NODES) {
+            discovered.add(counterparty);
+            depthByAddress.set(counterparty, transferDepth + 1);
+            newDestinations.push(counterparty);
+          } else if (discovered.size >= MAX_NODES) {
+            truncated = true;
+          }
         }
       }
     }
