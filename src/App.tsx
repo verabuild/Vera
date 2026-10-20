@@ -256,6 +256,15 @@ const roadmapPhases = [
     builds: "Watchlists, recurring re-checks, address monitoring, domain-change detection, alerts and team policies.",
     exit: "Users return because VERA detects change, not because they remember to scan.",
     tag: "EVERGREEN"
+  },
+  {
+    phase: "07",
+    window: "ECOSYSTEM RESEARCH",
+    title: "Evaluate the $VERA ecosystem token.",
+    outcome: "Research whether a token can create meaningful, sustainable utility around the VERA ecosystem.",
+    builds: "Evaluate real utility, sustainable incentives, token economics, governance, legal and security risks, and whether a token is needed at all.",
+    exit: "Proceed only if research supports a clear purpose, responsible design and transparent public documentation.",
+    tag: "ECOSYSTEM"
   }
 ];
 
@@ -274,7 +283,7 @@ function RoadmapSection() {
         <div className="section-label">THE ROAD AHEAD</div>
         <h2>Built to become <strong>evergreen.</strong></h2>
       </div>
-      <p>From a frictionless beta scanner to a continuous safety layer for the moments before you act, with $VERA under consideration as a future ecosystem utility.</p>
+      <p>From a frictionless beta scanner to a continuous safety layer, then a careful evaluation of whether $VERA should have a role in the ecosystem. The token remains proposed research, not a launch announcement.</p>
     </div>
 
     <div className="roadmap-rail" aria-label="VERA roadmap timeline">
@@ -310,8 +319,8 @@ function RoadmapSection() {
         <div className="roadmap-orbit orbit-a" />
         <div className="roadmap-orbit orbit-b" />
         <div className="roadmap-core"><span>VERA</span><small>{phase.tag}</small></div>
-        <div className="roadmap-marker marker-left"><i />{phase.phase === "01" ? "VERDICT" : phase.phase === "02" ? "INTENT" : phase.phase === "03" ? "ATTACK PATH" : phase.phase === "04" ? "THREAT GRAPH" : phase.phase === "05" ? "API / SDK" : "CONTINUOUS"}</div>
-        <div className="roadmap-marker marker-right">{phase.phase === "06" ? "WATCH / ALERT" : `NEXT · ${roadmapPhases[Math.min(active + 1, roadmapPhases.length - 1)].tag}`}<i /></div>
+        <div className="roadmap-marker marker-left"><i />{phase.phase === "01" ? "VERDICT" : phase.phase === "02" ? "INTENT" : phase.phase === "03" ? "ATTACK PATH" : phase.phase === "04" ? "THREAT GRAPH" : phase.phase === "05" ? "API / SDK" : phase.phase === "06" ? "CONTINUOUS" : "TOKEN RESEARCH"}</div>
+        <div className="roadmap-marker marker-right">{phase.phase === "06" ? "WATCH / ALERT" : phase.phase === "07" ? "NO LAUNCH PROMISE" : `NEXT · ${roadmapPhases[Math.min(active + 1, roadmapPhases.length - 1)].tag}`}<i /></div>
         <span className="roadmap-visual-index">2026 → 2027</span>
       </div>
     </div>
@@ -324,7 +333,7 @@ function RoadmapSection() {
       </div>
     </div>
 
-    <div className="roadmap-principle"><ShieldCheck size={14} /><span>Evergreen by design</span><p>New intelligence becomes a module, new evidence improves decisions, and continuous monitoring creates the reason to return. The roadmap also evaluates a proposed $VERA token; its utility and timing remain undecided.</p><a className="roadmap-token-link" href="/vera-token">Explore $VERA ecosystem research <ArrowUpRight size={12} /></a><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener">View the full roadmap <ExternalLink size={11} /></a></div>
+    <div className="roadmap-principle"><ShieldCheck size={14} /><span>Evergreen by design</span><p>New intelligence becomes a module, new evidence improves decisions, and continuous monitoring creates the reason to return. Phase 07 is a research track only: no token launch, contract, network, supply, allocation or date has been confirmed.</p><a className="roadmap-token-link" href="/vera-token">Explore $VERA ecosystem research <ArrowUpRight size={12} /></a><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener">View the full roadmap <ExternalLink size={11} /></a></div>
   </section>;
 }
 
