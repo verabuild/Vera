@@ -41,6 +41,21 @@ No wallet connection is required for core investigations.
 
 The moat is not a bigger blacklist. It is decision quality: correlation, provenance, freshness, explainability, transaction context and feedback.
 
+## Ecosystem economics: proposed $VERA token
+
+**Status: proposed research area. Timing is undetermined.**
+
+VERA will evaluate whether a $VERA token can support a useful, sustainable security ecosystem. This is not a token launch announcement. Network, contract, supply, allocations, distribution, and final utility are not confirmed.
+
+Research scope:
+- Test potential utility for optional investigation credits or advanced features while keeping essential safety information accessible without token ownership.
+- Evaluate rewards for independently validated threat intelligence, with safeguards against spam, manipulation, and sybil activity.
+- Model funding for integrations, security research, and ecosystem development.
+- Compare supply, distribution, vesting, treasury, and liquidity models without presenting any model as finalized.
+- Assess smart-contract security, legal and regulatory obligations, user protection, and transparent disclosures.
+
+**Readiness criteria:** demonstrated user demand, sustainable unit economics, a credible security-review plan, and appropriate legal assessment. No launch date, price, return, appreciation, or reserve backing is promised. Liquidity alone is not backing.
+
 ## Safety principles
 
 VERA should never treat a provider no-match as proof of safety. Unavailable evidence remains visible. AI explains structured evidence but does not override deterministic hard findings. VERA never asks for seed phrases or private keys and does not autonomously execute financial transactions.
