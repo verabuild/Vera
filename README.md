@@ -114,6 +114,19 @@ The `/case` workspace traces recent parsed SOL/SPL transfer records from supplie
 6. Confirm that an unknown or unavailable provider never becomes a clean/safe claim, and that no report exposes another user's private persisted scan.
 7. Test the homepage, submission flow, `/case`, all workspace sections, exports, and mobile navigation after every production release.
 
+## Proposed $VERA token research
+
+VERA is evaluating a potential **$VERA ecosystem token** as a future part of the product strategy. This is a proposal for research and design, not an announcement that a token has launched or that a launch is guaranteed. There is currently no confirmed launch date, network, contract address, token supply, allocation, or finalized utility.
+
+Areas to evaluate include:
+- Whether optional credits or access to advanced investigation features create durable product utility without putting essential safety information behind token ownership.
+- Whether incentives for independently validated threat intelligence can improve quality while resisting spam, manipulation, and sybil abuse.
+- Whether ecosystem funding can sustainably support integrations, security research, and development.
+- Token supply and distribution models, vesting, treasury governance, liquidity assumptions, and transparent disclosures.
+- Smart-contract security, applicable legal and regulatory obligations, user protection, and operational risks before any implementation decision.
+
+**Decision gate:** proceed only if there is demonstrated product demand, a sustainable economic model, a credible security review plan, and appropriate legal assessment. No token price, return, reserve backing, or appreciation is promised. Liquidity is not backing, and a treasury should not be described as backing unless a specific, verifiable arrangement exists.
+
 ## Deployment
 Deploy from the GitHub repository through Vercel. Add environment variables to Preview and Production. Run `database/schema.sql` against the provisioned PostgreSQL database before enabling persistence.
 
