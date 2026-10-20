@@ -333,7 +333,7 @@ function RoadmapSection() {
       </div>
     </div>
 
-    <div className="roadmap-principle"><ShieldCheck size={14} /><span>Evergreen by design</span><p>New intelligence becomes a module, new evidence improves decisions, and continuous monitoring creates the reason to return. Phase 07 is a research track only: no token launch, contract, network, supply, allocation or date has been confirmed.</p><a className="roadmap-token-link" href="/vera-token">Explore $VERA ecosystem research <ArrowUpRight size={12} /></a><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener">View the full roadmap <ExternalLink size={11} /></a></div>
+    <div className="roadmap-principle"><ShieldCheck size={14} /><span>Evergreen by design</span><p>New intelligence becomes a module, new evidence improves decisions, and continuous monitoring creates the reason to return. Phase 07 is a research track only: no token launch, contract, network, supply, allocation or date has been confirmed.</p><a className="roadmap-token-link" href="/vera-token">Explore $VERA ecosystem research <ArrowUpRight size={12} /></a><a href="/vera-token">View the full roadmap <ArrowUpRight size={11} /></a><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener">GitHub roadmap <ExternalLink size={11} /></a></div>
   </section>;
 }
 
