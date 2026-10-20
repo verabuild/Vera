@@ -2118,3 +2118,200 @@ html[data-theme="light"] .token-track-list>button.active{background:#eee;color:#
 html[data-theme="light"] .token-track-list>button:hover,html[data-theme="light"] .token-faq-list article>button{color:#111}
 html[data-theme="light"] .token-track-foot,html[data-theme="light"] .token-question-list,html[data-theme="light"] .token-question-row,html[data-theme="light"] .token-faq-list,html[data-theme="light"] .token-faq-list article,html[data-theme="light"] .token-footer{border-color:#ddd}
 html[data-theme="light"] .token-orbit{border-color:rgba(0,0,0,.17)}html[data-theme="light"] .token-orbit-core{background:radial-gradient(circle at 35% 24%,#fff,#eee 68%);border-color:#ccc}html[data-theme="light"] .token-orbit-node{background:#fff;border-color:#ddd;color:#555}html[data-theme="light"] .token-orbit-caption,html[data-theme="light"] .token-hero-index{color:#777}html[data-theme="light"] .token-secondary{color:#333;border-color:#ccc;background:#fff}html[data-theme="light"] .token-primary{background:#111;color:#fff;border-color:#111}html[data-theme="light"] .roadmap-token-link{color:#222!important}
+
+
+/* Readability and background containment pass: preserve the VERA visual identity. */
+.roadmap-section {
+  position: relative;
+  isolation: isolate;
+}
+.roadmap-card {
+  position: relative;
+  isolation: isolate;
+}
+.roadmap-card-main {
+  position: relative;
+  z-index: 1;
+  background: #090909;
+}
+.roadmap-meta {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: .045em;
+  color: #a4a4a4;
+}
+.roadmap-meta strong {
+  color: #d0d0d0;
+  font-weight: 600;
+}
+.roadmap-card-main h3 {
+  font-family: Inter, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -.045em;
+}
+.roadmap-outcome {
+  color: #c0c0c0;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.roadmap-detail-grid {
+  gap: 24px;
+}
+.roadmap-detail-grid span {
+  display: block;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 700;
+  letter-spacing: .075em;
+  color: #b6b6b6;
+}
+.roadmap-detail-grid p {
+  color: #c4c4c4;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+  font-weight: 400;
+}
+.roadmap-heading>p {
+  color: #b8b8b8;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.85;
+}
+.roadmap-node span,
+.roadmap-visual-index,
+.roadmap-core small {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: .07em;
+}
+.roadmap-marker {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 10px;
+  line-height: 1.45;
+  font-weight: 600;
+  letter-spacing: .035em;
+}
+.roadmap-controls>div:first-child {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+.roadmap-principle {
+  grid-template-columns: auto auto minmax(0,1fr);
+  align-items: start;
+}
+.roadmap-principle>span {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.roadmap-principle p {
+  color: #b3b3b3;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.roadmap-principle a {
+  grid-column: 3;
+  justify-self: start;
+  white-space: normal;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.roadmap-principle a + a {
+  margin-top: 28px;
+}
+.learn-page,
+.faq-page,
+.token-page {
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.learn-hero>p,
+.faq-hero>p,
+.learn-section p,
+.faq-content p,
+.token-lead,
+.token-section-heading>p,
+.token-detail-summary,
+.token-question-row p,
+.token-gate-grid p,
+.token-gate-note p,
+.token-faq-answer p,
+.token-bottom-cta>p {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.learn-step-label small {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #b5b8c0;
+}
+.token-track-list>button small,
+.token-question-row>span,
+.token-gate-top,
+.token-footer {
+  font-family: Inter, system-ui, sans-serif;
+}
+:root[data-theme="light"] .roadmap-card-main {
+  background: #fff;
+}
+:root[data-theme="light"] .roadmap-meta,
+:root[data-theme="light"] .roadmap-meta strong,
+:root[data-theme="light"] .roadmap-detail-grid span {
+  color: #454952;
+}
+:root[data-theme="light"] .roadmap-outcome,
+:root[data-theme="light"] .roadmap-detail-grid p,
+:root[data-theme="light"] .roadmap-heading>p,
+:root[data-theme="light"] .roadmap-principle p {
+  color: #42464e;
+}
+:root[data-theme="light"] .roadmap-principle>span {
+  color: #202329;
+}
+:root[data-theme="light"] .roadmap-principle a {
+  color: #343840;
+}
+@media (max-width: 820px) {
+  .roadmap-principle {
+    grid-template-columns: auto minmax(0,1fr);
+  }
+  .roadmap-principle>span,
+  .roadmap-principle p,
+  .roadmap-principle a {
+    grid-column: 1 / -1;
+  }
+  .roadmap-principle a + a {
+    margin-top: 0;
+  }
+  .roadmap-detail-grid p {
+    font-size: 14px;
+  }
+}
+@media (max-width: 520px) {
+  .roadmap-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 11px;
+  }
+  .roadmap-detail-grid span {
+    font-size: 11px;
+  }
+  .roadmap-detail-grid p,
+  .roadmap-outcome {
+    font-size: 14px;
+  }
+}
