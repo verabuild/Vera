@@ -273,7 +273,7 @@ function RoadmapSection() {
         <div className="section-label">THE ROAD AHEAD</div>
         <h2>Built to become <strong>evergreen.</strong></h2>
       </div>
-      <p>From a frictionless beta scanner to a continuous safety layer for the moments before you act.</p>
+      <p>From a frictionless beta scanner to a continuous safety layer for the moments before you act, with $VERA under consideration as a future ecosystem utility.</p>
     </div>
 
     <div className="roadmap-rail" aria-label="VERA roadmap timeline">
@@ -323,7 +323,7 @@ function RoadmapSection() {
       </div>
     </div>
 
-    <div className="roadmap-principle"><ShieldCheck size={14} /><span>Evergreen by design</span><p>New intelligence becomes a module, new evidence improves decisions, and continuous monitoring creates the reason to return.</p><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener">View the full roadmap <ExternalLink size={11} /></a></div>
+    <div className="roadmap-principle"><ShieldCheck size={14} /><span>Evergreen by design</span><p>New intelligence becomes a module, new evidence improves decisions, and continuous monitoring creates the reason to return. The roadmap also evaluates a proposed $VERA token; its utility and timing remain undecided.</p><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener">View the full roadmap <ExternalLink size={11} /></a></div>
   </section>;
 }
 
