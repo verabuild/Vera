@@ -63,6 +63,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/vera-token",
+      "destination": "/index.html"
+    },
+    {
       "source": "/about",
       "destination": "/about/index.html"
     },
