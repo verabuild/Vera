@@ -645,7 +645,7 @@ export default function App() {
         {signupPrompt && import.meta.env.VITE_PRIVY_APP_ID && <SignupPrompt />}
         {busy && <LiveInvestigation />}
         <button className="scan-button" onClick={scan} disabled={busy || !input.trim()}>{busy ? <><RefreshCw size={16} className="spin" /> Investigating signals…</> : <><ScanSearch size={16} /> Investigate with VERA <ArrowUpRight size={16} /></>}</button>
-        <div className="trust-note">No wallet connection required <span /> Read-only investigation <span /> Live evidence</div>
+        
         <button className="console-lookup-entry" onClick={() => window.location.assign("/lookup")}><span className="console-lookup-icon"><FileSearch size={17} /></span><span className="console-lookup-copy"><strong>Look up an investigation</strong><small>Already have an Investigation ID? Reopen a saved report without running a new scan.</small></span><ArrowUpRight size={17} className="console-lookup-arrow" /></button>
         <button className="console-lookup-entry" onClick={() => window.location.assign("/case")}><span className="console-lookup-icon"><GitBranch size={17} /></span><span className="console-lookup-copy"><strong>Open Solana Investigation Terminal</strong><small>Trace public wallet activity, connect transaction evidence and export a case report.</small></span><ArrowUpRight size={17} className="console-lookup-arrow" /></button>
       </div>
