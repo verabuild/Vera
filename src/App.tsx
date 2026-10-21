@@ -625,7 +625,6 @@ export default function App() {
         <div className="pill"><span className="pill-live" /><strong>EVIDENCE BEFORE ACTION</strong></div>
         <h1>Know <em>before</em><br />you act.</h1>
         <p>VERA turns technical signals into a clear decision before you <strong>click, connect, sign or pay.</strong></p>
-        <div className="hero-proof"><span>Evidence-led</span><span>No wallet connection needed</span><span>Read-only by design</span></div>
       </div>
 
       <div className="scanner-shell" id="investigate">
