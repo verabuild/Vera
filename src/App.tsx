@@ -294,7 +294,8 @@ function RoadmapSection() {
     </div>
 
     <div
-      className="roadmap-card"
+      key={phase.phase}
+      className="roadmap-card roadmap-card--animated"
       onPointerDown={(event) => { setDragStart(event.clientX); event.currentTarget.setPointerCapture(event.pointerId); }}
       onPointerUp={(event) => {
         if (dragStart !== null) {
