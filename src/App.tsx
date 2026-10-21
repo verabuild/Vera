@@ -622,7 +622,6 @@ export default function App() {
 
     <section className="hero">
       <div className="hero-copy">
-        <div className="pill"><span className="pill-live" /><strong>EVIDENCE BEFORE ACTION</strong></div>
         <h1>Know <em>before</em><br />you act.</h1>
         <p>VERA analyses available evidence to help you assess risk before you click, connect, sign or pay.</p>
       </div>
