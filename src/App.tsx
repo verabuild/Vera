@@ -617,15 +617,14 @@ export default function App() {
     <nav className="nav">
       <div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div>
       <div className="nav-center"><span className="nav-live" /><strong>DECISION INTELLIGENCE</strong></div>
-      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span>{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}<button className="ghost-button" onClick={() => window.location.assign("/case")}><GitBranch size={14} /> Case terminal <ChevronRight size={14} /></button><button className="ghost-button" onClick={() => window.location.assign("/lookup")}><FileSearch size={14} /> Find a report <ChevronRight size={14} /></button></div>
+      <div className="nav-actions">{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}</div>
     </nav>
 
     <section className="hero">
       <div className="hero-copy">
         <div className="pill"><span className="pill-live" /><strong>EVIDENCE BEFORE ACTION</strong></div>
         <h1>Know <em>before</em><br />you act.</h1>
-        <p>VERA turns technical signals into a clear decision before you <strong>click, connect, sign or pay.</strong></p>
-        <div className="hero-proof"><span>Evidence-led</span><span>No wallet connection needed</span><span>Read-only by design</span></div>
+        <p>VERA analyses available evidence to help you assess risk before you click, connect, sign or pay.</p>
       </div>
 
       <div className="scanner-shell" id="investigate">
