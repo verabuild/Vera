@@ -617,7 +617,7 @@ export default function App() {
     <nav className="nav">
       <div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div>
       <div className="nav-center"><span className="nav-live" /><strong>DECISION INTELLIGENCE</strong></div>
-      <div className="nav-actions"><span className="nav-status"><ShieldCheck size={13} /> READ-ONLY</span>{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}</div>
+      <div className="nav-actions">{import.meta.env.VITE_PRIVY_APP_ID ? <AuthControls /> : <span className="auth-status">SIGN-IN SETUP PENDING</span>}</div>
     </nav>
 
     <section className="hero">
