@@ -628,7 +628,7 @@ export default function App() {
 
       <div className="scanner-shell" id="investigate">
         <div className="scanner-head">
-          <div><p className="eyebrow">INVESTIGATION CONSOLE</p><h2>What are you about to do?</h2><p className="scanner-sub">Give VERA the thing you're unsure about. We'll show you what the evidence says.</p></div>
+          <div><p className="eyebrow">INVESTIGATION CONSOLE</p><h2>What are you about to do?</h2></div>
           <div className="scanner-orbit"><div className="orbit-ring" /><Radar size={20} /></div>
         </div>
 
