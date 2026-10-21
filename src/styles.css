@@ -2349,3 +2349,81 @@ html[data-theme="light"] .token-orbit{border-color:rgba(0,0,0,.17)}html[data-the
 :root[data-theme="light"] .roadmap-visual-index{color:#646b77}
 :root[data-theme="light"] .roadmap-principle p{color:#4d535e}
 :root[data-theme="light"] .roadmap-principle a{color:#303640}
+
+
+/* Evergreen roadmap refinement: restrained type scale and quiet motion. */
+.roadmap-heading h2 {
+  font-size: clamp(32px, 3.7vw, 46px);
+  line-height: 1.08;
+  letter-spacing: -0.055em;
+  font-weight: 520;
+}
+.roadmap-heading h2 strong {
+  font-weight: 520;
+}
+.roadmap-heading > p {
+  font-size: 13px;
+  line-height: 1.8;
+  max-width: 330px;
+}
+.roadmap-card-main h3 {
+  font-size: clamp(25px, 2.8vw, 36px);
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+  font-weight: 520;
+  margin-top: 25px;
+}
+.roadmap-outcome {
+  font-size: 14px;
+  line-height: 1.8;
+}
+.roadmap-detail-grid {
+  gap: 22px;
+  padding-top: 26px;
+}
+.roadmap-detail-grid span {
+  font-size: 10px;
+  letter-spacing: .075em;
+  line-height: 1.6;
+}
+.roadmap-detail-grid p {
+  font-size: 12px;
+  line-height: 1.75;
+}
+.roadmap-meta {
+  font-size: 10px;
+  letter-spacing: .075em;
+}
+.roadmap-card--animated {
+  animation: evergreenCardIn 380ms cubic-bezier(.2,.7,.2,1) both;
+}
+.roadmap-rail-line > span {
+  transition: width 420ms cubic-bezier(.2,.7,.2,1);
+}
+.roadmap-node i {
+  transition: background-color 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+.roadmap-principle p {
+  font-size: 12px;
+  line-height: 1.75;
+}
+.roadmap-principle a {
+  font-size: 11px;
+  transition: color 180ms ease, opacity 180ms ease;
+}
+@keyframes evergreenCardIn {
+  from { opacity: .45; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 700px) {
+  .roadmap-heading h2 { font-size: clamp(30px, 8vw, 38px); }
+  .roadmap-card-main h3 { font-size: clamp(25px, 6.4vw, 32px); }
+  .roadmap-heading > p { font-size: 13px; }
+  .roadmap-detail-grid p { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .roadmap-card--animated { animation: none !important; }
+  .roadmap-rail-line > span,
+  .roadmap-node i,
+  .roadmap-principle a { transition: none !important; }
+}
