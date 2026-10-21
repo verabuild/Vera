@@ -624,7 +624,7 @@ export default function App() {
       <div className="hero-copy">
         <div className="pill"><span className="pill-live" /><strong>EVIDENCE BEFORE ACTION</strong></div>
         <h1>Know <em>before</em><br />you act.</h1>
-        <p>VERA turns technical signals into a clear decision before you <strong>click, connect, sign or pay.</strong></p>
+        <p>VERA analyses available evidence to help you assess risk before you click, connect, sign or pay.</p>
       </div>
 
       <div className="scanner-shell" id="investigate">
