@@ -47,7 +47,7 @@ A registry entry does not mean a chain is production-supported. EVM chains must 
 - Treat verified contract source as evidence of source availability, not a safety guarantee.
 - Distinguish direct observations from heuristics and third-party reputation labels.
 - Do not infer that the same hexadecimal address across chains is the same person or entity.
-- Preserve chain identity in API responses and assessment reports so historical reports remain interpretable. The existing database `network` column remains on its legacy Solana value during this compatibility stage; a dedicated chain-identity persistence migration is still required before EVM investigations are enabled in production.
+- Preserve chain identity in API responses, assessment reports, and the new `scans.chain_id` field. The existing `network` column remains on its legacy `mainnet`/`devnet` contract for compatibility.
 
 ## Definition of done
 
@@ -61,4 +61,4 @@ A registry entry does not mean a chain is production-supported. EVM chains must 
 
 ## Implementation note
 
-This branch now includes the chain registry, adapter contracts, a baseline read-only EVM JSON-RPC adapter, gated wallet/transaction API routing, and this rollout plan. The EVM route is opt-in through `VERA_ENABLE_EVM_INVESTIGATIONS=true` plus a matching server-side RPC variable, and all EVM chains remain off by default. The UI does not yet expose a chain selector. Do not enable EVM investigations in production until the dedicated chain-identity persistence migration, provider setup, deeper evidence sources, UI/report integration, and regression tests are complete.
+This branch now includes the chain registry, adapter contracts, a baseline read-only EVM JSON-RPC adapter, gated wallet/transaction API routing, and this rollout plan. The EVM route is opt-in through `VERA_ENABLE_EVM_INVESTIGATIONS=true` plus a matching server-side RPC variable, and all EVM chains remain off by default. The UI does not yet expose a chain selector. Apply the chain identity migration before enabling EVM investigations in production; provider setup, deeper evidence sources, UI/report integration, and regression tests remain release requirements.
