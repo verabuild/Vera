@@ -489,7 +489,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         input.trim(),
         network,
         finalAssessment,
-        authenticatedUserId ?? undefined
+        authenticatedUserId ?? undefined,
+        evmChainId ?? 'solana'
       );
     } catch (error) {
       console.error('VERA persistence error', error);
