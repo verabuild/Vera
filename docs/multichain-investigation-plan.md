@@ -30,8 +30,8 @@ A registry entry does not mean a chain is production-supported. EVM chains must 
 ## Capability stages
 
 1. **Foundation:** chain registry, adapter contracts, compatibility boundary, regression baseline.
-2. **EVM read-only RPC:** chain ID verification, address validation, native balance, account/contract classification, transaction and receipt retrieval.
-3. **Token and contract evidence:** ERC-20 metadata where available, transfer logs, verified source when available, creation data, ownership/admin controls, and carefully scoped static signals.
+2. **EVM read-only RPC (baseline adapter added in this branch):** chain ID verification, address validation, native balance, account/contract bytecode classification, transaction and receipt retrieval. This is not yet routed through the production API and is not a complete security assessment.
+3. **Deeper token and contract evidence:** ERC-20 metadata, transfer logs, verified source, creation data, ownership/admin controls, proxy detection, and carefully scoped static signals. The current adapter explicitly marks these deeper checks as pending.
 4. **Threat intelligence:** integrate only sources with confirmed API access, suitable licensing, acceptable rate limits, and explainable findings.
 5. **UI and report integration:** chain selection, chain-aware status reports and explorer links, explicit unknown/partial coverage.
 6. **Release hardening:** known benign and suspicious fixtures, malformed inputs, unavailable providers, chain mismatch, timeout and rate-limit behavior, and Solana regression tests.
@@ -61,4 +61,4 @@ A registry entry does not mean a chain is production-supported. EVM chains must 
 
 ## Implementation note
 
-This document and the chain registry are architectural groundwork only. They do not yet enable EVM investigations or change the production UI/API. Follow-up pull requests should implement and test the adapter in isolated increments.
+This branch now includes the chain registry, adapter contracts, a baseline read-only EVM JSON-RPC adapter, and this rollout plan. The adapter is intentionally not wired into the production API or UI yet. EVM networks remain disabled until chain-aware request routing, report persistence, provider configuration, deeper evidence sources, and regression tests are complete.
