@@ -23,9 +23,9 @@ VERA is an evidence-first AI decision layer for online actions. It investigates 
 
 ## Multichain investigation status
 
-Vera's multichain foundation now includes a read-only EVM RPC adapter and gated API routing for address and transaction investigations on Ethereum, Base, BNB Smart Chain, Arbitrum One, and Polygon PoS. The chain selector only enables an EVM option when the API reports both the feature flag and that chain's RPC configuration are present.
+Vera's multichain foundation now includes a read-only EVM RPC adapter and gated API routing for address and transaction investigations on Ethereum, Base, BNB Smart Chain, Arbitrum One, and Polygon PoS. The chain selector only enables an EVM option when the API reports that the chain is explicitly approved in the registry, the feature flag is on, and that chain's RPC configuration is present.
 
-EVM investigations are **disabled by default**. To opt in for a controlled validation environment, configure `VERA_ENABLE_EVM_INVESTIGATIONS=true` and the server-side RPC URL for each chain you intend to test:
+EVM investigations are **disabled by default**. EVM routes also require the chain's `enabledForInvestigation` registry gate to be explicitly enabled after validation. Setting the feature flag and RPC alone cannot enable a chain that remains marked as planned. Once approved, configure `VERA_ENABLE_EVM_INVESTIGATIONS=true` and the server-side RPC URL for each chain:
 
 - `EVM_ETHEREUM_RPC_URL`
 - `EVM_BASE_RPC_URL`
