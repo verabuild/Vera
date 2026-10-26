@@ -4,7 +4,7 @@ import {
   ChevronRight, Clock3, Copy, ExternalLink, FileSearch, Fingerprint, Link2,
   Mail, ShieldCheck, TriangleAlert, Wallet
 } from "lucide-react";
-import type { Assessment, Evidence, Scan, Severity } from "../lib/types";
+import type { Assessment, ChainId, Evidence, Scan, Severity } from "../lib/types";
 import AuthControls from "./AuthControls";
 import { OFFICIAL_VERA_LOGO } from "../lib/brand";
 
@@ -30,6 +30,15 @@ const filterLabels: Record<EvidenceFilter, string> = {
   medium: "Medium",
   low: "Low",
   info: "Info",
+};
+
+const chainLabels: Record<ChainId, string> = {
+  solana: "Solana",
+  ethereum: "Ethereum Mainnet",
+  base: "Base",
+  bsc: "BNB Smart Chain",
+  arbitrum: "Arbitrum One",
+  polygon: "Polygon PoS",
 };
 
 function verdictConfig(assessment: Assessment) {
@@ -162,7 +171,7 @@ function InvestigationPage({ scan, onBack, onInvestigations, onInvestigateAnothe
       <section className="investigation-canvas">
         <div className="investigation-canvas-head">
           <div className="investigation-room-heading"><span className="investigation-eyebrow">VERA / ANALYSIS WORKSPACE</span><h1>INVESTIGATION ROOM</h1><p>Understand what you are about to act on.</p></div>
-          <div className="canvas-meta">{scan.assessment.network && <span>{scan.assessment.network}</span>}<span>{formatDate(scan.createdAt)}</span></div>
+          <div className="canvas-meta">{scan.assessment.chainId ? <span>{chainLabels[scan.assessment.chainId]}</span> : scan.assessment.network ? <span>Solana {scan.assessment.network}</span> : null}<span>{formatDate(scan.createdAt)}</span></div>
         </div>
 
         <section className="investigation-field">
