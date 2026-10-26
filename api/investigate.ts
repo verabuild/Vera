@@ -405,7 +405,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const invalid = evidence.some((item) => /-invalid$/.test(item.id));
       const unavailable = evidence.some((item) => item.state === 'UNKNOWN');
       const failed = evidence.some((item) => item.id === 'evm-transaction-execution-status' && item.detail.toLowerCase().includes('execution failure'));
-      const hasContract = evidence.some((item) => item.id === 'evm-address-contract-code' && item.state !== 'UNKNOWN');
+      const hasContract = evidence.some((item) => item.id === 'evm-contract-code-present' && item.state !== 'UNKNOWN');
       assessment = {
         ...assessment,
         state: invalid ? 'UNKNOWN' : failed ? 'SUPPORTED' : unavailable ? 'UNKNOWN' : 'SUPPORTED',
