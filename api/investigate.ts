@@ -431,7 +431,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }];
       }
       const invalid = evidence.some((item) => /-invalid$/.test(item.id));
-      const unavailable = evidence.some((item) => item.state === 'UNKNOWN');
+      const incomplete = evidence.some((item) => item.state === 'UNKNOWN');
+      const unavailable = evidence.some((item) =>
+        item.id === 'evm-provider-unavailable' ||
+        item.id === 'evm-transaction-receipt-unavailable' ||
+        item.id === 'evm-transaction-not-found'
+      );
       const failed = evidence.some((item) => item.id === 'evm-transaction-execution-status' && item.detail.toLowerCase().includes('execution failure'));
       const hasContract = evidence.some((item) => item.id === 'evm-contract-code-present' && item.state !== 'UNKNOWN');
       assessment = {
@@ -445,15 +450,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         explanation: invalid
           ? 'The supplied value does not match the expected format for this EVM investigation. Format validation is not a safety verdict.'
           : unavailable
-            ? 'VERA collected partial evidence, but one or more checks remain unknown. Missing evidence must not be interpreted as a clean result.'
-            : 'VERA collected read-only chain evidence. Transaction success, an address balance, and the presence or absence of contract code do not prove that an interaction is safe.',
+            ? 'VERA could not retrieve a required transaction or provider result. Missing evidence must not be interpreted as a clean result.'
+            : incomplete
+              ? 'VERA collected baseline read-only chain evidence, but deeper risk checks remain incomplete. This is not a full address or transaction security assessment, and the missing checks must not be interpreted as a clean result.'
+              : 'VERA collected read-only chain evidence. Transaction success, an address balance, and the presence or absence of contract code do not prove that an interaction is safe.',
         action: invalid
           ? 'Check the address or transaction hash and confirm that it belongs to the selected network.'
           : inputType === 'TX'
             ? 'Verify the sender, recipient, value, contract interaction and execution outcome independently before repeating or approving a related action.'
             : 'Review the chain evidence and verify the address purpose independently before sending funds, approving tokens or connecting to a contract.',
         evidence,
-        confidence: invalid ? 'HIGH' : unavailable ? 'LOW' : 'MEDIUM',
+        confidence: invalid ? 'HIGH' : unavailable || incomplete ? 'LOW' : 'MEDIUM',
         chainId: evmChainId
       };
     }
