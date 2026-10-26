@@ -30,7 +30,7 @@ A registry entry does not mean a chain is production-supported. EVM chains must 
 ## Capability stages
 
 1. **Foundation:** chain registry, adapter contracts, compatibility boundary, regression baseline.
-2. **EVM read-only RPC (baseline adapter added in this branch):** chain ID verification, address validation, native balance, account/contract bytecode classification, transaction and receipt retrieval. This is not yet routed through the production API and is not a complete security assessment.
+2. **EVM read-only RPC (baseline adapter and gated API routing added in this branch):** chain ID verification, address validation, native balance, account/contract bytecode classification, transaction and receipt retrieval. Routing requires `VERA_ENABLE_EVM_INVESTIGATIONS=true` and the matching server-side RPC environment variable. This is not yet a complete security assessment.
 3. **Deeper token and contract evidence:** ERC-20 metadata, transfer logs, verified source, creation data, ownership/admin controls, proxy detection, and carefully scoped static signals. The current adapter explicitly marks these deeper checks as pending.
 4. **Threat intelligence:** integrate only sources with confirmed API access, suitable licensing, acceptable rate limits, and explainable findings.
 5. **UI and report integration:** chain selection, chain-aware status reports and explorer links, explicit unknown/partial coverage.
@@ -47,7 +47,7 @@ A registry entry does not mean a chain is production-supported. EVM chains must 
 - Treat verified contract source as evidence of source availability, not a safety guarantee.
 - Distinguish direct observations from heuristics and third-party reputation labels.
 - Do not infer that the same hexadecimal address across chains is the same person or entity.
-- Preserve chain identity in persisted investigation records so historical reports remain interpretable.
+- Preserve chain identity in API responses and assessment reports so historical reports remain interpretable. The existing database `network` column remains on its legacy Solana value during this compatibility stage; a dedicated chain-identity persistence migration is still required before EVM investigations are enabled in production.
 
 ## Definition of done
 
@@ -61,4 +61,4 @@ A registry entry does not mean a chain is production-supported. EVM chains must 
 
 ## Implementation note
 
-This branch now includes the chain registry, adapter contracts, a baseline read-only EVM JSON-RPC adapter, and this rollout plan. The adapter is intentionally not wired into the production API or UI yet. EVM networks remain disabled until chain-aware request routing, report persistence, provider configuration, deeper evidence sources, and regression tests are complete.
+This branch now includes the chain registry, adapter contracts, a baseline read-only EVM JSON-RPC adapter, gated wallet/transaction API routing, and this rollout plan. The EVM route is opt-in through `VERA_ENABLE_EVM_INVESTIGATIONS=true` plus a matching server-side RPC variable, and all EVM chains remain off by default. The UI does not yet expose a chain selector. Do not enable EVM investigations in production until the dedicated chain-identity persistence migration, provider setup, deeper evidence sources, UI/report integration, and regression tests are complete.
