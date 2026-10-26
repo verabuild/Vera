@@ -90,6 +90,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         process.env.VERA_ANON_SECRET.length >= 32
       ),
       solanaConfigured: Boolean(process.env.SOLANA_MAINNET_RPC_URL),
+      evmInvestigationsEnabled: process.env.VERA_ENABLE_EVM_INVESTIGATIONS === 'true',
+      evmChains: Object.values(CHAIN_REGISTRY)
+        .filter((chain) => chain.family === 'evm')
+        .map((chain) => ({
+          id: chain.id,
+          name: chain.name,
+          chainId: chain.chainId,
+          configured: Boolean(
+            process.env.VERA_ENABLE_EVM_INVESTIGATIONS === 'true' &&
+            chain.rpcEnvVar &&
+            process.env[chain.rpcEnvVar]
+          )
+        })),
       timestamp: new Date().toISOString()
     });
   }
