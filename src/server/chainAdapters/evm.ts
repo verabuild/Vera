@@ -193,7 +193,7 @@ export class EvmRpcInvestigationAdapter implements EvmInvestigationAdapter {
     ]);
 
     const config = getChainConfig(this.chain);
-    return [
+    const result: Evidence[] = [
       evidence(
         'evm-address-format-valid',
         'Address format validated',
@@ -222,7 +222,28 @@ export class EvmRpcInvestigationAdapter implements EvmInvestigationAdapter {
         'EVM eth_getTransactionCount',
         { chain: this.chain, address, transactionCount: BigInt(transactionCount).toString() },
       ),
-    ].slice(0, MAX_EVIDENCE_ITEMS);
+      evidence(
+        'evm-address-risk-analysis-pending',
+        'Address risk coverage is incomplete',
+        'This baseline lookup does not yet analyze transaction history, token holdings and approvals, known scam labels, interaction patterns, or address attribution. The collected account state must not be treated as a full address security assessment.',
+        'UNKNOWN',
+        'info',
+        'VERA coverage disclosure',
+        { chain: this.chain, address, pendingChecks: ['transaction history', 'token holdings and approvals', 'external risk intelligence', 'attribution'] },
+      ),
+    ];
+    if (code !== '0x' && code !== '0x0') {
+      result.push(evidence(
+        'evm-contract-deep-analysis-pending',
+        'Contract risk analysis is incomplete',
+        'Runtime bytecode is present, but this adapter does not yet inspect verified source, proxy and upgradeability patterns, owner/admin controls, dangerous functions, or external contract-security reports.',
+        'UNKNOWN',
+        'info',
+        'VERA coverage disclosure',
+        { chain: this.chain, address, pendingChecks: ['verified source', 'proxy and upgradeability', 'owner and admin controls', 'external contract intelligence'] },
+      ));
+    }
+    return result.slice(0, MAX_EVIDENCE_ITEMS);
   }
 
   async inspectTransaction(request: TransactionInvestigationRequest): Promise<Evidence[]> {
@@ -313,6 +334,15 @@ export class EvmRpcInvestigationAdapter implements EvmInvestigationAdapter {
         logCount: receipt.logs?.length ?? 0,
         createdContract: receipt.contractAddress,
       },
+    ));
+    result.push(evidence(
+      'evm-transaction-effects-analysis-pending',
+      'Transaction effect analysis is incomplete',
+      'This baseline adapter retrieves the transaction and receipt but does not yet decode internal calls, ERC-20 transfers, approval changes, traces, or contract-specific effects. Execution status alone is not a security verdict.',
+      'UNKNOWN',
+      'info',
+      'VERA coverage disclosure',
+      { chain: this.chain, hash, pendingChecks: ['internal calls and traces', 'token transfers', 'approval changes', 'contract-specific effects'] },
     ));
     return result;
   }
