@@ -1,5 +1,6 @@
 export type InputType = 'URL' | 'MESSAGE' | 'WALLET' | 'TX';
 export type Network = 'mainnet' | 'devnet';
+export type ChainId = 'solana' | 'ethereum' | 'base' | 'bsc' | 'arbitrum' | 'polygon';
 export type AssessmentState = 'VERIFIED' | 'SUPPORTED' | 'UNKNOWN' | 'SUSPICIOUS' | 'CONFIRMED_MALICIOUS';
 export type UrlVerdict = 'SAFE' | 'NOT_SAFE' | 'CAUTION' | 'REVIEW';
 export type Severity = 'info' | 'low' | 'medium' | 'high';
@@ -39,6 +40,7 @@ export interface Assessment {
   evidence: Evidence[];
   confidence?: 'LOW' | 'MEDIUM' | 'HIGH';
   network?: Network;
+  chainId?: ChainId;
   aiExplanation?: string;
   statusReport?: InvestigationStatusReport;
   verdict?: UrlVerdict;
@@ -56,4 +58,5 @@ export interface InvestigationRequest {
   inputType: InputType;
   input: string;
   network?: Network;
+  chainId?: ChainId;
 }
