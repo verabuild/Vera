@@ -90,6 +90,18 @@ POST `/api/investigate`
 }
 ```
 
+For EVM address or transaction investigations, use `chainId` instead of the Solana `network` selector. This request is accepted only when the server-side EVM feature flag and the selected chain's RPC are configured:
+
+```json
+{
+  "inputType": "WALLET",
+  "input": "0x0000000000000000000000000000000000000000",
+  "chainId": "ethereum"
+}
+```
+
+The example address is for illustrating request shape only; it is not a recommendation or a safety finding.
+
 The AI receives only structured evidence produced by deterministic adapters. It must not invent missing evidence or convert unknowns into certainty.
 
 ### Investigation status and coverage
