@@ -18,12 +18,12 @@ import InvestigationPage from "./components/InvestigationPage";
 import InvestigationHistoryPage from "./components/InvestigationHistoryPage";
 import InvestigationLookupPage from "./components/InvestigationLookupPage";
 import SolanaCaseTerminal from "./components/SolanaCaseTerminal";
-import type { Network, Assessment, InputType, Scan } from "./lib/types";
+import type { Network, Assessment, InputType, Scan, ChainId } from "./lib/types";
 
 const modes: { id: InputType; label: string; icon: typeof Link2; description: string }[] = [
   { id: "URL", label: "Link", icon: Link2, description: "Inspect a website or URL" },
   { id: "MESSAGE", label: "Message", icon: Mail, description: "Analyse a DM, email or text" },
-  { id: "WALLET", label: "Wallet", icon: Wallet, description: "Inspect a Solana address" },
+  { id: "WALLET", label: "Wallet", icon: Wallet, description: "Inspect a public chain address" },
   { id: "TX", label: "Transaction", icon: ArrowLeftRight, description: "Understand transaction data" },
 ];
 
@@ -430,6 +430,8 @@ export default function App() {
   const [history, setHistory] = useState<Scan[]>([]);
   const [busy, setBusy] = useState(false);
   const [network, setNetwork] = useState<Network>("mainnet");
+  const [chainId, setChainId] = useState<ChainId>("solana");
+  const [evmChainAvailability, setEvmChainAvailability] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
   const [signupPrompt, setSignupPrompt] = useState(false);
   const { getAccessToken } = usePrivy();
@@ -491,6 +493,18 @@ export default function App() {
     setMeta("name", "twitter:description", current.description);
   }, []);
   useEffect(() => setHistory(loadScans()), []);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/investigate", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => {
+        if (!cancelled && Array.isArray(data?.evmChains)) {
+          setEvmChainAvailability(Object.fromEntries(data.evmChains.map((chain: { id: string; configured: boolean }) => [chain.id, chain.configured === true])));
+        }
+      })
+      .catch(() => { if (!cancelled) setEvmChainAvailability({}); });
+    return () => { cancelled = true; };
+  }, []);
   const [remoteScan, setRemoteScan] = useState<Scan | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
@@ -536,9 +550,9 @@ export default function App() {
   const placeholder = useMemo(() => ({
     URL: "Paste a link you want VERA to inspect…",
     MESSAGE: "Paste the message, DM or email you want VERA to analyse…",
-    WALLET: "Paste a Solana wallet address…",
-    TX: "Paste a Solana transaction signature…"
-  }[mode]), [mode]);
+    WALLET: chainId === "solana" ? "Paste a Solana wallet address…" : "Paste an EVM address (0x…)…",
+    TX: chainId === "solana" ? "Paste a Solana transaction signature…" : "Paste an EVM transaction hash (0x…)…"
+  }[mode]), [mode, chainId]);
 
   async function scan() {
     setBusy(true); setError(null); setSignupPrompt(false);
@@ -551,7 +565,7 @@ export default function App() {
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
         },
         credentials: "same-origin",
-        body: JSON.stringify({ inputType: mode, input: input.trim(), network })
+        body: JSON.stringify({ inputType: mode, input: input.trim(), ...(chainId === "solana" ? { network } : { chainId }) })
       });
       const contentType = response.headers.get("content-type") || "";
       const raw = await response.text();
@@ -634,7 +648,7 @@ export default function App() {
 
         <div className="mode-row">{modes.map(({ id, label, icon: Icon, description }) => <button className={`mode ${mode === id ? "active" : ""}`} onClick={() => setMode(id)} key={id} title={description}><Icon size={15} /><span>{label}</span></button>)}</div>
 
-        {(mode === "WALLET" || mode === "TX") && <div className="network-row"><span className="eyebrow">SOLANA NETWORK</span><div><button className={`network-choice ${network === "mainnet" ? "active" : ""}`} onClick={() => setNetwork("mainnet")}>Mainnet</button><button className={`network-choice ${network === "devnet" ? "active" : ""}`} onClick={() => setNetwork("devnet")}>Devnet</button></div></div>}
+        {(mode === "WALLET" || mode === "TX") && <div className="network-row"><span className="eyebrow">INVESTIGATION CHAIN</span><div className="chain-choice-group"><button className={`network-choice ${chainId === "solana" ? "active" : ""}`} onClick={() => setChainId("solana")}>Solana</button>{([{ id: "ethereum", label: "Ethereum" }, { id: "base", label: "Base" }, { id: "bsc", label: "BNB" }, { id: "arbitrum", label: "Arbitrum" }, { id: "polygon", label: "Polygon" }] as const).map((chain) => <button key={chain.id} className={`network-choice ${chainId === chain.id ? "active" : ""}`} disabled={!evmChainAvailability[chain.id]} title={evmChainAvailability[chain.id] ? `Investigate on ${chain.label}` : `${chain.label} is not enabled yet`} onClick={() => setChainId(chain.id)}>{chain.label}</button>)}</div>{chainId === "solana" && <div className="solana-network-choices"><button className={`network-choice ${network === "mainnet" ? "active" : ""}`} onClick={() => setNetwork("mainnet")}>Mainnet</button><button className={`network-choice ${network === "devnet" ? "active" : ""}`} onClick={() => setNetwork("devnet")}>Devnet</button></div>}{chainId !== "solana" && <small className="chain-status-note">EVM checks are gated until server configuration and release validation are complete.</small>}</div>}
 
         <div className="input-wrap">
           <textarea value={input} onChange={(event) => setInput(event.target.value)} placeholder={placeholder} rows={4} spellCheck={false} />
