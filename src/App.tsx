@@ -585,7 +585,7 @@ export default function App() {
       if (!data.assessment || !data.id || !data.createdAt) {
         throw new Error("VERA returned an incomplete investigation response.");
       }
-      const scan: Scan = { id: data.id, type: mode, input: input.trim(), createdAt: data.createdAt, assessment: data.assessment };
+      const scan: Scan = { id: data.id, type: mode, input: input.trim(), createdAt: data.createdAt, assessment: data.assessment, chainId: data.assessment.chainId ?? chainId, network };
       setAssessment(data.assessment);
       const next = [scan, ...history.filter((item) => item.input !== input.trim())];
       setHistory(next); saveScans(next);
@@ -608,7 +608,7 @@ export default function App() {
   }
 
   function clear() { setInput(""); setAssessment(null); setError(null); }
-  function restore(scan: Scan) { setMode(scan.type); setInput(scan.input); setAssessment(scan.assessment); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  function restore(scan: Scan) { setMode(scan.type); setInput(scan.input); setAssessment(scan.assessment); setChainId(scan.chainId ?? scan.assessment.chainId ?? "solana"); if (scan.network) setNetwork(scan.network); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   if (legalPage) return <LegalPage page={legalPage} />;
   if (isHowItWorksPage) return <HowItWorksPage />;
