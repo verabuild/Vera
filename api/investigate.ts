@@ -98,6 +98,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           name: chain.name,
           chainId: chain.chainId,
           configured: Boolean(
+            chain.enabledForInvestigation &&
             process.env.VERA_ENABLE_EVM_INVESTIGATIONS === 'true' &&
             chain.rpcEnvVar &&
             process.env[chain.rpcEnvVar]
@@ -158,7 +159,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (inputType !== 'WALLET' && inputType !== 'TX') {
         return json(res, 400, { error: 'EVM address and transaction investigations are supported first. URL and message investigations remain chain-independent.' });
       }
-      if (process.env.VERA_ENABLE_EVM_INVESTIGATIONS !== 'true' || !chain.rpcEnvVar || !process.env[chain.rpcEnvVar]) {
+      if (!chain.enabledForInvestigation || process.env.VERA_ENABLE_EVM_INVESTIGATIONS !== 'true' || !chain.rpcEnvVar || !process.env[chain.rpcEnvVar]) {
         return json(res, 503, {
           error: `${chain.name} investigations are not enabled yet`,
           detail: 'This chain remains gated until its server-side RPC is configured and end-to-end checks are approved. No investigation was executed.',
