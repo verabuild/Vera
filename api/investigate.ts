@@ -30,7 +30,7 @@ function buildEvmStatusReport(evidence: import('../src/lib/types.js').Evidence[]
   const complete = checks.filter((item) => item.status !== 'UNAVAILABLE').length;
   const coverage = checks.length ? Math.round((complete / checks.length) * 100) : 0;
   return {
-    overall: assessment.state === 'CONFIRMED_MALICIOUS' ? 'CONFIRMED_FINDING' as const : coverage === 100 ? 'COMPLETE' as const : 'PARTIAL' as const,
+    overall: assessment.state === 'CONFIRMED_MALICIOUS' ? 'CONFIRMED_FINDING' as const : 'PARTIAL' as const,
     coverage,
     checkedAt: new Date().toISOString(),
     checks,
