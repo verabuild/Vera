@@ -461,7 +461,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ? 'Verify the sender, recipient, value, contract interaction and execution outcome independently before repeating or approving a related action.'
             : 'Review the chain evidence and verify the address purpose independently before sending funds, approving tokens or connecting to a contract.',
         evidence,
-        confidence: invalid ? 'HIGH' : unavailable || incomplete ? 'LOW' : 'MEDIUM',
+        // EVM coverage is still baseline-only. Never inherit a SAFE verdict from
+        // generic local signals while token, contract, and history checks are missing.
+        confidence: invalid ? 'MEDIUM' : unavailable || incomplete ? 'LOW' : 'MEDIUM',
+        verdict: 'REVIEW',
         chainId: evmChainId
       };
     }
@@ -492,7 +495,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       createdAt: new Date().toISOString(),
       inputType,
       input: input.trim(),
-      network: evmChainId ?? network,
+      network,
       chainId: evmChainId ?? 'solana',
       assessment: finalAssessment,
       usage: {
