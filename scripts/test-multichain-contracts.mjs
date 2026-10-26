@@ -33,6 +33,7 @@ assert.match(adapter, /does not yet decode internal calls, ERC-20 transfers, app
 assert.match(api, /VERA_ENABLE_EVM_INVESTIGATIONS !== 'true'/, 'EVM feature flag must be enforced server-side');
 assert.match(api, /!chain\.enabledForInvestigation/, 'registry approval must be enforced server-side');
 assert.match(api, /verdict:\s*'REVIEW'/, 'baseline EVM investigations must not produce a SAFE verdict');
+assert.match(api, /coverage === 100 \? 'COMPLETE'/, 'baseline-only EVM coverage must not claim a complete investigation');
 assert.match(api, /state: invalid \? 'UNKNOWN'/, 'invalid EVM inputs must not be presented as safe');
 assert.match(api, /EVM chain evidence unavailable/, 'provider failures must return unavailable evidence');
 assert.match(api, /requestedChainId !== undefined.*Unsupported investigation chain/s, 'unsupported chain IDs must be rejected');
