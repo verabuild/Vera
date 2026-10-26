@@ -33,7 +33,7 @@ A registry entry does not mean a chain is production-supported. EVM chains must 
 2. **EVM read-only RPC (baseline adapter and gated API routing added in this branch):** chain ID verification, address validation, native balance, account/contract bytecode classification, transaction and receipt retrieval. Routing requires `VERA_ENABLE_EVM_INVESTIGATIONS=true` and the matching server-side RPC environment variable. This is not yet a complete security assessment.
 3. **Deeper token and contract evidence:** ERC-20 metadata, transfer logs, verified source, creation data, ownership/admin controls, proxy detection, and carefully scoped static signals. The current adapter explicitly marks these deeper checks as pending.
 4. **Threat intelligence:** integrate only sources with confirmed API access, suitable licensing, acceptable rate limits, and explainable findings.
-5. **UI and report integration:** chain selection, chain-aware status reports and explorer links, explicit unknown/partial coverage.
+5. **UI and report integration (initial controls added):** chain selection is exposed for wallet/transaction investigations; EVM choices are disabled unless the server reports the chain's RPC and feature flag are configured. Chain-aware status reports and full explorer-linked UX remain to be completed.
 6. **Release hardening:** known benign and suspicious fixtures, malformed inputs, unavailable providers, chain mismatch, timeout and rate-limit behavior, and Solana regression tests.
 
 ## Security and reliability requirements
@@ -61,4 +61,4 @@ A registry entry does not mean a chain is production-supported. EVM chains must 
 
 ## Implementation note
 
-This branch now includes the chain registry, adapter contracts, a baseline read-only EVM JSON-RPC adapter, gated wallet/transaction API routing, and this rollout plan. The EVM route is opt-in through `VERA_ENABLE_EVM_INVESTIGATIONS=true` plus a matching server-side RPC variable, and all EVM chains remain off by default. The UI does not yet expose a chain selector. Apply the chain identity migration before enabling EVM investigations in production; provider setup, deeper evidence sources, UI/report integration, and regression tests remain release requirements.
+This branch now includes the chain registry, adapter contracts, a baseline read-only EVM JSON-RPC adapter, gated wallet/transaction API routing, and this rollout plan. The EVM route is opt-in through `VERA_ENABLE_EVM_INVESTIGATIONS=true` plus a matching server-side RPC variable, and all EVM chains remain off by default. The UI exposes chain choices but disables EVM options unless the API reports the chain as enabled. Apply the chain identity migration before enabling EVM investigations in production; provider setup, deeper evidence sources, UI/report integration, and regression tests remain release requirements.
