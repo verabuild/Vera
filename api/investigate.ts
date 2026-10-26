@@ -399,9 +399,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (evmChainId && (inputType === 'WALLET' || inputType === 'TX')) {
       const adapter = createEvmAdapter(evmChainId);
-      const evidence = inputType === 'WALLET'
-        ? await adapter.inspectAddress({ chain: evmChainId, address: input.trim() })
-        : await adapter.inspectTransaction({ chain: evmChainId, hash: input.trim() });
+      let evidence: import('../src/lib/types.js').Evidence[];
+      try {
+        evidence = inputType === 'WALLET'
+          ? await adapter.inspectAddress({ chain: evmChainId, address: input.trim() })
+          : await adapter.inspectTransaction({ chain: evmChainId, hash: input.trim() });
+      } catch (error) {
+        console.error(`VERA EVM ${evmChainId} provider error`, error);
+        evidence = [{
+          id: 'evm-provider-unavailable',
+          title: 'EVM chain evidence unavailable',
+          detail: 'VERA could not complete the selected chain lookup. Provider failures and chain mismatches are unknown evidence, not proof that the address or transaction is safe.',
+          severity: 'info',
+          source: 'VERA EVM RPC adapter',
+          state: 'UNKNOWN',
+          observedAt: new Date().toISOString(),
+          metadata: { chainId: evmChainId, lookupFailed: true }
+        }];
+      }
       const invalid = evidence.some((item) => /-invalid$/.test(item.id));
       const unavailable = evidence.some((item) => item.state === 'UNKNOWN');
       const failed = evidence.some((item) => item.id === 'evm-transaction-execution-status' && item.detail.toLowerCase().includes('execution failure'));
