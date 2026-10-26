@@ -52,6 +52,8 @@ export interface Scan {
   input: string;
   createdAt: string;
   assessment: Assessment;
+  chainId?: ChainId;
+  network?: Network;
 }
 
 export interface InvestigationRequest {
