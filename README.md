@@ -23,7 +23,7 @@ VERA is an evidence-first AI decision layer for online actions. It investigates 
 
 ## Multichain investigation status
 
-Vera's multichain foundation now includes a read-only EVM RPC adapter and gated API routing for address and transaction investigations on Ethereum, Base, BNB Smart Chain, Arbitrum One, and Polygon PoS. The chain selector only enables an EVM option when the API reports that the chain is explicitly approved in the registry, the feature flag is on, and that chain's RPC configuration is present.
+Vera's multichain foundation now includes a read-only EVM RPC adapter and gated API routing for address and transaction investigations on Ethereum, Base, BNB Smart Chain, Arbitrum One, Polygon PoS, and Robinhood Chain. Robinhood Chain is a separate EVM network with its own chain ID and RPC; it is not Arbitrum One. The chain selector only enables an EVM option when the API reports that the chain is explicitly approved in the registry, the feature flag is on, and that chain's RPC configuration is present.
 
 EVM investigations are **disabled by default**. EVM routes also require the chain's `enabledForInvestigation` registry gate to be explicitly enabled after validation. Setting the feature flag and RPC alone cannot enable a chain that remains marked as planned. Once approved, configure `VERA_ENABLE_EVM_INVESTIGATIONS=true` and the server-side RPC URL for each chain:
 
@@ -32,6 +32,7 @@ EVM investigations are **disabled by default**. EVM routes also require the chai
 - `EVM_BSC_RPC_URL`
 - `EVM_ARBITRUM_RPC_URL`
 - `EVM_POLYGON_RPC_URL`
+- `EVM_ROBINHOOD_RPC_URL`
 
 Never put RPC URLs containing credentials in client-side `VITE_` variables. The adapter verifies the RPC's reported chain ID before using it.
 
