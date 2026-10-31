@@ -39,6 +39,7 @@ const chainLabels: Record<ChainId, string> = {
   bsc: "BNB Smart Chain",
   arbitrum: "Arbitrum One",
   polygon: "Polygon PoS",
+  robinhood: "Robinhood Chain",
 };
 
 function verdictConfig(assessment: Assessment) {
