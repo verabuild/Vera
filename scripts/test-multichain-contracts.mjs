@@ -9,7 +9,7 @@ const adapter = read('src/server/chainAdapters/evm.ts');
 const api = read('api/investigate.ts');
 const types = read('src/lib/types.ts');
 
-const evmChains = ['ethereum', 'base', 'bsc', 'arbitrum', 'polygon'];
+const evmChains = ['ethereum', 'base', 'bsc', 'arbitrum', 'polygon', 'robinhood'];
 
 for (const chain of evmChains) {
   const start = chains.indexOf(`  ${chain}: {`);
