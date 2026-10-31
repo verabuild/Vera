@@ -14,7 +14,8 @@ export type EvmChainId =
   | 'base'
   | 'bsc'
   | 'arbitrum'
-  | 'polygon';
+  | 'polygon'
+  | 'robinhood';
 
 export type ChainId = 'solana' | EvmChainId;
 
@@ -106,6 +107,17 @@ export const CHAIN_REGISTRY: Readonly<Record<ChainId, ChainConfig>> = {
     availability: 'planned',
     enabledForInvestigation: false,
   },
+  robinhood: {
+    id: 'robinhood',
+    family: 'evm',
+    name: 'Robinhood Chain',
+    chainId: 4663,
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    explorerUrl: 'https://robinhoodchain.blockscout.com',
+    rpcEnvVar: 'EVM_ROBINHOOD_RPC_URL',
+    availability: 'planned',
+    enabledForInvestigation: false,
+  },
 };
 
 export function getChainConfig(chainId: ChainId): ChainConfig {
@@ -117,7 +129,8 @@ export function isEvmChainId(value: string): value is EvmChainId {
     || value === 'base'
     || value === 'bsc'
     || value === 'arbitrum'
-    || value === 'polygon';
+    || value === 'polygon'
+    || value === 'robinhood';
 }
 
 /**
