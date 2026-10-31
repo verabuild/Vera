@@ -14,6 +14,7 @@ Extend Vera from its existing Solana investigation foundation to a consistent, r
 | `bsc` | BNB Smart Chain | 56 | `EVM_BSC_RPC_URL` | Planned |
 | `arbitrum` | Arbitrum One | 42161 | `EVM_ARBITRUM_RPC_URL` | Planned |
 | `polygon` | Polygon PoS | 137 | `EVM_POLYGON_RPC_URL` | Planned |
+| `robinhood` | Robinhood Chain | 4663 | `EVM_ROBINHOOD_RPC_URL` | Planned |
 
 A registry entry does not mean a chain is production-supported. EVM chains must remain disabled for investigation until their RPC configuration, adapter implementation, evidence coverage, and regression tests have passed.
 
