@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { InputType, Network } from '../src/lib/types.js';
+import { CHAIN_REGISTRY, isEvmChainId, type EvmChainId } from '../src/lib/chains.js';
+import { createEvmAdapter } from '../src/server/chainAdapters/evm.js';
 import { localSignals } from '../src/lib/investigator.js';
 import { inspectWallet, inspectTransaction } from '../src/server/solana.js';
 import { inspectMagicEdenWallet } from '../src/server/magicEden.js';
@@ -17,6 +19,24 @@ import { normalizeUrlInput } from '../src/lib/investigator.js';
 
 const allowedTypes = new Set<InputType>(['URL', 'MESSAGE', 'WALLET', 'TX']);
 const allowedNetworks = new Set<Network>(['mainnet', 'devnet']);
+
+function buildEvmStatusReport(evidence: import('../src/lib/types.js').Evidence[], assessment: import('../src/lib/types.js').Assessment) {
+  const checks = evidence.map((item) => ({
+    name: item.title,
+    status: item.state === 'UNKNOWN' ? 'UNAVAILABLE' as const : item.severity === 'high' ? 'MATCH' as const : 'CHECKED' as const,
+    source: item.source,
+    detail: item.detail
+  }));
+  const complete = checks.filter((item) => item.status !== 'UNAVAILABLE').length;
+  const coverage = checks.length ? Math.round((complete / checks.length) * 100) : 0;
+  return {
+    overall: assessment.state === 'CONFIRMED_MALICIOUS' ? 'CONFIRMED_FINDING' as const : 'PARTIAL' as const,
+    coverage,
+    checkedAt: new Date().toISOString(),
+    checks,
+    decisiveFindings: evidence.filter((item) => item.severity === 'high' && item.state !== 'UNKNOWN').length
+  };
+}
 
 function json(res: VercelResponse, status: number, body: unknown) {
   res.status(status).setHeader('Content-Type', 'application/json').json(body);
@@ -70,6 +90,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         process.env.VERA_ANON_SECRET.length >= 32
       ),
       solanaConfigured: Boolean(process.env.SOLANA_MAINNET_RPC_URL),
+      evmInvestigationsEnabled: process.env.VERA_ENABLE_EVM_INVESTIGATIONS === 'true',
+      evmChains: Object.values(CHAIN_REGISTRY)
+        .filter((chain) => chain.family === 'evm')
+        .map((chain) => ({
+          id: chain.id,
+          name: chain.name,
+          chainId: chain.chainId,
+          configured: Boolean(
+            chain.enabledForInvestigation &&
+            process.env.VERA_ENABLE_EVM_INVESTIGATIONS === 'true' &&
+            chain.rpcEnvVar &&
+            process.env[chain.rpcEnvVar]
+          )
+        })),
       timestamp: new Date().toISOString()
     });
   }
@@ -98,7 +132,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    const { inputType, input, network = 'mainnet' } = req.body ?? {};
+    const { inputType, input, network = 'mainnet', chainId: requestedChainId } = req.body ?? {};
+    const evmChainId: EvmChainId | null = typeof requestedChainId === 'string' && isEvmChainId(requestedChainId)
+      ? requestedChainId
+      : null;
 
     if (
       !allowedTypes.has(inputType) ||
@@ -111,6 +148,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!allowedNetworks.has(network)) {
       return json(res, 400, { error: 'Invalid Solana network' });
+    }
+
+    if (requestedChainId !== undefined && requestedChainId !== 'solana' && !evmChainId) {
+      return json(res, 400, { error: 'Unsupported investigation chain' });
+    }
+
+    if (evmChainId) {
+      const chain = CHAIN_REGISTRY[evmChainId];
+      if (inputType !== 'WALLET' && inputType !== 'TX') {
+        return json(res, 400, { error: 'EVM address and transaction investigations are supported first. URL and message investigations remain chain-independent.' });
+      }
+      if (!chain.enabledForInvestigation || process.env.VERA_ENABLE_EVM_INVESTIGATIONS !== 'true' || !chain.rpcEnvVar || !process.env[chain.rpcEnvVar]) {
+        return json(res, 503, {
+          error: `${chain.name} investigations are not enabled yet`,
+          detail: 'This chain remains gated until its server-side RPC is configured and end-to-end checks are approved. No investigation was executed.',
+          chainId: evmChainId
+        });
+      }
     }
 
     let quota: { allowed: boolean; remaining: number; degraded?: boolean };
@@ -254,7 +309,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    if (inputType === 'TX') {
+    if (inputType === 'TX' && !evmChainId) {
       const evidence = await inspectTransaction(input.trim(), network);
       const failed = evidence.some((item) => item.id === 'tx-status' && item.detail.startsWith('The transaction record contains'));
       const found = evidence.some((item) => item.id === 'tx-signature-verified');
@@ -324,7 +379,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    if (inputType === 'WALLET') {
+    if (inputType === 'WALLET' && !evmChainId) {
       const evidence = await investigateWalletProviders(input.trim(), network);
       const invalidAddress = evidence.some((item) => item.id === 'wallet-invalid');
       const reported = evidence.some((item) => item.id === 'chainabuse-reports');
@@ -356,9 +411,70 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           };
     }
 
+    if (evmChainId && (inputType === 'WALLET' || inputType === 'TX')) {
+      const adapter = createEvmAdapter(evmChainId);
+      let evidence: import('../src/lib/types.js').Evidence[];
+      try {
+        evidence = inputType === 'WALLET'
+          ? await adapter.inspectAddress({ chain: evmChainId, address: input.trim() })
+          : await adapter.inspectTransaction({ chain: evmChainId, hash: input.trim() });
+      } catch (error) {
+        console.error(`VERA EVM ${evmChainId} provider error`, error);
+        evidence = [{
+          id: 'evm-provider-unavailable',
+          title: 'EVM chain evidence unavailable',
+          detail: 'VERA could not complete the selected chain lookup. Provider failures and chain mismatches are unknown evidence, not proof that the address or transaction is safe.',
+          severity: 'info',
+          source: 'VERA EVM RPC adapter',
+          state: 'UNKNOWN',
+          observedAt: new Date().toISOString(),
+          metadata: { chainId: evmChainId, lookupFailed: true }
+        }];
+      }
+      const invalid = evidence.some((item) => /-invalid$/.test(item.id));
+      const incomplete = evidence.some((item) => item.state === 'UNKNOWN');
+      const unavailable = evidence.some((item) =>
+        item.id === 'evm-provider-unavailable' ||
+        item.id === 'evm-transaction-receipt-unavailable' ||
+        item.id === 'evm-transaction-not-found'
+      );
+      const failed = evidence.some((item) => item.id === 'evm-transaction-execution-status' && item.detail.toLowerCase().includes('execution failure'));
+      const hasContract = evidence.some((item) => item.id === 'evm-contract-code-present' && item.state !== 'UNKNOWN');
+      assessment = {
+        ...assessment,
+        state: invalid ? 'UNKNOWN' : failed ? 'SUPPORTED' : unavailable ? 'UNKNOWN' : 'SUPPORTED',
+        headline: invalid
+          ? 'The supplied EVM value could not be validated'
+          : inputType === 'TX'
+            ? failed ? 'Transaction execution failed' : 'EVM transaction evidence collected'
+            : hasContract ? 'EVM contract address evidence collected' : 'EVM address evidence collected',
+        explanation: invalid
+          ? 'The supplied value does not match the expected format for this EVM investigation. Format validation is not a safety verdict.'
+          : unavailable
+            ? 'VERA could not retrieve a required transaction or provider result. Missing evidence must not be interpreted as a clean result.'
+            : incomplete
+              ? 'VERA collected baseline read-only chain evidence, but deeper risk checks remain incomplete. This is not a full address or transaction security assessment, and the missing checks must not be interpreted as a clean result.'
+              : 'VERA collected read-only chain evidence. Transaction success, an address balance, and the presence or absence of contract code do not prove that an interaction is safe.',
+        action: invalid
+          ? 'Check the address or transaction hash and confirm that it belongs to the selected network.'
+          : inputType === 'TX'
+            ? 'Verify the sender, recipient, value, contract interaction and execution outcome independently before repeating or approving a related action.'
+            : 'Review the chain evidence and verify the address purpose independently before sending funds, approving tokens or connecting to a contract.',
+        evidence,
+        // EVM coverage is still baseline-only. Never inherit a SAFE verdict from
+        // generic local signals while token, contract, and history checks are missing.
+        confidence: invalid ? 'MEDIUM' : unavailable || incomplete ? 'LOW' : 'MEDIUM',
+        verdict: 'REVIEW',
+        chainId: evmChainId
+      };
+    }
+
     assessment = {
       ...assessment,
-      statusReport: buildStatusReport(inputType, assessment.evidence, assessment, network)
+      ...(evmChainId ? { chainId: evmChainId } : {}),
+      statusReport: evmChainId
+        ? buildEvmStatusReport(assessment.evidence, assessment)
+        : buildStatusReport(inputType, assessment.evidence, assessment, network)
     };
 
 
@@ -380,6 +496,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       inputType,
       input: input.trim(),
       network,
+      chainId: evmChainId ?? 'solana',
       assessment: finalAssessment,
       usage: {
         remaining: quota.remaining,
@@ -396,7 +513,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         input.trim(),
         network,
         finalAssessment,
-        authenticatedUserId ?? undefined
+        authenticatedUserId ?? undefined,
+        evmChainId ?? 'solana'
       );
     } catch (error) {
       console.error('VERA persistence error', error);

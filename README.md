@@ -21,6 +21,25 @@ VERA is an evidence-first AI decision layer for online actions. It investigates 
 - Explicit VERIFIED / SUPPORTED / UNKNOWN / SUSPICIOUS / CONFIRMED_MALICIOUS states
 - No seed phrases, private keys, or autonomous transaction execution
 
+## Multichain investigation status
+
+Vera's multichain foundation now includes a read-only EVM RPC adapter and gated API routing for address and transaction investigations on Ethereum, Base, BNB Smart Chain, Arbitrum One, Polygon PoS, and Robinhood Chain. Robinhood Chain is a separate EVM network with its own chain ID and RPC; it is not Arbitrum One. The chain selector only enables an EVM option when the API reports that the chain is explicitly approved in the registry, the feature flag is on, and that chain's RPC configuration is present.
+
+EVM investigations are **disabled by default**. EVM routes also require the chain's `enabledForInvestigation` registry gate to be explicitly enabled after validation. Setting the feature flag and RPC alone cannot enable a chain that remains marked as planned. Once approved, configure `VERA_ENABLE_EVM_INVESTIGATIONS=true` and the server-side RPC URL for each chain:
+
+- `EVM_ETHEREUM_RPC_URL`
+- `EVM_BASE_RPC_URL`
+- `EVM_BSC_RPC_URL`
+- `EVM_ARBITRUM_RPC_URL`
+- `EVM_POLYGON_RPC_URL`
+- `EVM_ROBINHOOD_RPC_URL`
+
+Never put RPC URLs containing credentials in client-side `VITE_` variables. The adapter verifies the RPC's reported chain ID before using it.
+
+The initial EVM coverage includes address format, native balance, contract bytecode presence, transaction count, transaction lookup, and receipt execution status. It is not yet a complete token or contract security audit: ERC-20 behavior, holder concentration, liquidity/honeypot analysis, verified source, proxy/admin controls, and EVM-specific external threat intelligence remain incomplete. Unknown or unavailable checks must not be read as proof of safety.
+
+Before enabling EVM investigations for real users, apply `database/migrations/20261026_add_chain_identity_to_scans.sql`, complete the EVM and Solana regression suite, and verify typecheck, production build, and live RPC behavior. See [the multichain rollout plan](docs/multichain-investigation-plan.md).
+
 ## Beta investigation limits
 - Anonymous sessions are limited to **5 investigations**; authenticated accounts are limited to **10 investigations per UTC day**.
 - The backend uses PostgreSQL counters when `DATABASE_URL` is configured and a signed-cookie fallback when the database cannot be used. The fallback is a best-effort abuse control, not a guarantee against determined multi-session abuse.
@@ -33,6 +52,7 @@ Copy `.env.example` to `.env` and set secrets locally. In Vercel, configure the 
 `SOLANA_MAINNET_RPC_URL=https://api.mainnet.solana.com`
 `SOLANA_DEVNET_RPC_URL=https://api.devnet.solana.com`
 `SOLANA_NETWORK=both`
+`VERA_ENABLE_EVM_INVESTIGATIONS=false` (EVM support is opt-in and should remain false until release validation is complete)
 `VERA_TEST_WALLET=4AMBqkqruwzT4RMh9sojo7RmBgYLYTuqGmv2GbAtXsVL`
 
 `URLHAUS_AUTH_KEY=` (free abuse.ch Auth-Key; keep it server-side)
@@ -70,6 +90,18 @@ POST `/api/investigate`
   "network": "devnet"
 }
 ```
+
+For EVM address or transaction investigations, use `chainId` instead of the Solana `network` selector. This request is accepted only when the server-side EVM feature flag and the selected chain's RPC are configured:
+
+```json
+{
+  "inputType": "WALLET",
+  "input": "0x0000000000000000000000000000000000000000",
+  "chainId": "ethereum"
+}
+```
+
+The example address is for illustrating request shape only; it is not a recommendation or a safety finding.
 
 The AI receives only structured evidence produced by deterministic adapters. It must not invent missing evidence or convert unknowns into certainty.
 

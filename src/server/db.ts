@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import { createHash } from 'node:crypto';
-import type { Assessment, InputType, Network } from '../lib/types.js';
+import type { Assessment, ChainId, InputType, Network } from '../lib/types.js';
 
 let pool: Pool | null = null;
 let usageSchemaPromise: Promise<void> | null = null;
@@ -84,7 +84,7 @@ export async function getPersistedScan(scanId: string) {
 
   scanReportSchemaPromise ||= db.query(
     'ALTER TABLE scans ADD COLUMN IF NOT EXISTS report_json JSONB'
-  ).then(() => undefined).catch((error) => {
+  ).then(() => db.query("ALTER TABLE scans ADD COLUMN IF NOT EXISTS chain_id TEXT NOT NULL DEFAULT 'solana' CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood'))")).then(() => db.query('ALTER TABLE scans DROP CONSTRAINT IF EXISTS scans_chain_id_check')).then(() => db.query("ALTER TABLE scans ADD CONSTRAINT scans_chain_id_check CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood'))")).then(() => undefined).catch((error) => {
     scanReportSchemaPromise = null;
     throw error;
   });
@@ -105,12 +105,13 @@ export async function persistScan(
   input: string,
   network: Network,
   assessment: Assessment,
-  privyUserId?: string
+  privyUserId?: string,
+  chainId: ChainId = 'solana'
 ) {
   const db = getPool();
   if (!db) return;
 
-  scanReportSchemaPromise ||= db.query('ALTER TABLE scans ADD COLUMN IF NOT EXISTS report_json JSONB').then(() => undefined).catch((error) => { scanReportSchemaPromise = null; throw error; });
+  scanReportSchemaPromise ||= db.query('ALTER TABLE scans ADD COLUMN IF NOT EXISTS report_json JSONB').then(() => db.query("ALTER TABLE scans ADD COLUMN IF NOT EXISTS chain_id TEXT NOT NULL DEFAULT 'solana' CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood'))")).then(() => db.query('ALTER TABLE scans DROP CONSTRAINT IF EXISTS scans_chain_id_check')).then(() => db.query("ALTER TABLE scans ADD CONSTRAINT scans_chain_id_check CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood'))")).then(() => undefined).catch((error) => { scanReportSchemaPromise = null; throw error; });
   await scanReportSchemaPromise;
 
   const client = await db.connect();
@@ -138,9 +139,9 @@ export async function persistScan(
         : input.slice(0, 500);
 
     await client.query(
-      `INSERT INTO scans(id,user_id,input_type,input_hash,input_preview,network,report_json)
-       VALUES($1,$2,$3,$4,$5,$6,$7)`,
-      [scanId, userId, inputType, inputHash, preview, network, JSON.stringify({ id: scanId, type: inputType, input: preview, createdAt: new Date().toISOString(), assessment })]
+      `INSERT INTO scans(id,user_id,input_type,input_hash,input_preview,network,chain_id,report_json)
+       VALUES($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [scanId, userId, inputType, inputHash, preview, network, chainId, JSON.stringify({ id: scanId, type: inputType, input: preview, createdAt: new Date().toISOString(), network, chainId, assessment })]
     );
 
     const entityResult = await client.query(
