@@ -27,6 +27,8 @@ interface RpcTransaction {
   transactionIndex: string | null;
 }
 
+interface RpcLog { address: string; topics: string[]; data: string; blockNumber: string; transactionHash: string; }
+
 interface RpcReceipt {
   transactionHash: string;
   status?: string;
@@ -226,10 +228,9 @@ export class EvmRpcInvestigationAdapter implements EvmInvestigationAdapter {
       const latest = BigInt(latestHex);
       const from = latest > BigInt(MAX_HISTORY_BLOCKS) ? latest - BigInt(MAX_HISTORY_BLOCKS) : 0n;
       const padded = `0x${address.slice(2).toLowerCase().padStart(64, '0')}`;
-      const logType = Array<{ address: string; topics: string[]; data: string; blockNumber: string; transactionHash: string }>;
       const [incoming, outgoing] = await Promise.all([
-        rpc<typeof logType>(this.chain, 'eth_getLogs', [{ fromBlock: `0x${from.toString(16)}`, toBlock: 'latest', topics: [ERC20_TRANSFER_TOPIC, null, padded] }]),
-        rpc<typeof logType>(this.chain, 'eth_getLogs', [{ fromBlock: `0x${from.toString(16)}`, toBlock: 'latest', topics: [ERC20_TRANSFER_TOPIC, padded] }]),
+        rpc<RpcLog[]>(this.chain, 'eth_getLogs', [{ fromBlock: `0x${from.toString(16)}`, toBlock: 'latest', topics: [ERC20_TRANSFER_TOPIC, null, padded] }]),
+        rpc<RpcLog[]>(this.chain, 'eth_getLogs', [{ fromBlock: `0x${from.toString(16)}`, toBlock: 'latest', topics: [ERC20_TRANSFER_TOPIC, padded] }]),
       ]);
       const logs = [...incoming, ...outgoing].slice(0, MAX_HISTORY_LOGS);
       const transfers = logs.map((log) => ({
