@@ -63,3 +63,26 @@ A registry entry does not mean a chain is production-supported. EVM chains must 
 ## Implementation note
 
 This branch now includes the chain registry, adapter contracts, a baseline read-only EVM JSON-RPC adapter, gated wallet/transaction API routing, and this rollout plan. The EVM route is opt-in through `VERA_ENABLE_EVM_INVESTIGATIONS=true` plus a matching server-side RPC variable, and all EVM chains remain off by default. The UI exposes chain choices but disables EVM options unless the API reports the chain as enabled. Apply the chain identity migration before enabling EVM investigations in production; provider setup, deeper evidence sources, UI/report integration, and regression tests remain release requirements.
+
+## Deferred follow-up: wallet permissions and delayed-drain investigation
+
+**Status: documented for a later security-evidence milestone; explicitly out of scope for the current chain-integration pass.** Do not represent these checks as implemented until the requirements below are built and verified.
+
+A failed or abandoned transaction must not be treated as proof that no wallet permission was granted. A user may have signed a separate approval, permit, or authorization that remains usable after the original interaction fails or is abandoned. Vera should investigate the permission state and subsequent asset movements, not infer safety from the transaction outcome alone.
+
+### Requirements and acceptance checklist
+
+- [ ] Enumerate ERC-20 allowances for the investigated wallet across supported EVM chains, identifying token contract, spender, allowance amount, observation block, and data source.
+- [ ] Detect approval-related transactions and relevant events, including standard Approval logs; distinguish confirmed observations from incomplete historical coverage.
+- [ ] Identify unlimited or unusually large allowances using transparent thresholds and explain why each allowance is noteworthy.
+- [ ] Inspect supported signature-based permissions (including EIP-2612 permits and Permit2 where applicable); clearly disclose when historical signature discovery is unavailable from the selected data sources.
+- [ ] Provide a revocation/management reference for each supported token and chain; Vera remains read-only and must never revoke or submit transactions on the user's behalf.
+- [ ] Correlate approval/permission changes with later token transfers and suspicious spender activity where reliable indexed history or traces are available.
+- [ ] Support a user-supplied public wallet address and optional transaction hash as investigation inputs; never request seed phrases, private keys, or signing access.
+- [ ] Explain that connecting a wallet alone does not prove a drain permission was granted; identify the exact observed signature, approval, or transaction evidence instead.
+- [ ] Preserve chain, token, spender, amount, block/time, source, and evidence limitations in the normalized report.
+- [ ] Treat unavailable history, unsupported token standards, RPC/indexer gaps, and failed lookups as UNKNOWN/PARTIAL, never as clean or safe.
+- [ ] Add fixtures for: failed transaction followed by persistent approval; abandoned dapp interaction with a separate approval; unlimited allowance; revoked allowance; delayed transfer by approved spender; and missing historical data.
+- [ ] Add regression tests across every enabled EVM network and ensure Solana behavior remains unchanged.
+
+**Completion criterion:** every applicable checklist item is implemented, evidence-linked, covered by automated tests, and accurately represented in the report before this capability is described as available. This backlog does not block the current chain registry and gated read-only integration work.
