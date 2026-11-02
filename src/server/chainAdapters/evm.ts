@@ -131,6 +131,32 @@ function formatNativeBalance(hex: string): string {
   return fraction ? `${whole}.${fraction}` : whole.toString();
 }
 
+
+function decodeAbiString(value: string): string | null {
+  if (!/^0x[0-9a-fA-F]+$/.test(value) || value.length < 66) return null;
+  const data = value.slice(2);
+  try {
+    const offset = Number(BigInt(`0x${data.slice(0, 64)}`)) * 2;
+    if (Number.isSafeInteger(offset) && offset >= 0 && offset + 64 <= data.length) {
+      const length = Number(BigInt(`0x${data.slice(offset, offset + 64)}`));
+      const start = offset + 64;
+      if (Number.isSafeInteger(length) && length >= 0 && start + length * 2 <= data.length) {
+        const hex = data.slice(start, start + length * 2);
+        const decoded = new TextDecoder().decode(Uint8Array.from(hex.match(/.{2}/g) ?? [], (byte) => Number.parseInt(byte, 16)));
+        if (decoded.trim()) return decoded.replace(/\0/g, '').trim();
+      }
+    }
+  } catch { /* Try bytes32 below. */ }
+  const bytes32 = data.slice(0, 64);
+  const decoded = new TextDecoder().decode(Uint8Array.from(bytes32.match(/.{2}/g) ?? [], (byte) => Number.parseInt(byte, 16))).replace(/\0/g, '').trim();
+  return decoded || null;
+}
+
+function decodeAbiUint(value: string): bigint | null {
+  if (!/^0x[0-9a-fA-F]{64,}$/.test(value)) return null;
+  try { return BigInt(value); } catch { return null; }
+}
+
 function contractCodeEvidence(code: string, chain: EvmChainId, address: string): Evidence {
   if (code === '0x' || code === '0x0') {
     return evidence(
@@ -349,23 +375,74 @@ export class EvmRpcInvestigationAdapter implements EvmInvestigationAdapter {
 
   async inspectToken(request: TokenInvestigationRequest): Promise<Evidence[]> {
     if (request.chain !== this.chain) throw new Error('Adapter chain does not match the requested chain.');
-    if (!ADDRESS_PATTERN.test(request.address.trim())) {
+    const address = request.address.trim();
+    if (!ADDRESS_PATTERN.test(address)) {
       return [evidence('evm-token-address-invalid', 'Invalid token contract address', 'The supplied value is not a valid EVM address.', 'VERIFIED', 'medium', 'VERA address validator', { chain: this.chain })];
     }
 
-    const result = await this.inspectAddress({ chain: this.chain, address: request.address });
-    return [
-      ...result,
-      evidence(
-        'evm-token-deep-analysis-pending',
-        'Token-specific risk analysis not yet available',
-        'This baseline adapter validates the address and collects chain-level account evidence only. It has not yet checked ERC-20 metadata, transfer restrictions, holder concentration, liquidity, privileged token controls, or honeypot behavior.',
-        'UNKNOWN',
-        'info',
-        'VERA coverage disclosure',
-        { chain: this.chain, address: request.address, tokenChecks: 'pending' },
-      ),
-    ];
+    await verifyRpcChain(this.chain);
+    const code = await rpc<string>(this.chain, 'eth_getCode', [address, 'latest']);
+    if (code === '0x' || code === '0x0') {
+      return [
+        contractCodeEvidence(code, this.chain, address),
+        evidence('evm-token-contract-missing', 'Token contract not found', 'No runtime bytecode was returned for this address on the selected chain. Token metadata checks were not attempted.', 'UNKNOWN', 'medium', 'EVM eth_getCode', { chain: this.chain, address }),
+      ];
+    }
+
+    const result: Evidence[] = [contractCodeEvidence(code, this.chain, address)];
+    const calls = [
+      { key: 'name', selector: '0x06fdde03' },
+      { key: 'symbol', selector: '0x95d89b41' },
+      { key: 'decimals', selector: '0x313ce567' },
+      { key: 'totalSupply', selector: '0x18160ddd' },
+    ] as const;
+    const values = await Promise.all(calls.map(async (call) => {
+      try {
+        const raw = await rpc<string>(this.chain, 'eth_call', [{ to: address, data: call.selector }, 'latest']);
+        return { ...call, raw, error: null as string | null };
+      } catch (error) {
+        return { ...call, raw: null, error: error instanceof Error ? error.message : 'RPC call failed' };
+      }
+    }));
+
+    for (const item of values) {
+      if (item.raw === null) {
+        result.push(evidence(
+          `evm-token-${item.key}-unavailable`,
+          `Token ${item.key} unavailable`,
+          `The selected RPC could not retrieve the token ${item.key} value. This may indicate unsupported metadata, a non-standard token, or provider limitations; it is not a maliciousness finding.`,
+          'UNKNOWN', 'info', 'EVM eth_call', { chain: this.chain, address, method: item.selector, providerError: item.error },
+        ));
+        continue;
+      }
+      if (item.key === 'name' || item.key === 'symbol') {
+        const decoded = decodeAbiString(item.raw);
+        result.push(evidence(
+          `evm-token-${item.key}`,
+          decoded ? `Token ${item.key} retrieved` : `Token ${item.key} could not be decoded`,
+          decoded ? `The contract returned token ${item.key}: ${decoded}. Metadata is self-reported by the contract and is not a trust signal.` : `The contract returned data that Vera could not decode as a standard string or bytes32 value.`,
+          decoded ? 'VERIFIED' : 'UNKNOWN', 'info', 'EVM eth_call', { chain: this.chain, address, value: decoded },
+        ));
+      } else {
+        const decoded = decodeAbiUint(item.raw);
+        const value = decoded === null ? null : decoded.toString();
+        result.push(evidence(
+          `evm-token-${item.key}`,
+          value !== null ? `Token ${item.key} retrieved` : `Token ${item.key} could not be decoded`,
+          value !== null ? `The contract returned ${item.key} value ${value}${item.key === 'decimals' ? '. This value controls display scaling and is not a safety signal.' : '. This is the raw on-chain quantity and does not establish circulating supply or liquidity.'}` : 'The contract returned data that Vera could not decode as an unsigned integer.',
+          value !== null ? 'VERIFIED' : 'UNKNOWN', 'info', 'EVM eth_call', { chain: this.chain, address, value },
+        ));
+      }
+    }
+
+    result.push(evidence(
+      'evm-token-risk-coverage-pending',
+      'Token risk coverage remains incomplete',
+      'Basic ERC-20 metadata calls do not establish token safety. Holder concentration, liquidity, transfer restrictions, privileged controls, proxy behavior, honeypot behavior, and independent threat intelligence are not assessed here.',
+      'UNKNOWN', 'info', 'VERA coverage disclosure',
+      { chain: this.chain, address, pendingChecks: ['holder concentration', 'liquidity', 'transfer restrictions', 'privileged controls', 'proxy behavior', 'honeypot behavior', 'external threat intelligence'] },
+    ));
+    return result.slice(0, MAX_EVIDENCE_ITEMS);
   }
 
   async inspectContract(request: ContractInvestigationRequest): Promise<Evidence[]> {
