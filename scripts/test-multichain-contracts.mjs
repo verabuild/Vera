@@ -37,7 +37,10 @@ assert.match(adapter, /holder concentration.*liquidity.*transfer restrictions/s,
 assert.match(adapter, /verifyRpcChain\(this\.chain\)/, 'token metadata lookups must verify the selected RPC chain');
 
 assert.match(adapter, /does not establish that the address or its activity is safe/i, 'account state must not be presented as a safety verdict');
-assert.match(adapter, /does not yet decode internal calls, ERC-20 transfers, approval changes/i, 'transaction coverage limitations must be disclosed');
+assert.match(adapter, /ERC-20 Transfer event\(s\)/, 'transaction receipts must decode standard ERC-20 transfer logs');
+assert.match(adapter, /ERC20_TRANSFER_TOPIC/, 'transfer decoding must match the canonical ERC-20 Transfer topic');
+assert.match(adapter, /rawAmount/, 'transfer evidence must preserve raw token units without guessing decimals');
+assert.match(adapter, /does not yet decode internal calls, approval changes, traces/i, 'transaction coverage limitations must be disclosed');
 
 assert.match(api, /VERA_ENABLE_EVM_INVESTIGATIONS !== 'true'/, 'EVM feature flag must be enforced server-side');
 assert.match(api, /!chain\.enabledForInvestigation/, 'registry approval must be enforced server-side');
