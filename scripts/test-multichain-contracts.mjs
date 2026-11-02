@@ -39,6 +39,15 @@ assert.match(adapter, /verifyRpcChain\(this\.chain\)/, 'token metadata lookups m
 assert.match(adapter, /does not establish that the address or its activity is safe/i, 'account state must not be presented as a safety verdict');
 assert.match(adapter, /ERC-20 Transfer event\(s\)/, 'transaction receipts must decode standard ERC-20 transfer logs');
 assert.match(adapter, /ERC20_TRANSFER_TOPIC/, 'transfer decoding must match the canonical ERC-20 Transfer topic');
+assert.match(adapter, /eth_getLogs/, 'wallet address inspection must retrieve bounded ERC-20 transfer history');
+assert.match(adapter, /MAX_HISTORY_BLOCKS/, 'historical event lookup must use a bounded block window');
+assert.match(adapter, /bounded-recent-token-events-only/, 'historical event evidence must disclose its limited coverage');
+assert.match(adapter, /EIP1967_IMPLEMENTATION_SLOT/, 'contract inspection must read the standard implementation slot');
+assert.match(adapter, /EIP1967_ADMIN_SLOT/, 'contract inspection must read the standard admin slot');
+assert.match(adapter, /EIP1967_BEACON_SLOT/, 'contract inspection must read the standard beacon slot');
+assert.match(adapter, /0x8da5cb5b/, 'contract inspection must probe the common owner() interface');
+assert.match(adapter, /custom proxy patterns/, 'contract analysis must disclose custom proxy coverage gaps');
+
 assert.match(adapter, /rawAmount/, 'transfer evidence must preserve raw token units without guessing decimals');
 assert.match(adapter, /does not yet decode internal calls, approval changes, traces/i, 'transaction coverage limitations must be disclosed');
 
