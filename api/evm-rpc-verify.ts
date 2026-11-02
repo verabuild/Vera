@@ -31,11 +31,11 @@ async function rpc(url: string, method: string, params: unknown[] = []) {
   return payload.result;
 }
 
-async function check(url: string, method: string, params: unknown[] = []) {
+async function check(url: string, method: string, params: unknown[] = []): Promise<{ method: string; status: "pass" | "fail"; durationMs: number; result?: any; errorCategory?: string }> {
   const started = Date.now();
   try {
     const result = await rpc(url, method, params);
-    return { method, status: "pass", durationMs: Date.now() - started, ...(method === "eth_chainId" ? { result } : {}) };
+    return { method, status: "pass", durationMs: Date.now() - started, result };
   } catch (error) {
     return { method, status: "fail", durationMs: Date.now() - started, errorCategory: safeCategory(error) };
   }
