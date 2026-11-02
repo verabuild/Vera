@@ -46,7 +46,10 @@ const ERC20_TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a116
 const EIP1967_IMPLEMENTATION_SLOT = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc';
 const EIP1967_ADMIN_SLOT = '0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103';
 const EIP1967_BEACON_SLOT = '0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50';
-const MAX_HISTORY_BLOCKS = 5_000;
+// Keep the scan deliberately small and split eth_getLogs into <=10-block
+// requests for providers (including Alchemy Free) with strict range limits.
+const MAX_HISTORY_BLOCKS = 50;
+const MAX_LOG_BLOCK_SPAN = 10;
 const MAX_HISTORY_LOGS = 100;
 
 function evidence(
@@ -126,6 +129,26 @@ async function verifyRpcChain(chain: EvmChainId): Promise<void> {
   if (!Number.isSafeInteger(actual) || actual !== expected) {
     throw new Error(`RPC chain mismatch for ${chain}: expected ${expected}, received ${actualHex}.`);
   }
+}
+
+async function getRecentTransferLogs(
+  chain: EvmChainId,
+  fromBlock: bigint,
+  toBlock: bigint,
+  topics: Array<string | null>,
+): Promise<RpcLog[]> {
+  const ranges: Array<{ fromBlock: bigint; toBlock: bigint }> = [];
+  for (let start = fromBlock; start <= toBlock; start += BigInt(MAX_LOG_BLOCK_SPAN)) {
+    ranges.push({ fromBlock: start, toBlock: start + BigInt(MAX_LOG_BLOCK_SPAN - 1) > toBlock ? toBlock : start + BigInt(MAX_LOG_BLOCK_SPAN - 1) });
+  }
+  const batches = await Promise.all(ranges.map(({ fromBlock: start, toBlock: end }) =>
+    rpc<RpcLog[]>(chain, 'eth_getLogs', [{
+      fromBlock: `0x${start.toString(16)}`,
+      toBlock: `0x${end.toString(16)}`,
+      topics,
+    }]),
+  ));
+  return batches.flat();
 }
 
 function isValidEvmChain(chain: string): chain is EvmChainId {
@@ -229,8 +252,8 @@ export class EvmRpcInvestigationAdapter implements EvmInvestigationAdapter {
       const from = latest > BigInt(MAX_HISTORY_BLOCKS) ? latest - BigInt(MAX_HISTORY_BLOCKS) : 0n;
       const padded = `0x${address.slice(2).toLowerCase().padStart(64, '0')}`;
       const [incoming, outgoing] = await Promise.all([
-        rpc<RpcLog[]>(this.chain, 'eth_getLogs', [{ fromBlock: `0x${from.toString(16)}`, toBlock: 'latest', topics: [ERC20_TRANSFER_TOPIC, null, padded] }]),
-        rpc<RpcLog[]>(this.chain, 'eth_getLogs', [{ fromBlock: `0x${from.toString(16)}`, toBlock: 'latest', topics: [ERC20_TRANSFER_TOPIC, padded] }]),
+        getRecentTransferLogs(this.chain, from, latest, [ERC20_TRANSFER_TOPIC, null, padded]),
+        getRecentTransferLogs(this.chain, from, latest, [ERC20_TRANSFER_TOPIC, padded]),
       ]);
       const logs = [...incoming, ...outgoing].slice(0, MAX_HISTORY_LOGS);
       const transfers = logs.map((log) => ({
@@ -238,7 +261,7 @@ export class EvmRpcInvestigationAdapter implements EvmInvestigationAdapter {
         rawAmount: /^0x[0-9a-fA-F]+$/.test(log.data) ? BigInt(log.data).toString() : null,
         blockNumber: BigInt(log.blockNumber).toString(), transactionHash: log.transactionHash,
       }));
-      result.push(evidence('evm-address-token-transfer-history', 'Recent ERC-20 transfer history retrieved', `The RPC returned ${logs.length} standard ERC-20 transfer event(s) in a window of ${MAX_HISTORY_BLOCKS} blocks. This is not a complete wallet history; native transfers, internal calls, non-standard events and older activity are excluded.`, 'SUPPORTED', 'info', 'EVM eth_getLogs', { chain: this.chain, address, fromBlock: from.toString(), toBlock: latest.toString(), transferCount: logs.length, transfers, truncated: incoming.length + outgoing.length > MAX_HISTORY_LOGS, coverage: 'bounded-recent-token-events-only' }));
+      result.push(evidence('evm-address-token-transfer-history', 'Recent ERC-20 transfer history retrieved', `The RPC returned ${logs.length} standard ERC-20 transfer event(s) in a recent window of up to ${MAX_HISTORY_BLOCKS} blocks, using provider-compatible chunks of at most ${MAX_LOG_BLOCK_SPAN} blocks. This is not a complete wallet history; native transfers, internal calls, non-standard events and older activity are excluded.`, 'SUPPORTED', 'info', 'EVM eth_getLogs', { chain: this.chain, address, fromBlock: from.toString(), toBlock: latest.toString(), transferCount: logs.length, transfers, truncated: incoming.length + outgoing.length > MAX_HISTORY_LOGS, coverage: 'bounded-recent-token-events-only' }));
     } catch (error) {
       result.push(evidence('evm-address-token-transfer-history-unavailable', 'Recent ERC-20 transfer history unavailable', 'The RPC could not retrieve the bounded Transfer event window. Provider range limits or unavailable log indexing may be responsible; no conclusion about wallet history can be drawn.', 'UNKNOWN', 'info', 'EVM eth_getLogs', { chain: this.chain, address, providerError: error instanceof Error ? error.message : 'RPC log lookup failed' }));
     }
