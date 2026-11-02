@@ -27,6 +27,15 @@ assert.match(adapter, /actual !== expected/, 'adapter must reject a chain ID mis
 assert.match(adapter, /AbortSignal\.timeout\(REQUEST_TIMEOUT_MS\)/, 'RPC requests must have a timeout');
 assert.match(adapter, /must use HTTP or HTTPS/, 'RPC URL protocols must be validated');
 assert.match(adapter, /'UNKNOWN'/, 'missing coverage must be represented as unknown');
+
+assert.match(adapter, /eth_call/, 'token inspection must use read-only eth_call metadata lookups');
+for (const selector of ['0x06fdde03', '0x95d89b41', '0x313ce567', '0x18160ddd']) {
+  assert.ok(adapter.includes(selector), `token adapter must query ERC-20 selector ${selector}`);
+}
+assert.match(adapter, /Token risk coverage remains incomplete/, 'metadata-only token checks must disclose incomplete risk coverage');
+assert.match(adapter, /holder concentration.*liquidity.*transfer restrictions/s, 'token report must disclose deeper checks still pending');
+assert.match(adapter, /verifyRpcChain\(this\.chain\)/, 'token metadata lookups must verify the selected RPC chain');
+
 assert.match(adapter, /does not establish that the address or its activity is safe/i, 'account state must not be presented as a safety verdict');
 assert.match(adapter, /does not yet decode internal calls, ERC-20 transfers, approval changes/i, 'transaction coverage limitations must be disclosed');
 
