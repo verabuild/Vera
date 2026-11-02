@@ -393,7 +393,7 @@ export class EvmRpcInvestigationAdapter implements EvmInvestigationAdapter {
       'UNKNOWN',
       'info',
       'VERA coverage disclosure',
-      { chain: this.chain, hash, pendingChecks: ['internal calls and traces', 'token transfers', 'approval changes', 'contract-specific effects'] },
+      { chain: this.chain, hash, pendingChecks: ['internal calls and traces', 'approval changes', 'contract-specific effects'] },
     ));
     return result;
   }
