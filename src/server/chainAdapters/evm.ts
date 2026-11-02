@@ -40,6 +40,7 @@ const ADDRESS_PATTERN = /^0x[a-fA-F0-9]{40}$/;
 const HASH_PATTERN = /^0x[a-fA-F0-9]{64}$/;
 const REQUEST_TIMEOUT_MS = 8_000;
 const MAX_EVIDENCE_ITEMS = 20;
+const ERC20_TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 
 function evidence(
   id: string,
@@ -361,10 +362,38 @@ export class EvmRpcInvestigationAdapter implements EvmInvestigationAdapter {
         createdContract: receipt.contractAddress,
       },
     ));
+    const transferLogs = (receipt.logs ?? []).filter((log) =>
+      Array.isArray(log.topics) && log.topics[0]?.toLowerCase() === ERC20_TRANSFER_TOPIC
+      && log.topics.length >= 3 && /^0x[0-9a-fA-F]{64}$/.test(log.topics[1])
+      && /^0x[0-9a-fA-F]{64}$/.test(log.topics[2]) && /^0x[0-9a-fA-F]{64}$/.test(log.data)
+    );
+    if (transferLogs.length) {
+      const transfers = transferLogs.slice(0, 12).map((log) => ({
+        token: log.address,
+        from: `0x${log.topics[1].slice(-40)}`,
+        to: `0x${log.topics[2].slice(-40)}`,
+        rawAmount: BigInt(log.data).toString(),
+      }));
+      result.push(evidence(
+        'evm-erc20-transfers',
+        'ERC-20 transfer events decoded',
+        `The receipt contains ${transferLogs.length} standard ERC-20 Transfer event(s). Amounts are raw token units because token decimals were not independently resolved in this transaction lookup. Event logs show emitted transfer events; they do not establish intent or token legitimacy.`,
+        'SUPPORTED', 'info', 'EVM transaction receipt logs',
+        { chain: this.chain, hash, totalTransferEvents: transferLogs.length, transfers, truncated: transferLogs.length > transfers.length },
+      ));
+    } else {
+      result.push(evidence(
+        'evm-erc20-transfers-none-observed',
+        'No standard ERC-20 transfer events observed',
+        'No decodable standard ERC-20 Transfer event was found in the receipt logs. This does not rule out native transfers, non-standard token events, internal calls, or other contract effects.',
+        'SUPPORTED', 'info', 'EVM transaction receipt logs', { chain: this.chain, hash },
+      ));
+    }
+
     result.push(evidence(
       'evm-transaction-effects-analysis-pending',
       'Transaction effect analysis is incomplete',
-      'This baseline adapter retrieves the transaction and receipt but does not yet decode internal calls, ERC-20 transfers, approval changes, traces, or contract-specific effects. Execution status alone is not a security verdict.',
+      'This baseline adapter retrieves the transaction and receipt but does not yet decode internal calls, approval changes, traces, or contract-specific effects. Standard ERC-20 Transfer receipt events are decoded separately when present. Execution status alone is not a security verdict.',
       'UNKNOWN',
       'info',
       'VERA coverage disclosure',
