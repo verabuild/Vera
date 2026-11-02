@@ -17,8 +17,8 @@ for (const chain of evmChains) {
   const next = chains.indexOf('\n  },', start);
   assert.notEqual(next, -1, `registry entry for ${chain} must be closed`);
   const entry = chains.slice(start, next);
-  assert.match(entry, /enabledForInvestigation:\s*false/, `${chain} must remain disabled until release gates pass`);
-  assert.match(entry, /availability:\s*'planned'/, `${chain} must remain marked planned`);
+  assert.match(entry, /enabledForInvestigation:\\s*true/, `${chain} must be enabled for preview investigation`);
+  assert.match(entry, /availability:\\s*'available'/, `${chain} must be available for preview investigation`);
   assert.match(entry, /rpcEnvVar:\s*'EVM_[A-Z_]+_RPC_URL'/, `${chain} must use a server-side RPC variable`);
 }
 
@@ -41,6 +41,8 @@ assert.match(adapter, /ERC-20 Transfer event\(s\)/, 'transaction receipts must d
 assert.match(adapter, /ERC20_TRANSFER_TOPIC/, 'transfer decoding must match the canonical ERC-20 Transfer topic');
 assert.match(adapter, /eth_getLogs/, 'wallet address inspection must retrieve bounded ERC-20 transfer history');
 assert.match(adapter, /MAX_HISTORY_BLOCKS/, 'historical event lookup must use a bounded block window');
+assert.match(adapter, /MAX_LOG_BLOCK_SPAN = 10/, 'historical log queries must respect ten-block provider range limits');
+assert.match(adapter, /getRecentTransferLogs/, 'historical log queries must be chunked instead of issuing an oversized range');
 assert.match(adapter, /MAX_LOG_BLOCK_SPAN = 10/, 'historical log queries must respect ten-block provider range limits');
 assert.match(adapter, /getRecentTransferLogs/, 'historical log queries must be chunked instead of issuing an oversized range');
 assert.match(adapter, /bounded-recent-token-events-only/, 'historical event evidence must disclose its limited coverage');
