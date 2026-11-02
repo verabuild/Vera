@@ -1,6 +1,11 @@
-import { CHAIN_REGISTRY } from '../src/lib/chains.ts';
-
-const chains = Object.values(CHAIN_REGISTRY).filter((chain) => chain.family === 'evm');
+const chains = [
+  { id: 'ethereum', chainId: 1, rpcEnvVar: 'EVM_ETHEREUM_RPC_URL' },
+  { id: 'base', chainId: 8453, rpcEnvVar: 'EVM_BASE_RPC_URL' },
+  { id: 'bsc', chainId: 56, rpcEnvVar: 'EVM_BSC_RPC_URL' },
+  { id: 'arbitrum', chainId: 42161, rpcEnvVar: 'EVM_ARBITRUM_RPC_URL' },
+  { id: 'polygon', chainId: 137, rpcEnvVar: 'EVM_POLYGON_RPC_URL' },
+  { id: 'robinhood', chainId: 4663, rpcEnvVar: 'EVM_ROBINHOOD_RPC_URL' },
+];
 const strict = process.argv.includes('--strict');
 let failures = 0;
 let skipped = 0;
