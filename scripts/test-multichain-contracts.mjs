@@ -17,8 +17,8 @@ for (const chain of evmChains) {
   const next = chains.indexOf('\n  },', start);
   assert.notEqual(next, -1, `registry entry for ${chain} must be closed`);
   const entry = chains.slice(start, next);
-  assert.match(entry, /enabledForInvestigation:\\s*true/, `${chain} must be enabled for preview investigation`);
-  assert.match(entry, /availability:\\s*'available'/, `${chain} must be available for preview investigation`);
+  assert.match(entry, /enabledForInvestigation:\s*true/, `${chain} must be enabled for preview investigation`);
+  assert.match(entry, /availability:\s*'available'/, `${chain} must be available for preview investigation`);
   assert.match(entry, /rpcEnvVar:\s*'EVM_[A-Z_]+_RPC_URL'/, `${chain} must use a server-side RPC variable`);
 }
 
