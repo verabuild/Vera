@@ -206,123 +206,51 @@ export class EvmRpcInvestigationAdapter implements EvmInvestigationAdapter {
     if (request.chain !== this.chain) throw new Error('Adapter chain does not match the requested chain.');
     const address = request.address.trim();
     if (!ADDRESS_PATTERN.test(address)) {
-      return [evidence(
-        'evm-address-invalid',
-        'Invalid EVM address format',
-        'The supplied value is not a 20-byte hexadecimal EVM address. Format validity does not indicate whether an address is safe.',
-        'VERIFIED',
-        'medium',
-        'VERA address validator',
-        { chain: this.chain },
-      )];
+      return [evidence('evm-address-invalid', 'Invalid EVM address format', 'The supplied value is not a 20-byte hexadecimal EVM address. Format validity does not indicate whether an address is safe.', 'VERIFIED', 'medium', 'VERA address validator', { chain: this.chain })];
     }
-
     await verifyRpcChain(this.chain);
     const [balance, code, transactionCount] = await Promise.all([
       rpc<string>(this.chain, 'eth_getBalance', [address, 'latest']),
       rpc<string>(this.chain, 'eth_getCode', [address, 'latest']),
       rpc<string>(this.chain, 'eth_getTransactionCount', [address, 'latest']),
     ]);
-
     const config = getChainConfig(this.chain);
     const result: Evidence[] = [
-      evidence(
-        'evm-address-format-valid',
-        'Address format validated',
-        'The value matches the expected EVM address format. This is a syntax check only and is not a trust or ownership verification.',
-        'VERIFIED',
-        'info',
-        'VERA address validator',
-        { chain: this.chain, address },
-      ),
-      evidence(
-        'evm-native-balance',
-        'Native asset balance retrieved',
-        `The RPC returned a native balance of ${formatNativeBalance(balance)} ${config.nativeCurrency.symbol}. Balances can change and are not a security verdict.`,
-        'VERIFIED',
-        'info',
-        'EVM eth_getBalance',
-        { chain: this.chain, address, balanceWei: BigInt(balance).toString(), symbol: config.nativeCurrency.symbol },
-      ),
+      evidence('evm-address-format-valid', 'Address format validated', 'The value matches the expected EVM address format. This is a syntax check only and is not a trust or ownership verification.', 'VERIFIED', 'info', 'VERA address validator', { chain: this.chain, address }),
+      evidence('evm-native-balance', 'Native asset balance retrieved', `The RPC returned a native balance of ${formatNativeBalance(balance)} ${config.nativeCurrency.symbol}. Balances can change and are not a security verdict.`, 'VERIFIED', 'info', 'EVM eth_getBalance', { chain: this.chain, address, balanceWei: BigInt(balance).toString(), symbol: config.nativeCurrency.symbol }),
       contractCodeEvidence(code, this.chain, address),
-      evidence(
-        'evm-transaction-count',
-        'Transaction count retrieved',
-        `The RPC returned a transaction count of ${BigInt(transactionCount).toString()} for this address. This is chain data, not a measure of trustworthiness.`,
-        'VERIFIED',
-        'info',
-        'EVM eth_getTransactionCount',
-        { chain: this.chain, address, transactionCount: BigInt(transactionCount).toString() },
-      ),
-      evidence(
-        'evm-address-risk-analysis-pending',
-        'Address risk coverage is incomplete',
-        'This baseline lookup does not yet analyze native-asset history, full token holdings, approvals, known scam labels, interaction patterns, or address attribution. The collected account state must not be treated as a full address security assessment.',
-        'UNKNOWN',
-        'info',
-        'VERA coverage disclosure',
-        { chain: this.chain, address, pendingChecks: ['native-asset transaction history', 'full token holdings and approvals', 'external risk intelligence', 'attribution'] },
-      ),
+      evidence('evm-transaction-count', 'Transaction count retrieved', `The RPC returned a transaction count of ${BigInt(transactionCount).toString()} for this address. This is chain data, not a measure of trustworthiness.`, 'VERIFIED', 'info', 'EVM eth_getTransactionCount', { chain: this.chain, address, transactionCount: BigInt(transactionCount).toString() }),
     ];
     try {
       const latestHex = await rpc<string>(this.chain, 'eth_blockNumber', []);
       const latest = BigInt(latestHex);
       const from = latest > BigInt(MAX_HISTORY_BLOCKS) ? latest - BigInt(MAX_HISTORY_BLOCKS) : 0n;
       const padded = `0x${address.slice(2).toLowerCase().padStart(64, '0')}`;
+      const logType = Array<{ address: string; topics: string[]; data: string; blockNumber: string; transactionHash: string }>;
       const [incoming, outgoing] = await Promise.all([
-        rpc<Array<{ address: string; topics: string[]; data: string; blockNumber: string; transactionHash: string }>>(this.chain, 'eth_getLogs', [{ fromBlock: `0x${from.toString(16)}`, toBlock: 'latest', topics: [ERC20_TRANSFER_TOPIC, null, padded] }]),
-        rpc<Array<{ address: string; topics: string[]; data: string; blockNumber: string; transactionHash: string }>>(this.chain, 'eth_getLogs', [{ fromBlock: `0x${from.toString(16)}`, toBlock: 'latest', topics: [ERC20_TRANSFER_TOPIC, padded] }]),
+        rpc<typeof logType>(this.chain, 'eth_getLogs', [{ fromBlock: `0x${from.toString(16)}`, toBlock: 'latest', topics: [ERC20_TRANSFER_TOPIC, null, padded] }]),
+        rpc<typeof logType>(this.chain, 'eth_getLogs', [{ fromBlock: `0x${from.toString(16)}`, toBlock: 'latest', topics: [ERC20_TRANSFER_TOPIC, padded] }]),
       ]);
       const logs = [...incoming, ...outgoing].slice(0, MAX_HISTORY_LOGS);
-      const history = logs.map((log) => ({
-        token: log.address,
-        from: `0x${log.topics[1]?.slice(-40) ?? ''}`,
-        to: `0x${log.topics[2]?.slice(-40) ?? ''}`,
+      const transfers = logs.map((log) => ({
+        token: log.address, from: `0x${log.topics[1]?.slice(-40) ?? ''}`, to: `0x${log.topics[2]?.slice(-40) ?? ''}`,
         rawAmount: /^0x[0-9a-fA-F]+$/.test(log.data) ? BigInt(log.data).toString() : null,
-        blockNumber: BigInt(log.blockNumber).toString(),
-        transactionHash: log.transactionHash,
+        blockNumber: BigInt(log.blockNumber).toString(), transactionHash: log.transactionHash,
       }));
-      result.push(evidence(
-        'evm-address-token-transfer-history',
-        'Recent ERC-20 transfer history retrieved',
-        `The RPC returned ${logs.length} standard ERC-20 transfer log(s) within the most recent ${MAX_HISTORY_BLOCKS} blocks. This is a bounded event window, not a complete wallet history; native transfers, internal calls, non-standard tokens and older activity are not included.`,
-        'SUPPORTED', 'info', 'EVM eth_getLogs',
-        { chain: this.chain, address, fromBlock: from.toString(), toBlock: latest.toString(), transferCount: logs.length, transfers: history, truncated: incoming.length + outgoing.length > MAX_HISTORY_LOGS, coverage: 'bounded-recent-token-events-only' },
-      ));
+      result.push(evidence('evm-address-token-transfer-history', 'Recent ERC-20 transfer history retrieved', `The RPC returned ${logs.length} standard ERC-20 transfer event(s) in a window of ${MAX_HISTORY_BLOCKS} blocks. This is not a complete wallet history; native transfers, internal calls, non-standard events and older activity are excluded.`, 'SUPPORTED', 'info', 'EVM eth_getLogs', { chain: this.chain, address, fromBlock: from.toString(), toBlock: latest.toString(), transferCount: logs.length, transfers, truncated: incoming.length + outgoing.length > MAX_HISTORY_LOGS, coverage: 'bounded-recent-token-events-only' }));
     } catch (error) {
-      result.push(evidence(
-        'evm-address-token-transfer-history-unavailable',
-        'Recent ERC-20 transfer history unavailable',
-        'The RPC could not retrieve the bounded Transfer event window. This may reflect provider range limits or unavailable log indexing; no conclusion about the wallet history can be drawn.',
-        'UNKNOWN', 'info', 'EVM eth_getLogs', { chain: this.chain, address, providerError: error instanceof Error ? error.message : 'RPC log lookup failed' },
-      ));
+      result.push(evidence('evm-address-token-transfer-history-unavailable', 'Recent ERC-20 transfer history unavailable', 'The RPC could not retrieve the bounded Transfer event window. Provider range limits or unavailable log indexing may be responsible; no conclusion about wallet history can be drawn.', 'UNKNOWN', 'info', 'EVM eth_getLogs', { chain: this.chain, address, providerError: error instanceof Error ? error.message : 'RPC log lookup failed' }));
     }
-
-        'Address risk coverage is incomplete',
-        'This baseline lookup does not yet analyze transaction history, token holdings and approvals, known scam labels, interaction patterns, or address attribution. The collected account state must not be treated as a full address security assessment.',
-        'UNKNOWN',
-        'info',
-        'VERA coverage disclosure',
-        { chain: this.chain, address, pendingChecks: ['transaction history', 'token holdings and approvals', 'external risk intelligence', 'attribution'] },
-      ),
-    ];
+    result.push(evidence('evm-address-risk-analysis-pending', 'Address risk coverage is incomplete', 'This bounded lookup does not include complete native-asset history, full token holdings, approvals, known scam labels, interaction patterns, or address attribution. Do not treat this as a full address security assessment.', 'UNKNOWN', 'info', 'VERA coverage disclosure', { chain: this.chain, address, pendingChecks: ['complete native-asset history', 'full token holdings and approvals', 'external risk intelligence', 'attribution'] }));
     if (code !== '0x' && code !== '0x0') {
       const slots = await Promise.all([
-        { key: 'implementation', slot: EIP1967_IMPLEMENTATION_SLOT },
-        { key: 'admin', slot: EIP1967_ADMIN_SLOT },
-        { key: 'beacon', slot: EIP1967_BEACON_SLOT },
+        { key: 'implementation', slot: EIP1967_IMPLEMENTATION_SLOT }, { key: 'admin', slot: EIP1967_ADMIN_SLOT }, { key: 'beacon', slot: EIP1967_BEACON_SLOT },
       ].map(async ({ key, slot }) => {
         try {
           const value = await rpc<string>(this.chain, 'eth_getStorageAt', [address, slot, 'latest']);
-          const normalized = value.toLowerCase();
-          const candidate = normalized.length >= 42 ? `0x${normalized.slice(-40)}` : null;
-          const populated = candidate && !/^0x0{40}$/.test(candidate);
-          return evidence(
-            `evm-eip1967-${key}`,
-            populated ? `EIP-1967 ${key} slot populated` : `EIP-1967 ${key} slot empty`,
-            populated ? `The standard EIP-1967 ${key} storage slot contains ${candidate}. This is a proxy-pattern signal and requires independent verification.` : `No non-zero address was observed in the standard EIP-1967 ${key} slot. This does not rule out custom proxy patterns.`,
-            'SUPPORTED', 'info', 'EVM eth_getStorageAt', { chain: this.chain, address, slot, value: candidate },
-          );
+          const candidate = value.length >= 42 ? `0x${value.slice(-40)}` : null;
+          const populated = candidate && !/^0x0{40}$/i.test(candidate);
+          return evidence(`evm-eip1967-${key}`, populated ? `EIP-1967 ${key} slot populated` : `EIP-1967 ${key} slot empty`, populated ? `The standard EIP-1967 ${key} slot contains ${candidate}. This is a proxy-pattern signal requiring independent verification.` : `No non-zero address was observed in the standard EIP-1967 ${key} slot. Custom proxy patterns are not ruled out.`, 'SUPPORTED', 'info', 'EVM eth_getStorageAt', { chain: this.chain, address, slot, value: candidate });
         } catch {
           return evidence(`evm-eip1967-${key}-unavailable`, `EIP-1967 ${key} slot unavailable`, 'The RPC could not read this standard proxy storage slot. Proxy status remains unknown.', 'UNKNOWN', 'info', 'EVM eth_getStorageAt', { chain: this.chain, address, slot });
         }
@@ -331,26 +259,11 @@ export class EvmRpcInvestigationAdapter implements EvmInvestigationAdapter {
       try {
         const ownerRaw = await rpc<string>(this.chain, 'eth_call', [{ to: address, data: '0x8da5cb5b' }, 'latest']);
         const owner = /^0x[0-9a-fA-F]{64}$/.test(ownerRaw) ? `0x${ownerRaw.slice(-40)}` : null;
-        result.push(evidence(
-          'evm-contract-owner',
-          owner ? 'Contract owner response retrieved' : 'Contract owner response unavailable',
-          owner ? `The contract responded to the standard owner() selector with ${owner}. Ownership alone does not establish malicious behavior; assess the owner's role and controls.` : 'The contract did not return a decodable standard owner() response. It may not implement this interface.',
-          owner ? 'SUPPORTED' : 'UNKNOWN', 'info', 'EVM eth_call', { chain: this.chain, address, owner },
-        ));
+        result.push(evidence('evm-contract-owner', owner ? 'Contract owner response retrieved' : 'Contract owner response unavailable', owner ? `The contract responded to owner() with ${owner}. Ownership alone does not establish malicious behavior.` : 'The contract did not return a decodable standard owner() response.', owner ? 'SUPPORTED' : 'UNKNOWN', 'info', 'EVM eth_call', { chain: this.chain, address, owner }));
       } catch {
         result.push(evidence('evm-contract-owner-unavailable', 'Contract owner lookup unavailable', 'The standard owner() call failed or is unsupported. Owner controls remain unknown.', 'UNKNOWN', 'info', 'EVM eth_call', { chain: this.chain, address }));
       }
-    }
-    if (code !== '0x' && code !== '0x0') {
-      result.push(evidence(
-        'evm-contract-deep-analysis-pending',
-        'Contract risk analysis is incomplete',
-        'Runtime bytecode is present, but this adapter does not yet inspect verified source, proxy and upgradeability patterns, owner/admin controls, dangerous functions, or external contract-security reports.',
-        'UNKNOWN',
-        'info',
-        'VERA coverage disclosure',
-        { chain: this.chain, address, pendingChecks: ['verified source', 'proxy and upgradeability', 'owner and admin controls', 'external contract intelligence'] },
-      ));
+      result.push(evidence('evm-contract-deep-analysis-pending', 'Contract risk coverage remains incomplete', 'VERA checks standard EIP-1967 slots and the common owner() interface. This does not cover custom proxies, verified source, arbitrary privileged functions, implementation bytecode analysis, or independent security reports.', 'UNKNOWN', 'info', 'VERA coverage disclosure', { chain: this.chain, address, pendingChecks: ['custom proxy patterns', 'verified source', 'privileged function analysis', 'implementation bytecode analysis', 'external security intelligence'] }));
     }
     return result.slice(0, MAX_EVIDENCE_ITEMS);
   }
