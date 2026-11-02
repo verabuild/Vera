@@ -60,8 +60,8 @@ export const CHAIN_REGISTRY: Readonly<Record<ChainId, ChainConfig>> = {
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     explorerUrl: 'https://etherscan.io',
     rpcEnvVar: 'EVM_ETHEREUM_RPC_URL',
-    availability: 'planned',
-    enabledForInvestigation: false,
+    availability: 'available',
+    enabledForInvestigation: true,
   },
   base: {
     id: 'base',
@@ -71,8 +71,8 @@ export const CHAIN_REGISTRY: Readonly<Record<ChainId, ChainConfig>> = {
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     explorerUrl: 'https://basescan.org',
     rpcEnvVar: 'EVM_BASE_RPC_URL',
-    availability: 'planned',
-    enabledForInvestigation: false,
+    availability: 'available',
+    enabledForInvestigation: true,
   },
   bsc: {
     id: 'bsc',
@@ -82,8 +82,8 @@ export const CHAIN_REGISTRY: Readonly<Record<ChainId, ChainConfig>> = {
     nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
     explorerUrl: 'https://bscscan.com',
     rpcEnvVar: 'EVM_BSC_RPC_URL',
-    availability: 'planned',
-    enabledForInvestigation: false,
+    availability: 'available',
+    enabledForInvestigation: true,
   },
   arbitrum: {
     id: 'arbitrum',
@@ -93,8 +93,8 @@ export const CHAIN_REGISTRY: Readonly<Record<ChainId, ChainConfig>> = {
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     explorerUrl: 'https://arbiscan.io',
     rpcEnvVar: 'EVM_ARBITRUM_RPC_URL',
-    availability: 'planned',
-    enabledForInvestigation: false,
+    availability: 'available',
+    enabledForInvestigation: true,
   },
   polygon: {
     id: 'polygon',
@@ -104,8 +104,8 @@ export const CHAIN_REGISTRY: Readonly<Record<ChainId, ChainConfig>> = {
     nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
     explorerUrl: 'https://polygonscan.com',
     rpcEnvVar: 'EVM_POLYGON_RPC_URL',
-    availability: 'planned',
-    enabledForInvestigation: false,
+    availability: 'available',
+    enabledForInvestigation: true,
   },
   robinhood: {
     id: 'robinhood',
@@ -115,8 +115,8 @@ export const CHAIN_REGISTRY: Readonly<Record<ChainId, ChainConfig>> = {
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     explorerUrl: 'https://robinhoodchain.blockscout.com',
     rpcEnvVar: 'EVM_ROBINHOOD_RPC_URL',
-    availability: 'planned',
-    enabledForInvestigation: false,
+    availability: 'available',
+    enabledForInvestigation: true,
   },
 };
 
