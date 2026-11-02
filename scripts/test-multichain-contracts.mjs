@@ -41,6 +41,8 @@ assert.match(adapter, /ERC-20 Transfer event\(s\)/, 'transaction receipts must d
 assert.match(adapter, /ERC20_TRANSFER_TOPIC/, 'transfer decoding must match the canonical ERC-20 Transfer topic');
 assert.match(adapter, /eth_getLogs/, 'wallet address inspection must retrieve bounded ERC-20 transfer history');
 assert.match(adapter, /MAX_HISTORY_BLOCKS/, 'historical event lookup must use a bounded block window');
+assert.match(adapter, /MAX_LOG_BLOCK_SPAN = 10/, 'historical log queries must respect ten-block provider range limits');
+assert.match(adapter, /getRecentTransferLogs/, 'historical log queries must be chunked instead of issuing an oversized range');
 assert.match(adapter, /bounded-recent-token-events-only/, 'historical event evidence must disclose its limited coverage');
 assert.match(adapter, /EIP1967_IMPLEMENTATION_SLOT/, 'contract inspection must read the standard implementation slot');
 assert.match(adapter, /EIP1967_ADMIN_SLOT/, 'contract inspection must read the standard admin slot');
