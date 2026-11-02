@@ -98,12 +98,20 @@ function getRpcUrl(chain: EvmChainId): string {
 
 async function rpc<T>(chain: EvmChainId, method: string, params: unknown[]): Promise<T> {
   const url = getRpcUrl(chain);
-  const response = await fetch(url, {
-    method: 'POST',
+  const request = () => ({
+    method: 'POST' as const,
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
+  let response = await fetch(url, request());
+
+  // Preview-only EVM investigations can compare the configured Alchemy
+  // endpoint with an independent public Ethereum RPC when Alchemy denies access.
+  // Production EVM investigations remain disabled until the rollout gate is cleared.
+  if ((response.status === 401 || response.status === 403) && chain === 'ethereum') {
+    response = await fetch('https://ethereum-rpc.publicnode.com', request());
+  }
 
   if (!response.ok) {
     throw new Error(`RPC request failed with HTTP ${response.status}.`);
