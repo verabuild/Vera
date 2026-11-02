@@ -440,13 +440,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       );
       const failed = evidence.some((item) => item.id === 'evm-transaction-execution-status' && item.detail.toLowerCase().includes('execution failure'));
       const hasContract = evidence.some((item) => item.id === 'evm-contract-code-present' && item.state !== 'UNKNOWN');
+      const hasTransfers = evidence.some((item) => item.id === 'evm-erc20-transfers');
       assessment = {
         ...assessment,
         state: invalid ? 'UNKNOWN' : failed ? 'SUPPORTED' : unavailable ? 'UNKNOWN' : 'SUPPORTED',
         headline: invalid
           ? 'The supplied EVM value could not be validated'
           : inputType === 'TX'
-            ? failed ? 'Transaction execution failed' : 'EVM transaction evidence collected'
+            ? failed ? 'Transaction execution failed' : hasTransfers ? 'EVM transaction includes decoded token transfers' : 'EVM transaction evidence collected'
             : hasContract ? 'EVM contract address evidence collected' : 'EVM address evidence collected',
         explanation: invalid
           ? 'The supplied value does not match the expected format for this EVM investigation. Format validation is not a safety verdict.'
@@ -454,6 +455,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             ? 'VERA could not retrieve a required transaction or provider result. Missing evidence must not be interpreted as a clean result.'
             : incomplete
               ? 'VERA collected baseline read-only chain evidence, but deeper risk checks remain incomplete. This is not a full address or transaction security assessment, and the missing checks must not be interpreted as a clean result.'
+              : hasTransfers
+              ? 'VERA decoded standard ERC-20 Transfer events from the transaction receipt. The events identify token contracts, senders, recipients and raw amounts; they do not establish intent or token legitimacy.'
               : 'VERA collected read-only chain evidence. Transaction success, an address balance, and the presence or absence of contract code do not prove that an interaction is safe.',
         action: invalid
           ? 'Check the address or transaction hash and confirm that it belongs to the selected network.'
