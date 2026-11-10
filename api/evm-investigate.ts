@@ -3,7 +3,7 @@ import { CHAIN_REGISTRY, isEvmChainId, type EvmChainId } from '../src/lib/chains
 import type { Evidence } from '../src/lib/types.js';
 import { createEvmAdapter } from '../src/server/chainAdapters/evm.js';
 import { verifyPrivyAccessToken, privyServerConfigured } from '../src/server/privyAuth.js';
-import { consumeUsageQuota, persistScan } from '../src/server/db.js';
+import { consumeUsageQuota } from '../src/server/db.js';
 import { consumeFallbackQuota, getAnonymousSubject } from '../src/server/anonymousSession.js';
 
 function json(res: VercelResponse, status: number, body: unknown) {
@@ -73,7 +73,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     })();
     if (!subject) return json(res, 503, { error: 'Anonymous usage protection is not configured. No investigation was executed.' });
 
-    let quota;
+    let quota: { allowed: boolean; remaining: number; degraded?: boolean };
     try {
       quota = process.env.DATABASE_URL
         ? await consumeUsageQuota(subject, period, userId ? 10 : 5)
@@ -122,10 +122,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
     const id = crypto.randomUUID();
     const createdAt = new Date().toISOString();
-    try {
-      await persistScan(id, investigationType, address.trim(), 'mainnet', assessment, userId ?? undefined, chainId);
-    } catch (error) { console.error('VERA EVM persistence error', error); }
-
     return json(res, 200, {
       id, createdAt, inputType: investigationType, input: address.trim(), chainId,
       assessment, usage: { remaining: quota.remaining, dailyLimit: userId ? 10 : 5 }
