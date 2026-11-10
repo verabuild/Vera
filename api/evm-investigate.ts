@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { chainId, investigationType, address } = req.body ?? {};
     if (typeof chainId !== 'string' || !isEvmChainId(chainId) ||
-        (investigationType !== 'TOKEN' && investigationType !== 'CONTRACT') ||
+        (investigationType !== 'TOKEN' && investigationType !== 'CONTRACT' && investigationType !== 'ADDRESS') ||
         typeof address !== 'string' || !address.trim() || address.length > 128) {
       return json(res, 400, { error: 'Provide a supported EVM chain, TOKEN or CONTRACT investigation type, and an address.' });
     }
@@ -93,7 +93,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
       evidence = investigationType === 'TOKEN'
         ? await adapter.inspectToken({ chain: chainId as EvmChainId, address: address.trim() })
-        : await adapter.inspectContract({ chain: chainId as EvmChainId, address: address.trim() });
+        : investigationType === 'CONTRACT'
+          ? await adapter.inspectContract({ chain: chainId as EvmChainId, address: address.trim() })
+          : await adapter.inspectAddress({ chain: chainId as EvmChainId, address: address.trim() });
     } catch (error) {
       console.error(`VERA EVM ${chainId} ${investigationType} provider error`, error);
       evidence = [{
@@ -109,7 +111,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const assessment = {
       state: invalid ? 'UNKNOWN' as const : 'SUPPORTED' as const,
       headline: invalid ? 'The supplied EVM address could not be validated' :
-        investigationType === 'TOKEN' ? 'Token contract evidence collected' : 'Smart contract evidence collected',
+        investigationType === 'TOKEN' ? 'Token contract evidence collected' : investigationType === 'CONTRACT' ? 'Smart contract evidence collected' : 'Wallet address evidence collected',
       explanation: evidence.some((item) => item.state === 'UNKNOWN')
         ? 'VERA collected only partial evidence. Unavailable checks are not clean results, and this baseline is not a complete security audit.'
         : 'VERA collected read-only contract evidence. Metadata and deployed bytecode do not establish that a token or contract is safe.',
