@@ -4,7 +4,7 @@ import {
   Activity, ArrowUpRight, ArrowLeftRight, BrainCircuit, Check, ChevronRight, ClipboardPaste,
   ExternalLink, FileSearch, Fingerprint, Link2, LockKeyhole, Mail, Radar, RefreshCw,
   ScanSearch, ShieldCheck, TriangleAlert, Wallet, X, HeartCrack, Building2, BriefcaseBusiness,
-  CircleDollarSign, BadgeAlert, ArrowDownRight, GitBranch
+  CircleDollarSign, BadgeAlert, ArrowDownRight, GitBranch, Blocks
 } from "lucide-react";
 import { Analytics } from "@vercel/analytics/react";
 import { usePrivy } from "@privy-io/react-auth";
@@ -662,6 +662,7 @@ export default function App() {
         
         <button className="console-lookup-entry" onClick={() => window.location.assign("/lookup")}><span className="console-lookup-icon"><FileSearch size={17} /></span><span className="console-lookup-copy"><strong>Look up an investigation</strong><small>Already have an Investigation ID? Reopen a saved report without running a new scan.</small></span><ArrowUpRight size={17} className="console-lookup-arrow" /></button>
         <button className="console-lookup-entry" onClick={() => window.location.assign("/case")}><span className="console-lookup-icon"><GitBranch size={17} /></span><span className="console-lookup-copy"><strong>Open Solana Investigation Terminal</strong><small>Trace public wallet activity, connect transaction evidence and export a case report.</small></span><ArrowUpRight size={17} className="console-lookup-arrow" /></button>
+        <button className="console-lookup-entry" onClick={() => window.location.assign("/evm-investigation.html")}><span className="console-lookup-icon"><Blocks size={17} /></span><span className="console-lookup-copy"><strong>Open EVM Investigation Panel</strong><small>Inspect token contracts and smart-contract evidence across Ethereum, Base, BNB Chain, Arbitrum, Polygon and Robinhood Chain.</small></span><ArrowUpRight size={17} className="console-lookup-arrow" /></button>
       </div>
     </section>
 
