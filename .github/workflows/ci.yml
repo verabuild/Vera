@@ -30,6 +30,9 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Multichain safety contract checks
+        run: npm run test:multichain
+
       - name: Typecheck
         run: npm run typecheck
 

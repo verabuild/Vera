@@ -25,8 +25,11 @@ CREATE TABLE IF NOT EXISTS scans (
   input_hash TEXT NOT NULL,
   input_preview TEXT NOT NULL,
   network TEXT CHECK (network IN ('mainnet','devnet')),
+  chain_id TEXT NOT NULL DEFAULT 'solana' CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE scans ADD COLUMN IF NOT EXISTS chain_id TEXT NOT NULL DEFAULT 'solana' CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood'));
 
 CREATE TABLE IF NOT EXISTS signals (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
