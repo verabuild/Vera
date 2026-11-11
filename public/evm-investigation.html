@@ -110,7 +110,7 @@
 <section class="hero"><div><div class="eyebrow">READ-ONLY MULTICHAIN ANALYSIS / EVM</div><h1>Investigate beyond<br><em>the address.</em></h1></div></section>
 <section class="intake intake-v2" aria-label="EVM investigation search">
 <div class="panel search-panel">
-  <div class="panel-head search-head"><div><span class="step-label">01 / START AN INVESTIGATION</span><strong>Choose your evidence source</strong></div><span class="status">READ-ONLY ENGINE</span></div>
+  <div class="panel-head search-head"><div><span class="step-label">01 / START AN INVESTIGATION</span><strong>Choose your evidence source</strong></div></div>
   <div class="field network-field"><div class="field-title"><label for="chain">Select network</label><span>01 — NETWORK</span></div>
     <select id="chain" class="sr-only" aria-label="Selected EVM network"><option value="ethereum">Ethereum</option><option value="base">Base</option><option value="bsc">BNB Smart Chain</option><option value="arbitrum">Arbitrum One</option><option value="polygon">Polygon PoS</option><option value="robinhood">Robinhood Chain</option></select>
     <div class="network-grid" role="group" aria-label="Choose EVM network">
@@ -136,7 +136,6 @@
   <button class="run search-submit" id="run" type="button"><span>Begin investigation</span><span class="submit-arrow">↗</span></button>
   <div class="error" id="error" role="alert"></div>
   <div class="loading" id="loading" aria-live="polite"><div class="loading-top"><span>REQUEST IN PROGRESS</span><span>READ-ONLY</span></div><div class="loading-track"><span></span></div><small>Waiting for the selected network RPC and VERA evidence adapter. This panel does not simulate investigation stages.</small></div>
-  <div class="search-foot"><span>VERA / EVM INVESTIGATION</span><span>Evidence first. Conclusions second.</span></div>
 </div>
 <aside class="panel method method-v2"><div class="method-visual"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit-core" aria-hidden="true"></div><span class="orbit-node node-a"></span><span class="orbit-node node-b"></span><span class="orbit-node node-c"></span></div>
   <span class="method-index">HOW THE WORKSPACE WORKS</span><h2>From address to evidence.</h2><p>Start with a public address. VERA collects the evidence available on your selected network and organizes the returned records into a dedicated investigation workspace.</p>
@@ -146,7 +145,7 @@
   <div class="method-warning">VERA never connects a wallet, requests signatures or moves funds. A successful RPC response is not a safety verdict.</div>
 </aside>
 </section>
-<footer class="footer"><span>VERA / EVM INVESTIGATION TERMINAL</span><span>Public-chain evidence only · No financial execution</span><a href="/">Return to VERA ↗</a></footer>
+<footer class="footer"><a href="/">Return to VERA ↗</a></footer>
 </div>
 <script>
 (() => {
