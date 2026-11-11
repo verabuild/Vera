@@ -180,10 +180,16 @@ async function investigate() {
     const data=await response.json().catch(()=>({}));
     if(!response.ok) throw new Error(data.detail ? (data.error || 'Investigation failed') + ' ' + data.detail : data.error || 'Investigation failed (HTTP '+response.status+').');
     if(!data.assessment || !Array.isArray(data.assessment.evidence)) throw new Error('VERA returned an incomplete investigation report. No partial result was displayed.');
-    report=data; notes=''; $('case-title').textContent=data.assessment.headline;
-    $('case-meta').textContent=chainSelect.options[chainSelect.selectedIndex].text + ' · ' + type + ' · ' + address + ' · Generated ' + new Date(data.createdAt).toLocaleString();
-    $('stat-checks').textContent=evidence().length; $('stat-verified').textContent=countState('VERIFIED'); $('stat-unknown').textContent=countState('UNKNOWN');
-    $('workspace').classList.add('visible'); setView('overview'); $('workspace').scrollIntoView({behavior:'smooth',block:'start'});
+    sessionStorage.setItem('vera:evm-case', JSON.stringify({
+      report: data,
+      type,
+      chainLabel: chainSelect.options[chainSelect.selectedIndex].text,
+      address,
+      notes: '',
+      savedAt: new Date().toISOString()
+    }));
+    window.location.assign('/evm-case.html');
+    return;
   } catch(error) {
     $('error').textContent=error instanceof Error ? error.message : 'Investigation failed.'; $('error').style.display='block';
   } finally {
@@ -194,5 +200,6 @@ runButton.addEventListener('click',investigate);
 addressInput.addEventListener('keydown',(event)=>{if(event.key==='Enter'){event.preventDefault();investigate();}});
 })();
 </script>
+<script>/* Dedicated case navigation: reports open at /evm-case.html after the API response is validated. */</script>
 </body>
 </html>
