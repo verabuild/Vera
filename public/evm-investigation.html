@@ -39,21 +39,99 @@
 @media(max-width:900px){.hero{padding:58px 0 42px}.intake{grid-template-columns:1fr}.method{min-height:300px}.layout{grid-template-columns:190px minmax(0,1fr)}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.shell{width:min(100% - 28px,100%)}.topbar{height:66px}.brand img{width:31px;height:31px;border-radius:9px}.hero{grid-template-columns:1fr;padding:45px 0 32px}.hero h1{font-size:clamp(42px,12vw,60px)}.intake{gap:12px}.panel{padding:17px}.mode-tabs button{flex-direction:column;gap:2px;font-size:10px;min-height:56px}.workspace{margin-top:35px}.workspace-head{align-items:flex-start;flex-direction:column}.head-actions{width:100%}.casebar{align-items:flex-start;flex-direction:column}.case-stats{gap:14px}.layout{grid-template-columns:1fr}.sidebar{position:relative;top:auto;display:flex;gap:5px;overflow-x:auto;padding:8px;scrollbar-width:thin}.side-label,.sidebar-foot{display:none}.nav-btn{width:auto;white-space:nowrap;flex:none;padding:9px 10px;font-size:10px}.nav-btn.active:before{display:none}.main-pane{padding:14px}.pane-head{flex-direction:column}.overview-grid{grid-template-columns:1fr}.card.full{grid-column:auto}.evidence-meta{grid-template-columns:1fr}.footer{flex-direction:column}.method{min-height:0}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+/* EVM intake refinement */
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.intake-v2{grid-template-columns:minmax(0,1.45fr) minmax(285px,.75fr);gap:20px;align-items:stretch;margin:0 0 68px}
+.search-panel{padding:27px 28px 20px;border-radius:18px;background:linear-gradient(145deg,#171b21 0%,#101318 62%,#0d1014 100%);box-shadow:0 28px 90px #0007}
+.search-head{align-items:center;padding-bottom:20px;margin-bottom:22px}
+.search-head>div{display:grid;gap:6px}.step-label,.field-title>span{font-size:8px;letter-spacing:.16em;color:#818b98}
+.search-head strong{font-size:13px;letter-spacing:.02em;color:#e6e9ed}
+.field{gap:10px;margin-bottom:23px}.field-title{display:flex;justify-content:space-between;align-items:center;gap:12px}.field-title label{font-size:10px;letter-spacing:.12em;color:#c2c8d1}
+.network-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.network-choice{position:relative;min-width:0;min-height:68px;display:flex;align-items:center;gap:10px;padding:11px;border:1px solid #303741;border-radius:10px;background:linear-gradient(145deg,#151a20,#11151a);color:#aeb6c1;text-align:left;transition:border-color .18s,background .18s,transform .18s,box-shadow .18s}
+.network-choice:hover{border-color:#788392;background:#1a2028;transform:translateY(-1px)}
+.network-choice.selected{border-color:#aeb8c6;background:linear-gradient(145deg,#252c35,#1a2028);box-shadow:inset 0 0 0 1px #aeb8c61a,0 7px 22px #0003;color:#f0f2f5}
+.network-symbol{width:30px;height:30px;display:grid;place-items:center;flex:none;border:1px solid #3a424e;border-radius:9px;background:#0c1015;color:#d5dbe3;font-size:15px}
+.network-choice>span:nth-child(2){display:grid;gap:3px;min-width:0}.network-choice strong{font-size:10px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.network-choice small{font-size:8px;color:#7f8996;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.network-choice>i{position:absolute;right:8px;top:7px;width:14px;height:14px;display:grid;place-items:center;border-radius:50%;background:#dce1e8;color:#101318;font-size:9px;font-style:normal;opacity:0;transform:scale(.7);transition:.18s}
+.network-choice.selected>i{opacity:1;transform:scale(1)}
+.mode-cards{gap:9px}.mode-cards button{position:relative;min-height:80px;justify-content:flex-start;gap:11px;padding:12px;text-align:left;border-radius:10px;background:#12171d}
+.mode-cards button.active{background:linear-gradient(145deg,#e4e8ed,#cbd2dc);border-color:#e4e8ed;color:#12161b}
+.mode-icon{width:29px;height:29px;display:grid;place-items:center;flex:none;border:1px solid #414955;border-radius:8px;font-size:15px}
+.mode-cards button.active .mode-icon{border-color:#aeb7c3;background:#f3f5f7}
+.mode-copy{display:grid;gap:4px;text-align:left}.mode-copy strong{font-size:10px;line-height:1.2}.mode-copy small{font-size:8px;line-height:1.4;color:#858f9c}.mode-cards button.active .mode-copy small{color:#535d69}
+.mode-check{position:absolute;right:9px;top:8px;font-size:9px;opacity:0}.mode-cards button.active .mode-check{opacity:1}
+.address-entry{display:flex;align-items:center;gap:8px;min-height:58px;padding:6px 7px 6px 14px;border:1px solid #424b57;border-radius:10px;background:#090d12;transition:border-color .18s,box-shadow .18s}
+.address-entry:focus-within{border-color:#b1bdcc;box-shadow:0 0 0 3px #aeb8c018}
+.address-prefix{font:12px ui-monospace,SFMono-Regular,monospace;color:#929eac}
+.address-entry input{flex:1;min-width:0;min-height:42px;padding:0;border:0!important;background:transparent!important;box-shadow:none!important;color:#edf0f4;font:12px ui-monospace,SFMono-Regular,monospace;outline:none}
+.address-entry input::placeholder{color:#596371}
+.input-action{flex:none;padding:8px 10px;border:1px solid #39424e;border-radius:7px;background:#171d25;color:#c4ccd6;font-size:9px;transition:.18s}
+.input-action:hover{border-color:#8995a4;color:#fff}.clear-action{background:transparent}
+.address-meta{display:flex;justify-content:space-between;gap:10px;margin-top:8px;color:#788390;font-size:9px;line-height:1.5}.address-meta #address-state{color:#929eac;text-align:right}
+.address-meta #address-state.valid{color:#a9c6b2}.address-meta #address-state.invalid{color:#dca3a3}
+.search-submit{min-height:56px;margin-top:4px;padding:0 17px;border-radius:10px;justify-content:space-between;font-size:12px}
+.submit-arrow{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:#c7ced8;color:#171b21;font-size:16px;transition:transform .18s}
+.search-submit:hover:not(:disabled) .submit-arrow{transform:translate(2px,-2px)}
+.search-foot{display:flex;justify-content:space-between;gap:12px;padding-top:16px;margin-top:17px;border-top:1px solid #292f38;color:#707b88;font-size:8px;letter-spacing:.11em}
+.method-v2{padding:25px 24px;border-radius:18px;background:linear-gradient(155deg,#151a21,#0d1014);display:flex;flex-direction:column}
+.method-v2 .method-index{margin-top:10px}
+.method-v2 h2{font-size:30px;margin:13px 0 9px}.method-v2>p{font-size:11px;line-height:1.8;margin-bottom:20px}
+.method-visual{position:relative;height:170px;display:grid;place-items:center;overflow:hidden;margin:-5px -5px 22px;border:1px solid #29313c;border-radius:13px;background:radial-gradient(circle at center,#252d38 0,#151b23 35%,#10151b 70%)}
+.orbit{position:absolute;border:1px solid #68758745;border-radius:50%;transform:rotate(-24deg)}
+.orbit-one{width:210px;height:82px}.orbit-two{width:170px;height:125px;transform:rotate(55deg);border-color:#aeb8c52b}
+.orbit-core{width:54px;height:54px;display:grid;place-items:center;border:1px solid #b9c2cf77;border-radius:16px;background:linear-gradient(145deg,#d8dde5,#7f8997);color:#11161d;font:28px Georgia,serif;box-shadow:0 0 36px #aeb8c52b}
+.orbit-node{position:absolute;width:8px;height:8px;border-radius:50%;background:#d3dae4;box-shadow:0 0 13px #d3dae4aa}
+.node-a{top:30px;left:27%}.node-b{right:22%;top:48%}.node-c{bottom:25px;left:37%}
+.method-v2 .method-step{padding:12px 0}.method-v2 .method-warning{margin-top:20px}
+@media(max-width:1050px){.intake-v2{grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr)}.network-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.intake-v2{grid-template-columns:1fr}.method-v2{min-height:0}.method-visual{height:145px}}
+@media(max-width:680px){.intake-v2{gap:13px;margin-bottom:48px}.search-panel{padding:19px 16px 16px}.search-head{align-items:flex-start;flex-direction:column}.network-grid{gap:7px}.network-choice{min-height:63px;padding:9px}.network-symbol{width:27px;height:27px}.mode-cards{grid-template-columns:1fr}.mode-cards button{min-height:62px}.address-meta{align-items:flex-start;flex-direction:column;gap:3px}.address-meta #address-state{text-align:left}.search-foot{flex-direction:column;gap:5px}.method-v2{padding:19px}.method-visual{height:130px}}
+
 </style>
 </head>
 <body>
 <div class="shell">
 <header class="topbar"><a class="brand" href="/" aria-label="VERA home"><img src="/vera-logo.jpg" alt="VERA emblem"><span><strong>VERA</strong><small>INTELLIGENCE TERMINAL</small></span></a><a class="back" href="/">← Main console</a></header>
 <section class="hero"><div><div class="eyebrow">READ-ONLY MULTICHAIN ANALYSIS / EVM</div><h1>Investigate beyond<br><em>the address.</em></h1></div></section>
-<section class="intake">
-<div class="panel"><div class="panel-head"><strong>01 / INVESTIGATION INTAKE</strong><span class="status">EVM READ-ONLY ENGINE</span></div>
-<div class="field"><label for="chain">Network</label><select id="chain"><option value="ethereum">Ethereum</option><option value="base">Base</option><option value="bsc">BNB Smart Chain</option><option value="arbitrum">Arbitrum One</option><option value="polygon">Polygon PoS</option><option value="robinhood">Robinhood Chain</option></select></div>
-<div class="field"><label>Investigation mode</label><div class="mode-tabs" role="tablist" aria-label="Investigation mode"><button type="button" class="active" data-type="ADDRESS" role="tab" aria-selected="true">◈ <span>Wallet</span></button><button type="button" data-type="TOKEN" role="tab" aria-selected="false">◇ <span>Token</span></button><button type="button" data-type="CONTRACT" role="tab" aria-selected="false">▦ <span>Smart contract</span></button></div></div>
-<div class="field"><label for="address" id="address-label">Wallet address</label><input id="address" autocomplete="off" spellcheck="false" placeholder="0x… paste a public EVM address" maxlength="128"></div>
-<button class="run" id="run" type="button">Run investigation <span>↗</span></button><div class="error" id="error" role="alert"></div>
-<div class="loading" id="loading" aria-live="polite"><div class="loading-top"><span>REQUEST IN PROGRESS</span><span>READ-ONLY</span></div><div class="loading-track"><span></span></div><small>Waiting for the selected network RPC and VERA evidence adapter. This panel does not simulate investigation stages.</small></div>
+<section class="intake intake-v2" aria-label="EVM investigation search">
+<div class="panel search-panel">
+  <div class="panel-head search-head"><div><span class="step-label">01 / START AN INVESTIGATION</span><strong>Choose your evidence source</strong></div><span class="status">READ-ONLY ENGINE</span></div>
+  <div class="field network-field"><div class="field-title"><label for="chain">Select network</label><span>01 — NETWORK</span></div>
+    <select id="chain" class="sr-only" aria-label="Selected EVM network"><option value="ethereum">Ethereum</option><option value="base">Base</option><option value="bsc">BNB Smart Chain</option><option value="arbitrum">Arbitrum One</option><option value="polygon">Polygon PoS</option><option value="robinhood">Robinhood Chain</option></select>
+    <div class="network-grid" role="group" aria-label="Choose EVM network">
+      <button type="button" class="network-choice selected" data-chain="ethereum" aria-pressed="true"><span class="network-symbol">Ξ</span><span><strong>Ethereum</strong><small>Ethereum Mainnet</small></span><i>✓</i></button>
+      <button type="button" class="network-choice" data-chain="base" aria-pressed="false"><span class="network-symbol">◒</span><span><strong>Base</strong><small>Base Mainnet</small></span><i>✓</i></button>
+      <button type="button" class="network-choice" data-chain="bsc" aria-pressed="false"><span class="network-symbol">◆</span><span><strong>BNB Chain</strong><small>BNB Smart Chain</small></span><i>✓</i></button>
+      <button type="button" class="network-choice" data-chain="arbitrum" aria-pressed="false"><span class="network-symbol">◈</span><span><strong>Arbitrum</strong><small>Arbitrum One</small></span><i>✓</i></button>
+      <button type="button" class="network-choice" data-chain="polygon" aria-pressed="false"><span class="network-symbol">⬡</span><span><strong>Polygon</strong><small>Polygon PoS</small></span><i>✓</i></button>
+      <button type="button" class="network-choice" data-chain="robinhood" aria-pressed="false"><span class="network-symbol">R</span><span><strong>Robinhood</strong><small>Robinhood Chain</small></span><i>✓</i></button>
+    </div>
+  </div>
+  <div class="field mode-field"><div class="field-title"><label>What are you investigating?</label><span>02 — EVIDENCE TYPE</span></div>
+    <div class="mode-tabs mode-cards" role="tablist" aria-label="Investigation mode">
+      <button type="button" class="active" data-type="ADDRESS" role="tab" aria-selected="true"><span class="mode-icon">◉</span><span class="mode-copy"><strong>Wallet</strong><small>Account activity & holdings</small></span><span class="mode-check">✓</span></button>
+      <button type="button" data-type="TOKEN" role="tab" aria-selected="false"><span class="mode-icon">◇</span><span class="mode-copy"><strong>Token</strong><small>Metadata & token evidence</small></span><span class="mode-check">✓</span></button>
+      <button type="button" data-type="CONTRACT" role="tab" aria-selected="false"><span class="mode-icon">⌘</span><span class="mode-copy"><strong>Smart contract</strong><small>Code & contract controls</small></span><span class="mode-check">✓</span></button>
+    </div>
+  </div>
+  <div class="field address-field"><div class="field-title"><label for="address" id="address-label">Wallet address</label><span>03 — TARGET ADDRESS</span></div>
+    <div class="address-entry"><span class="address-prefix">0x</span><input id="address" autocomplete="off" spellcheck="false" placeholder="Paste an EVM address to begin" maxlength="128" aria-describedby="address-help address-state"><button type="button" class="input-action" id="paste-address" aria-label="Paste address from clipboard">Paste</button><button type="button" class="input-action clear-action" id="clear-address" aria-label="Clear address" hidden>Clear</button></div>
+    <div class="address-meta"><span id="address-help">A public 20-byte EVM address. No wallet connection required.</span><span id="address-state" aria-live="polite">Awaiting address</span></div>
+  </div>
+  <button class="run search-submit" id="run" type="button"><span>Begin investigation</span><span class="submit-arrow">↗</span></button>
+  <div class="error" id="error" role="alert"></div>
+  <div class="loading" id="loading" aria-live="polite"><div class="loading-top"><span>REQUEST IN PROGRESS</span><span>READ-ONLY</span></div><div class="loading-track"><span></span></div><small>Waiting for the selected network RPC and VERA evidence adapter. This panel does not simulate investigation stages.</small></div>
+  <div class="search-foot"><span>VERA / EVM INVESTIGATION</span><span>Evidence first. Conclusions second.</span></div>
 </div>
-<aside class="panel method"><span class="method-index">METHOD / EVM-001</span><h2>Separate observations from conclusions.</h2><p>Each result is tied to the selected chain and the RPC evidence returned for this address. Unknown or unavailable checks remain visible as unknown.</p><div class="method-step"><b>01</b><div><strong>Validate the request</strong><small>Check the EVM address format and selected chain configuration.</small></div></div><div class="method-step"><b>02</b><div><strong>Collect on-chain evidence</strong><small>Retrieve the supported account, token or contract records.</small></div></div><div class="method-step"><b>03</b><div><strong>Organize the findings</strong><small>Review observations, limitations and source details in the case workspace.</small></div></div><div class="method-warning">A successful RPC response is not a safety verdict. Contract metadata, bytecode and transaction records do not establish legitimacy or intent.</div></aside>
+<aside class="panel method method-v2"><div class="method-visual"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit-core">V</div><span class="orbit-node node-a"></span><span class="orbit-node node-b"></span><span class="orbit-node node-c"></span></div>
+  <span class="method-index">HOW THE WORKSPACE WORKS</span><h2>From address to evidence.</h2><p>Start with a public address. VERA collects the evidence available on your selected network and organizes the returned records into a dedicated investigation workspace.</p>
+  <div class="method-step"><b>01</b><div><strong>Choose a network and target</strong><small>Set the chain, then select wallet, token or contract analysis.</small></div></div>
+  <div class="method-step"><b>02</b><div><strong>Review collected evidence</strong><small>See returned records, source details and known coverage limits.</small></div></div>
+  <div class="method-step"><b>03</b><div><strong>Investigate the case</strong><small>Open the separate workspace to examine findings in context.</small></div></div>
+  <div class="method-warning">VERA never connects a wallet, requests signatures or moves funds. A successful RPC response is not a safety verdict.</div>
+</aside>
 </section>
 <footer class="footer"><span>VERA / EVM INVESTIGATION TERMINAL</span><span>Public-chain evidence only · No financial execution</span><a href="/">Return to VERA ↗</a></footer>
 </div>
@@ -64,6 +142,11 @@
   const addressInput = $('address');
   const runButton = $('run');
   const typeButtons = [...document.querySelectorAll('[data-type]')];
+  const chainButtons = [...document.querySelectorAll('[data-chain]')];
+  const addressState = $('address-state');
+  const clearAddress = $('clear-address');
+  const pasteAddress = $('paste-address');
+  const validAddress = /^0x[0-9a-fA-F]{40}$/;
   const labels = {
     ADDRESS: 'Wallet address',
     TOKEN: 'Token contract address',
@@ -86,12 +169,59 @@
     $('address-label').textContent = labels[type];
     addressInput.placeholder = placeholders[type];
   }
+
   typeButtons.forEach((button) => button.addEventListener('click', () => setMode(button.dataset.type)));
+  chainButtons.forEach((button) => button.addEventListener('click', () => {
+    chainSelect.value = button.dataset.chain;
+    chainButtons.forEach((choice) => {
+      const active = choice === button;
+      choice.classList.toggle('selected', active);
+      choice.setAttribute('aria-pressed', String(active));
+    });
+  }));
+  function updateAddressState() {
+    const value = addressInput.value.trim();
+    clearAddress.hidden = !value;
+    addressState.classList.remove('valid', 'invalid');
+    if (!value) {
+      addressState.textContent = 'Awaiting address';
+      return;
+    }
+    if (validAddress.test(value)) {
+      addressState.textContent = 'Address format valid';
+      addressState.classList.add('valid');
+    } else {
+      addressState.textContent = 'Check address format';
+      addressState.classList.add('invalid');
+    }
+  }
+  addressInput.addEventListener('input', () => {
+    updateAddressState();
+    $('error').style.display = 'none';
+  });
+  clearAddress.addEventListener('click', () => {
+    addressInput.value = '';
+    updateAddressState();
+    addressInput.focus();
+  });
+  pasteAddress.addEventListener('click', async () => {
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.readText) throw new Error('Clipboard access unavailable');
+      const value = await navigator.clipboard.readText();
+      if (!value.trim()) throw new Error('Clipboard is empty');
+      addressInput.value = value.trim();
+      updateAddressState();
+      addressInput.focus();
+    } catch {
+      addressInput.focus();
+      addressState.textContent = 'Paste with ⌘V or Ctrl+V';
+    }
+  });
 
   async function investigate() {
     $('error').style.display = 'none';
     const address = addressInput.value.trim();
-    if (!/^0x[0-9a-fA-F]{40}$/.test(address)) {
+    if (!validAddress.test(address)) {
       $('error').textContent = 'Enter a valid 0x-prefixed 20-byte EVM address.';
       $('error').style.display = 'block';
       addressInput.focus();
