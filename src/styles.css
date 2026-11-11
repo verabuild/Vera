@@ -2427,3 +2427,68 @@ html[data-theme="light"] .token-orbit{border-color:rgba(0,0,0,.17)}html[data-the
   .roadmap-node i,
   .roadmap-principle a { transition: none !important; }
 }
+
+
+/* Editorial display typography — aligned with the Alesxras reference. */
+:root {
+  --vera-font-display: Georgia, "Times New Roman", serif;
+}
+.hero h1,
+.section-intro h2,
+.impact-heading h2,
+.motion-story-heading h2,
+.learn-hero h1,
+.faq-hero h1,
+.learn-section-heading h2,
+.learn-principle-lead h2,
+.token-hero h1,
+.token-section-heading h2,
+.token-bottom-cta h2,
+.public-page-hero h1,
+.case-hero h1,
+.lookup-content h1,
+.roadmap-heading h2 {
+  font-family: var(--vera-font-display) !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.055em !important;
+  text-rendering: optimizeLegibility;
+}
+.hero h1 {
+  line-height: 0.98;
+  letter-spacing: -0.065em !important;
+}
+.section-intro h2,
+.impact-heading h2,
+.motion-story-heading h2,
+.learn-hero h1,
+.faq-hero h1,
+.learn-section-heading h2,
+.learn-principle-lead h2,
+.token-hero h1,
+.token-section-heading h2,
+.token-bottom-cta h2,
+.public-page-hero h1,
+.case-hero h1,
+.lookup-content h1,
+.roadmap-heading h2 {
+  line-height: 1.06;
+}
+.hero h1 em,
+.section-intro h2 em,
+.impact-heading h2 em,
+.motion-story-heading h2 em,
+.learn-hero h1 em,
+.faq-hero h1 em,
+.learn-section-heading h2 em,
+.learn-principle-lead h2 em,
+.token-hero h1 em,
+.token-section-heading h2 em,
+.token-bottom-cta h2 em,
+.public-page-hero h1 em,
+.case-hero h1 em,
+.lookup-content h1 em,
+.roadmap-heading h2 em {
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 400;
+}
