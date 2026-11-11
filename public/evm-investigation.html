@@ -55,149 +55,97 @@
 </div>
 <aside class="panel method"><span class="method-index">METHOD / EVM-001</span><h2>Separate observations from conclusions.</h2><p>Each result is tied to the selected chain and the RPC evidence returned for this address. Unknown or unavailable checks remain visible as unknown.</p><div class="method-step"><b>01</b><div><strong>Validate the request</strong><small>Check the EVM address format and selected chain configuration.</small></div></div><div class="method-step"><b>02</b><div><strong>Collect on-chain evidence</strong><small>Retrieve the supported account, token or contract records.</small></div></div><div class="method-step"><b>03</b><div><strong>Organize the findings</strong><small>Review observations, limitations and source details in the case workspace.</small></div></div><div class="method-warning">A successful RPC response is not a safety verdict. Contract metadata, bytecode and transaction records do not establish legitimacy or intent.</div></aside>
 </section>
-<section class="workspace" id="workspace" aria-live="polite">
-<div class="workspace-head"><div><div class="kicker">INVESTIGATION WORKSPACE / CURRENT CASE</div><h2>Evidence, clearly arranged.</h2><p id="workspace-subtitle">Select a workspace to inspect the evidence returned for this investigation.</p></div><div class="head-actions"><button class="subtle-btn" id="new-case" type="button">＋ New investigation</button><button class="subtle-btn" id="export-top" type="button">↓ Export JSON</button></div></div>
-<div class="casebar"><div class="case-ident"><span class="live-dot"></span><div><strong id="case-title">Current case</strong><small id="case-meta"></small></div></div><div class="case-stats"><span><b id="stat-checks">0</b> evidence records</span><span><b id="stat-verified">0</b> verified</span><span><b id="stat-unknown">0</b> unavailable</span></div></div>
-<div class="layout"><nav class="sidebar" aria-label="Investigation workspace"><div class="side-label">CASE WORKSPACES</div><button class="nav-btn active" type="button" data-view="overview">▤ Overview</button><button class="nav-btn" type="button" data-view="activity">↔ Activity & transfers</button><button class="nav-btn" type="button" data-view="controls">⌘ Contract controls</button><button class="nav-btn" type="button" data-view="evidence">▧ Evidence & sources</button><button class="nav-btn" type="button" data-view="notes">✎ Investigator notes</button><button class="nav-btn" type="button" data-view="export">⇩ Export report</button><div class="sidebar-foot">Evidence-first analysis · Read-only</div></nav><main class="main-pane"><div class="pane-head"><div><div class="kicker" id="pane-kicker">CASE SUMMARY / 01</div><h3 id="pane-title">Investigation overview</h3><p id="pane-description">A concise view of the current address and the evidence VERA returned.</p></div><span class="readonly">READ-ONLY EVIDENCE</span></div><div id="pane-content"></div></main></div>
-<div class="disclosure">Coverage is partial. An unavailable check is not a clean result. Token metadata and bytecode do not establish safety; holder concentration, liquidity, transfer restrictions, arbitrary privileged functions, verified source, complete native-asset history and independent threat intelligence may not be available.</div>
-</section>
 <footer class="footer"><span>VERA / EVM INVESTIGATION TERMINAL</span><span>Public-chain evidence only · No financial execution</span><a href="/">Return to VERA ↗</a></footer>
 </div>
 <script>
 (() => {
-const $ = (id) => document.getElementById(id);
-const typeButtons = [...document.querySelectorAll('[data-type]')];
-const navButtons = [...document.querySelectorAll('[data-view]')];
-const chainSelect = $('chain'), addressInput = $('address'), runButton = $('run');
-const labels = { ADDRESS: 'Wallet address', TOKEN: 'Token contract address', CONTRACT: 'Smart contract address' };
-const placeholders = { ADDRESS: '0x… paste a public wallet address', TOKEN: '0x… paste a token contract address', CONTRACT: '0x… paste a smart-contract address' };
-let type = 'ADDRESS', report = null, activeView = 'overview', notes = '';
-const setMode = (next) => {
-  type = next;
-  typeButtons.forEach((button) => { const active = button.dataset.type === type; button.classList.toggle('active', active); button.setAttribute('aria-selected', String(active)); });
-  $('address-label').textContent = labels[type];
-  addressInput.placeholder = placeholders[type];
-  $('workspace').classList.remove('visible');
-};
-typeButtons.forEach((button) => button.addEventListener('click', () => setMode(button.dataset.type)));
-const esc = (value) => String(value ?? 'Not returned').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-const short = (value) => typeof value === 'string' && value.length > 25 ? value.slice(0, 12) + '…' + value.slice(-8) : value;
-const evidence = () => report?.assessment?.evidence ?? [];
-const metaFor = (id, key) => evidence().find((item) => item.id === id)?.metadata?.[key];
-const countState = (state) => evidence().filter((item) => item.state === state).length;
-const statusPill = (item) => '<span class="pill ' + (item.state === 'UNKNOWN' ? 'unknown' : item.severity === 'high' ? 'high' : '') + '">' + esc(item.state) + '</span>';
-const formatNative = (wei, unit) => { try { const value = BigInt(wei); const whole = value / 1000000000000000000n; const fraction = (value % 1000000000000000000n).toString().padStart(18,'0').slice(0,6).replace(/0+$/,''); return whole.toString() + (fraction ? '.' + fraction : '') + ' ' + (unit || 'native units'); } catch { return 'Not returned'; } };
-const fact = (label, value) => '<div class="fact"><span>' + esc(label) + '</span><strong>' + esc(value) + '</strong></div>';
-const metric = (label, value, hint) => '<article class="metric"><span>' + esc(label) + '</span><strong>' + esc(value) + '</strong><small>' + esc(hint) + '</small></article>';
-const card = (kicker, title, description, body, full = false) => '<section class="card' + (full ? ' full' : '') + '"><span class="card-kicker">' + esc(kicker) + '</span><h4>' + esc(title) + '</h4><p>' + esc(description) + '</p>' + body + '</section>';
-function renderOverview() {
-  const checks = evidence(), unknown = countState('UNKNOWN'), verified = countState('VERIFIED');
-  const balanceWei = metaFor('evm-native-balance','balanceWei');
-  const symbol = metaFor('evm-native-balance','symbol');
-  const txCount = metaFor('evm-transaction-count','transactionCount');
-  const bytecode = metaFor('evm-contract-code-present','bytecodeBytes');
-  const name = metaFor('evm-token-name','value'), tokenSymbol = metaFor('evm-token-symbol','value');
-  const decimals = metaFor('evm-token-decimals','value'), supply = metaFor('evm-token-totalSupply','value');
-  const details = type === 'ADDRESS'
-    ? fact('Native balance', balanceWei !== undefined ? formatNative(balanceWei, symbol) : 'Not returned') + fact('Transaction count', txCount ?? 'Not returned') + fact('Contract code', bytecode !== undefined ? bytecode + ' bytes observed' : 'No bytecode metric returned')
-    : type === 'TOKEN'
-      ? fact('Token name', name ?? 'Not returned') + fact('Token symbol', tokenSymbol ?? 'Not returned') + fact('Decimals', decimals ?? 'Not returned') + fact('Raw total supply', supply ?? 'Not returned')
-      : fact('Runtime bytecode', bytecode !== undefined ? bytecode + ' bytes observed' : 'Not returned') + fact('Owner response', metaFor('evm-contract-owner','owner') ?? 'Not returned') + fact('Proxy implementation', metaFor('evm-eip1967-implementation','value') ?? 'Not returned');
-  const warning = unknown ? '<div class="disclosure">' + unknown + ' evidence record(s) are marked UNKNOWN. These checks could not establish a result and must not be interpreted as safe.</div>' : '';
-  $('pane-content').innerHTML = '<div class="metrics">' + metric('Evidence records', checks.length, 'Returned by the EVM adapter') + metric('Verified records', verified, 'Observed or validated evidence') + metric('Unknown records', unknown, 'Unavailable or inconclusive checks') + metric('High-severity records', checks.filter(x => x.severity === 'high' && x.state !== 'UNKNOWN').length, 'Severity assigned by the evidence adapter') + '</div><div class="overview-grid">' +
-    card('ADDRESS / NETWORK PROFILE', type === 'ADDRESS' ? 'Wallet observations' : type === 'TOKEN' ? 'Token profile' : 'Contract profile', 'Values below are read directly from the evidence metadata. Missing values are not inferred.', '<div class="fact-list">' + details + '</div>') +
-    card('ASSESSMENT / REVIEW', report.assessment.headline, report.assessment.explanation, '<div class="fact-list">' + fact('Assessment state', report.assessment.state) + fact('Verdict', report.assessment.verdict || 'Not assigned') + fact('Confidence', report.assessment.confidence || 'Not assigned') + fact('Recommended action', report.assessment.action) + '</div>') +
-    card('EVIDENCE COVERAGE', 'What remains unknown', 'VERA keeps gaps visible instead of converting missing data into a positive result.', '<div class="finding-list">' + checks.filter(x => x.state === 'UNKNOWN').slice(0,5).map(x => '<div class="finding"><i></i><div><strong>' + esc(x.title) + '</strong><small>' + esc(x.detail) + '</small></div></div>').join('') + (unknown ? '' : '<div class="empty">No UNKNOWN records were returned in this response. This does not make the address safe.</div>') + '</div>', true) +
-    '</div>' + warning;
-}
-function renderTransfers() {
-  const transferEvidence = evidence().filter(x => x.metadata && Array.isArray(x.metadata.transfers));
-  const rows = transferEvidence.flatMap(item => item.metadata.transfers.map(t => ({...t, source:item.source, id:item.id})));
-  const table = rows.length ? '<div class="transfer-table-wrap"><table class="transfer-table"><thead><tr><th>Token contract</th><th>From</th><th>To</th><th>Raw amount</th><th>Transaction</th></tr></thead><tbody>' + rows.map(t => '<tr><td>' + esc(short(t.token)) + '</td><td>' + esc(short(t.from)) + '</td><td>' + esc(short(t.to)) + '</td><td>' + esc(t.rawAmount ?? 'Not returned') + '</td><td>' + esc(short(t.transactionHash)) + '</td></tr>').join('') + '</tbody></table></div>' : '<div class="empty">No decoded ERC-20 transfer rows were returned for this investigation. The current adapter does not provide a complete native-transfer or full account history.</div>';
-  $('pane-content').innerHTML = '<div class="metrics">' + metric('Transfer rows', rows.length, 'Rows returned in evidence metadata') + metric('Transfer evidence items', transferEvidence.length, 'Evidence records containing transfer arrays') + metric('History scope', 'Bounded', 'Recent window only; not a complete history') + metric('Network', report.chainId, 'Selected EVM network') + '</div>' + card('ACTIVITY / TRANSFER EVENTS', 'Observed ERC-20 transfers', 'Amounts are raw token units where decimals have not been resolved. Addresses and hashes are linked to no identity or intent.', table, true) + card('COVERAGE LIMIT', 'What this activity view excludes', 'The current adapter does not retrieve a complete native-asset history, all internal calls or older token events.', '<div class="finding-list"><div class="finding"><i></i><div><strong>Bounded recent window</strong><small>Only recent standard ERC-20 Transfer events are queried.</small></div></div><div class="finding"><i></i><div><strong>Native transfers and internal calls</strong><small>These are not represented in this transfer table.</small></div></div></div>', true);
-}
-function renderControls() {
-  const keys = ['implementation','admin','beacon'];
-  const rows = keys.map(key => {
-    const item = evidence().find(x => x.id === 'evm-eip1967-' + key || x.id === 'evm-eip1967-' + key + '-unavailable');
-    return item ? '<div class="finding"><i></i><div><strong>' + esc(item.title) + '</strong><small>' + esc(item.detail) + '</small></div></div>' : '';
-  }).join('');
-  const owner = evidence().find(x => x.id.includes('contract-owner'));
-  const bytecode = evidence().find(x => x.id === 'evm-contract-code-present' || x.id === 'evm-account-no-contract-code');
-  $('pane-content').innerHTML = '<div class="overview-grid">' +
-    card('RUNTIME / BYTECODE', 'Contract code observation', bytecode?.detail || 'No contract bytecode evidence was returned for this address.', '<div class="fact-list">' + fact('Record state', bytecode?.state || 'Not returned') + fact('Source', bytecode?.source || 'Not returned') + fact('Bytecode size', bytecode?.metadata?.bytecodeBytes !== undefined ? bytecode.metadata.bytecodeBytes + ' bytes' : 'Not returned') + '</div>') +
-    card('OWNER INTERFACE', 'Standard owner() response', owner?.detail || 'No owner() evidence was returned.', '<div class="fact-list">' + fact('Owner address', owner?.metadata?.owner || 'Not returned') + fact('Record state', owner?.state || 'Not returned') + fact('Source', owner?.source || 'Not returned') + '</div>') +
-    card('EIP-1967 / PROXY SIGNALS', 'Standard storage slots', 'These checks cover standard EIP-1967 slots only. Empty slots do not rule out custom proxy patterns.', '<div class="finding-list">' + (rows || '<div class="empty">No EIP-1967 slot evidence was returned for this investigation.</div>') + '</div>', true) +
-    card('ANALYSIS BOUNDARY', 'Deep contract review is not complete', 'The baseline adapter does not perform full source verification, arbitrary privileged-function analysis, custom proxy detection or independent audit retrieval.', '<div class="pill unknown">PARTIAL CONTRACT COVERAGE</div><p>Do not interpret the absence of a detected standard slot or owner response as proof that a contract has no privileged controls.</p>', true) + '</div>';
-}
-function renderEvidence() {
-  $('pane-content').innerHTML = '<div class="metrics">' + metric('Evidence items', evidence().length, 'Records returned by this request') + metric('Sources', new Set(evidence().map(x => x.source)).size, 'Distinct source labels') + metric('Unknown', countState('UNKNOWN'), 'Unresolved evidence records') + metric('Observed at', new Date(report.createdAt).toLocaleTimeString(), 'Local browser time') + '</div><div class="evidence-list">' + evidence().map(item => {
-    const meta = item.metadata && typeof item.metadata === 'object' ? Object.entries(item.metadata).filter(([key,value]) => !Array.isArray(value) && value !== null && typeof value !== 'object').slice(0,8) : [];
-    return '<article class="evidence"><div class="evidence-top"><h4>' + esc(item.title) + '</h4>' + statusPill(item) + '</div><p>' + esc(item.detail) + '</p><small>' + esc(item.source) + ' · ' + esc(item.observedAt ? new Date(item.observedAt).toLocaleString() : 'Observation time not supplied') + '</small>' + (meta.length ? '<div class="evidence-meta">' + meta.map(([key,value]) => '<div class="meta-cell"><span>' + esc(key) + '</span><strong>' + esc(value) + '</strong></div>').join('') + '</div>' : '') + '</article>';
-  }).join('') + '</div>';
-}
-function renderNotes() {
-  $('pane-content').innerHTML = card('ANALYST WORKSPACE', 'Investigator notes', 'Keep hypotheses and follow-up tasks separate from on-chain observations. Notes stay in this browser session and are included only when you export the report.', '<textarea class="notes" id="case-notes" placeholder="Record questions, hypotheses and next verification steps…">' + esc(notes) + '</textarea><div class="note-foot">Notes are not sent to VERA or stored on the server.</div>', true);
-  $('case-notes').addEventListener('input', (event) => { notes = event.target.value; });
-}
-function renderExport() {
-  $('pane-content').innerHTML = card('CASE HANDOFF', 'Export investigation report', 'Download the complete API response with the evidence array and assessment. Investigator notes are appended locally.', '<div class="fact-list">' + fact('Network', report.chainId) + fact('Investigation type', report.inputType) + fact('Address', report.input) + fact('Evidence records', evidence().length) + fact('Generated', new Date(report.createdAt).toLocaleString()) + '</div><button class="run" id="download-report" type="button" style="margin-top:16px">Download JSON report ↓</button>', true);
-  $('download-report').addEventListener('click', downloadReport);
-}
-const views = {
-  overview: ['CASE SUMMARY / 01','Investigation overview','A concise view of the current address and the evidence VERA returned.',renderOverview],
-  activity: ['TRANSACTION RECORDS / 02','Activity & transfers','Inspect transfer events actually returned by the EVM adapter.',renderTransfers],
-  controls: ['CONTRACT REVIEW / 03','Contract controls','Review available bytecode, owner-interface and standard proxy-slot evidence.',renderControls],
-  evidence: ['SOURCE RECORD / 04','Evidence & sources','Inspect each record, its source, status, detail and available metadata.',renderEvidence],
-  notes: ['CASE TOOLS / 05','Investigator notes','Keep your working notes separate from the evidence record.',renderNotes],
-  export: ['CASE HANDOFF / 06','Export report','Prepare a structured copy of the current investigation.',renderExport]
-};
-function setView(view) {
-  activeView = view;
-  navButtons.forEach(button => button.classList.toggle('active', button.dataset.view === view));
-  const [kicker,title,description,render] = views[view];
-  $('pane-kicker').textContent = kicker; $('pane-title').textContent = title; $('pane-description').textContent = description;
-  render();
-}
-navButtons.forEach(button => button.addEventListener('click', () => setView(button.dataset.view)));
-function downloadReport() {
-  if (!report) return;
-  const payload = {...report, investigatorNotes: notes.trim() || null, exportedAt: new Date().toISOString()};
-  const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-  const url = URL.createObjectURL(blob), link = document.createElement('a');
-  link.href=url; link.download='vera-evm-case-' + report.chainId + '-' + new Date().toISOString().slice(0,10) + '.json';
-  document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
-}
-$('export-top').addEventListener('click', downloadReport);
-$('new-case').addEventListener('click', () => { report=null; notes=''; $('workspace').classList.remove('visible'); $('error').style.display='none'; addressInput.focus(); window.scrollTo({top:0,behavior:'smooth'}); });
-async function investigate() {
-  $('error').style.display='none'; $('workspace').classList.remove('visible');
-  const address=addressInput.value.trim();
-  if(!/^0x[0-9a-fA-F]{40}$/.test(address)){ $('error').textContent='Enter a valid 0x-prefixed 20-byte EVM address.'; $('error').style.display='block'; addressInput.focus(); return; }
-  runButton.disabled=true; runButton.textContent='Collecting on-chain evidence…'; $('loading').classList.add('visible');
-  try {
-    const response=await fetch('/api/evm-investigate',{method:'POST',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify({chainId:chainSelect.value,investigationType:type,address})});
-    const data=await response.json().catch(()=>({}));
-    if(!response.ok) throw new Error(data.detail ? (data.error || 'Investigation failed') + ' ' + data.detail : data.error || 'Investigation failed (HTTP '+response.status+').');
-    if(!data.assessment || !Array.isArray(data.assessment.evidence)) throw new Error('VERA returned an incomplete investigation report. No partial result was displayed.');
-    sessionStorage.setItem('vera:evm-case', JSON.stringify({
-      report: data,
-      type,
-      chainLabel: chainSelect.options[chainSelect.selectedIndex].text,
-      address,
-      notes: '',
-      savedAt: new Date().toISOString()
-    }));
-    window.location.assign('/evm-case.html');
-    return;
-  } catch(error) {
-    $('error').textContent=error instanceof Error ? error.message : 'Investigation failed.'; $('error').style.display='block';
-  } finally {
-    runButton.disabled=false; runButton.innerHTML='Run investigation <span>↗</span>'; $('loading').classList.remove('visible');
+  const $ = (id) => document.getElementById(id);
+  const chainSelect = $('chain');
+  const addressInput = $('address');
+  const runButton = $('run');
+  const typeButtons = [...document.querySelectorAll('[data-type]')];
+  const labels = {
+    ADDRESS: 'Wallet address',
+    TOKEN: 'Token contract address',
+    CONTRACT: 'Smart contract address'
+  };
+  const placeholders = {
+    ADDRESS: '0x… paste a public wallet address',
+    TOKEN: '0x… paste a token contract address',
+    CONTRACT: '0x… paste a smart-contract address'
+  };
+  let type = 'ADDRESS';
+
+  function setMode(next) {
+    type = next;
+    typeButtons.forEach((button) => {
+      const active = button.dataset.type === type;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', String(active));
+    });
+    $('address-label').textContent = labels[type];
+    addressInput.placeholder = placeholders[type];
   }
-}
-runButton.addEventListener('click',investigate);
-addressInput.addEventListener('keydown',(event)=>{if(event.key==='Enter'){event.preventDefault();investigate();}});
+  typeButtons.forEach((button) => button.addEventListener('click', () => setMode(button.dataset.type)));
+
+  async function investigate() {
+    $('error').style.display = 'none';
+    const address = addressInput.value.trim();
+    if (!/^0x[0-9a-fA-F]{40}$/.test(address)) {
+      $('error').textContent = 'Enter a valid 0x-prefixed 20-byte EVM address.';
+      $('error').style.display = 'block';
+      addressInput.focus();
+      return;
+    }
+
+    runButton.disabled = true;
+    runButton.textContent = 'Collecting on-chain evidence…';
+    $('loading').classList.add('visible');
+    try {
+      const response = await fetch('/api/evm-investigate', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ chainId: chainSelect.value, investigationType: type, address })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.detail ? (data.error || 'Investigation failed') + ' ' + data.detail : data.error || 'Investigation failed (HTTP ' + response.status + ').');
+      }
+      if (!data.assessment || !Array.isArray(data.assessment.evidence)) {
+        throw new Error('VERA returned an incomplete investigation report. No partial result was displayed.');
+      }
+      const casePayload = {
+        report: data,
+        type,
+        chainLabel: chainSelect.options[chainSelect.selectedIndex].text,
+        address,
+        notes: '',
+        savedAt: new Date().toISOString()
+      };
+      try {
+        sessionStorage.setItem('vera:evm-case', JSON.stringify(casePayload));
+      } catch {
+        throw new Error('This browser could not preserve the investigation report for the case page. Enable session storage and try again.');
+      }
+      window.location.assign('/evm-case.html');
+    } catch (error) {
+      $('error').textContent = error instanceof Error ? error.message : 'Investigation failed.';
+      $('error').style.display = 'block';
+    } finally {
+      runButton.disabled = false;
+      runButton.innerHTML = 'Run investigation <span>↗</span>';
+      $('loading').classList.remove('visible');
+    }
+  }
+
+  runButton.addEventListener('click', investigate);
+  addressInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      investigate();
+    }
+  });
 })();
 </script>
 <script>/* Dedicated case navigation: reports open at /evm-case.html after the API response is validated. */</script>
