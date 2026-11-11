@@ -86,6 +86,7 @@ const evidence = () => report?.assessment?.evidence ?? [];
 const metaFor = (id, key) => evidence().find((item) => item.id === id)?.metadata?.[key];
 const countState = (state) => evidence().filter((item) => item.state === state).length;
 const statusPill = (item) => '<span class="pill ' + (item.state === 'UNKNOWN' ? 'unknown' : item.severity === 'high' ? 'high' : '') + '">' + esc(item.state) + '</span>';
+const formatNative = (wei, unit) => { try { const value = BigInt(wei); const whole = value / 1000000000000000000n; const fraction = (value % 1000000000000000000n).toString().padStart(18,'0').slice(0,6).replace(/0+$/,''); return whole.toString() + (fraction ? '.' + fraction : '') + ' ' + (unit || 'native units'); } catch { return 'Not returned'; } };
 const fact = (label, value) => '<div class="fact"><span>' + esc(label) + '</span><strong>' + esc(value) + '</strong></div>';
 const metric = (label, value, hint) => '<article class="metric"><span>' + esc(label) + '</span><strong>' + esc(value) + '</strong><small>' + esc(hint) + '</small></article>';
 const card = (kicker, title, description, body, full = false) => '<section class="card' + (full ? ' full' : '') + '"><span class="card-kicker">' + esc(kicker) + '</span><h4>' + esc(title) + '</h4><p>' + esc(description) + '</p>' + body + '</section>';
@@ -98,7 +99,7 @@ function renderOverview() {
   const name = metaFor('evm-token-name','value'), tokenSymbol = metaFor('evm-token-symbol','value');
   const decimals = metaFor('evm-token-decimals','value'), supply = metaFor('evm-token-totalSupply','value');
   const details = type === 'ADDRESS'
-    ? fact('Native balance', balanceWei !== undefined ? balanceWei + ' wei · ' + (symbol || '') : 'Not returned') + fact('Transaction count', txCount ?? 'Not returned') + fact('Contract code', bytecode !== undefined ? bytecode + ' bytes observed' : 'No bytecode metric returned')
+    ? fact('Native balance', balanceWei !== undefined ? formatNative(balanceWei, symbol) : 'Not returned') + fact('Transaction count', txCount ?? 'Not returned') + fact('Contract code', bytecode !== undefined ? bytecode + ' bytes observed' : 'No bytecode metric returned')
     : type === 'TOKEN'
       ? fact('Token name', name ?? 'Not returned') + fact('Token symbol', tokenSymbol ?? 'Not returned') + fact('Decimals', decimals ?? 'Not returned') + fact('Raw total supply', supply ?? 'Not returned')
       : fact('Runtime bytecode', bytecode !== undefined ? bytecode + ' bytes observed' : 'Not returned') + fact('Owner response', metaFor('evm-contract-owner','owner') ?? 'Not returned') + fact('Proxy implementation', metaFor('evm-eip1967-implementation','value') ?? 'Not returned');
