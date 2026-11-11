@@ -40,6 +40,19 @@
 @media(max-width:680px){.shell{width:min(100% - 28px,100%)}.topbar{height:66px}.brand img{width:31px;height:31px;border-radius:9px}.hero{grid-template-columns:1fr;padding:45px 0 32px}.hero h1{font-size:clamp(42px,12vw,60px)}.intake{gap:12px}.panel{padding:17px}.mode-tabs button{flex-direction:column;gap:2px;font-size:10px;min-height:56px}.workspace{margin-top:35px}.workspace-head{align-items:flex-start;flex-direction:column}.head-actions{width:100%}.casebar{align-items:flex-start;flex-direction:column}.case-stats{gap:14px}.layout{grid-template-columns:1fr}.sidebar{position:relative;top:auto;display:flex;gap:5px;overflow-x:auto;padding:8px;scrollbar-width:thin}.side-label,.sidebar-foot{display:none}.nav-btn{width:auto;white-space:nowrap;flex:none;padding:9px 10px;font-size:10px}.nav-btn.active:before{display:none}.main-pane{padding:14px}.pane-head{flex-direction:column}.overview-grid{grid-template-columns:1fr}.card.full{grid-column:auto}.evidence-meta{grid-template-columns:1fr}.footer{flex-direction:column}.method{min-height:0}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 
+
+/* Official chain identities — logos remain unmodified; only their surrounding tile carries the chain accent. */
+.network-symbol{width:34px;height:34px;border:1px solid var(--chain-line,#3a424e);background:var(--chain-tile,#0c1015);padding:5px;border-radius:10px;overflow:hidden}
+.network-symbol img{display:block;width:100%;height:100%;object-fit:contain}
+.ethereum-brand{--chain-line:#627eea55;--chain-tile:#627eea12}
+.base-brand{--chain-line:#0052ff66;--chain-tile:#0052ff16}
+.bnb-brand{--chain-line:#f0b90b66;--chain-tile:#f0b90b12;padding:4px}
+.arbitrum-brand{--chain-line:#28a0f066;--chain-tile:#28a0f012}
+.polygon-brand{--chain-line:#8247e566;--chain-tile:#8247e516}
+.robinhood-brand{--chain-line:#ccff0066;--chain-tile:#ccff0010;padding:2px}
+.robinhood-brand img{object-fit:contain}
+.network-choice.selected .network-symbol{border-color:var(--chain-line);background:var(--chain-tile)}
+
 /* EVM intake refinement */
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 .intake-v2{grid-template-columns:minmax(0,1.45fr) minmax(285px,.75fr);gap:20px;align-items:stretch;margin:0 0 68px}
@@ -101,12 +114,12 @@
   <div class="field network-field"><div class="field-title"><label for="chain">Select network</label><span>01 — NETWORK</span></div>
     <select id="chain" class="sr-only" aria-label="Selected EVM network"><option value="ethereum">Ethereum</option><option value="base">Base</option><option value="bsc">BNB Smart Chain</option><option value="arbitrum">Arbitrum One</option><option value="polygon">Polygon PoS</option><option value="robinhood">Robinhood Chain</option></select>
     <div class="network-grid" role="group" aria-label="Choose EVM network">
-      <button type="button" class="network-choice selected" data-chain="ethereum" aria-pressed="true"><span class="network-symbol">Ξ</span><span><strong>Ethereum</strong><small>Ethereum Mainnet</small></span><i>✓</i></button>
-      <button type="button" class="network-choice" data-chain="base" aria-pressed="false"><span class="network-symbol">◒</span><span><strong>Base</strong><small>Base Mainnet</small></span><i>✓</i></button>
-      <button type="button" class="network-choice" data-chain="bsc" aria-pressed="false"><span class="network-symbol">◆</span><span><strong>BNB Chain</strong><small>BNB Smart Chain</small></span><i>✓</i></button>
-      <button type="button" class="network-choice" data-chain="arbitrum" aria-pressed="false"><span class="network-symbol">◈</span><span><strong>Arbitrum</strong><small>Arbitrum One</small></span><i>✓</i></button>
-      <button type="button" class="network-choice" data-chain="polygon" aria-pressed="false"><span class="network-symbol">⬡</span><span><strong>Polygon</strong><small>Polygon PoS</small></span><i>✓</i></button>
-      <button type="button" class="network-choice" data-chain="robinhood" aria-pressed="false"><span class="network-symbol">R</span><span><strong>Robinhood</strong><small>Robinhood Chain</small></span><i>✓</i></button>
+      <button type="button" class="network-choice selected" data-chain="ethereum" aria-pressed="true"><span class="network-symbol ethereum-brand"><img src="https://raw.githubusercontent.com/ethereum/ethereum-org/master/public/images/ethereum-logo-tall.svg" alt="Ethereum logo" loading="eager"></span><span><strong>Ethereum</strong><small>Ethereum Mainnet</small></span><i>✓</i></button>
+      <button type="button" class="network-choice" data-chain="base" aria-pressed="false"><span class="network-symbol base-brand"><img src="https://raw.githubusercontent.com/base/brand-kit/main/logo/Basemark/Digital/Base_basemark_blue.svg" alt="Base logo" loading="eager"></span><span><strong>Base</strong><small>Base Mainnet</small></span><i>✓</i></button>
+      <button type="button" class="network-choice" data-chain="bsc" aria-pressed="false"><span class="network-symbol bnb-brand"><img src="https://www.bnbchain.org/images/brand-guidelines/svg/BNB%20Chain_Stacked_Logo_Yellow.svg" alt="BNB Chain logo" loading="eager"></span><span><strong>BNB Chain</strong><small>BNB Smart Chain</small></span><i>✓</i></button>
+      <button type="button" class="network-choice" data-chain="arbitrum" aria-pressed="false"><span class="network-symbol arbitrum-brand"><img src="https://arbitrum.io/favicon.ico" alt="Arbitrum logo" loading="eager"></span><span><strong>Arbitrum</strong><small>Arbitrum One</small></span><i>✓</i></button>
+      <button type="button" class="network-choice" data-chain="polygon" aria-pressed="false"><span class="network-symbol polygon-brand"><img src="https://polygon.technology/favicon.ico" alt="Polygon logo" loading="eager"></span><span><strong>Polygon</strong><small>Polygon PoS</small></span><i>✓</i></button>
+      <button type="button" class="network-choice" data-chain="robinhood" aria-pressed="false"><span class="network-symbol robinhood-brand"><img src="https://cdn.robinhood.com/assets/generated_assets/hoodchain_docsite/chain/brand-guidelines/logo.png" alt="Robinhood Chain logo" loading="eager"></span><span><strong>Robinhood</strong><small>Robinhood Chain</small></span><i>✓</i></button>
     </div>
   </div>
   <div class="field mode-field"><div class="field-title"><label>What are you investigating?</label><span>02 — EVIDENCE TYPE</span></div>
@@ -264,7 +277,7 @@
       $('error').style.display = 'block';
     } finally {
       runButton.disabled = false;
-      runButton.innerHTML = 'Run investigation <span>↗</span>';
+      runButton.innerHTML = '<span>Begin investigation</span><span class="submit-arrow">↗</span>';
       $('loading').classList.remove('visible');
     }
   }
