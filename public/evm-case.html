@@ -51,6 +51,37 @@
 .case-page .main-pane{box-shadow:0 24px 90px #0003}
 .case-page .nav-btn{min-height:42px}
 @media(max-width:680px){.case-hero{padding:36px 0 20px}.case-hero .case-hero-mark{width:76px;height:76px;border-radius:14px}.case-hero .case-hero-mark img{width:54px;height:54px}}
+
+/* Evidence-led analytics */
+.analytics-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.analytics-card{min-width:0;border:1px solid #2b3038;background:linear-gradient(145deg,#15191f,#101317);border-radius:9px;padding:17px}
+.analytics-card.full{grid-column:1/-1}
+.analytics-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:13px}
+.analytics-card-head h4{font:400 20px/1.15 var(--serif);margin:5px 0}
+.analytics-card-head p{color:#858e99;font-size:10px;line-height:1.65;margin:0}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;color:#929ba6;font-size:9px}
+.chart-legend span{display:inline-flex;align-items:center;gap:6px}
+.chart-legend i{width:7px;height:7px;border-radius:2px;background:#cbd0d8}
+.chart-legend .out{background:#78889d}
+.chart-svg{display:block;width:100%;height:auto;overflow:visible}
+.chart-svg text{fill:#89929e;font:9px Inter,system-ui,sans-serif}
+.chart-gridline{stroke:#2b3038;stroke-width:1;stroke-dasharray:3 5}
+.chart-axis{stroke:#444b56;stroke-width:1}
+.graph-node{fill:#171c23;stroke:#929eae;stroke-width:1.2}
+.graph-node.main{fill:#dce1e8;stroke:#f2f4f7}
+.graph-edge{stroke:#8f9cad;stroke-width:1.35;opacity:.75}
+.graph-edge.incoming{stroke:#cbd0d8}
+.graph-edge.outgoing{stroke:#71839a}
+.graph-label{fill:#c3cad4!important;font-size:9px!important}
+.analytics-caption{margin-top:10px;color:#77818e;font-size:9px;line-height:1.65}
+.analytics-statline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.analytics-stat{padding:12px;border:1px solid #2b3038;border-radius:7px;background:#11151a;min-width:0}
+.analytics-stat span{display:block;color:#7f8995;font-size:8px;letter-spacing:.1em;text-transform:uppercase}
+.analytics-stat strong{display:block;color:#e2e6eb;font-size:19px;font-weight:500;margin-top:5px;overflow-wrap:anywhere}
+.analytics-stat small{display:block;color:#7c8591;font-size:8px;line-height:1.5;margin-top:3px}
+.analytics-empty{padding:24px;border:1px dashed #3a414b;border-radius:8px;text-align:center;color:#89929e;font-size:11px;line-height:1.75}
+@media(max-width:680px){.analytics-grid{grid-template-columns:1fr}.analytics-card.full{grid-column:auto}.analytics-statline{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
 </head>
 <body>
@@ -61,7 +92,7 @@
 <section class="workspace visible" id="workspace" aria-live="polite">
 <div class="workspace-head"><div class="head-actions"><a class="subtle-btn" id="new-case" href="/evm-investigation.html">＋ New investigation</a><button class="subtle-btn" id="export-top" type="button">↓ Export JSON</button></div></div>
 <div class="casebar"><div class="case-ident"><span class="live-dot"></span><div><strong id="case-title">Current case</strong><small id="case-meta"></small></div></div><div class="case-stats"><span><b id="stat-checks">0</b> evidence records</span><span><b id="stat-verified">0</b> verified</span><span><b id="stat-unknown">0</b> unavailable</span></div></div>
-<div class="layout"><nav class="sidebar" aria-label="Investigation workspace"><div class="side-label">CASE WORKSPACES</div><button class="nav-btn active" type="button" data-view="overview">▤ Overview</button><button class="nav-btn" type="button" data-view="activity">↔ Activity & transfers</button><button class="nav-btn" type="button" data-view="controls">⌘ Contract controls</button><button class="nav-btn" type="button" data-view="evidence">▧ Evidence & sources</button><button class="nav-btn" type="button" data-view="notes">✎ Investigator notes</button><button class="nav-btn" type="button" data-view="export">⇩ Export report</button><div class="sidebar-foot">Evidence-first analysis · Read-only</div></nav><main class="main-pane"><div class="pane-head"><div><div class="kicker" id="pane-kicker">CASE SUMMARY / 01</div><h3 id="pane-title">Investigation overview</h3><p id="pane-description">A concise view of the current address and the evidence VERA returned.</p></div><span class="readonly">READ-ONLY EVIDENCE</span></div><div id="pane-content"></div></main></div>
+<div class="layout"><nav class="sidebar" aria-label="Investigation workspace"><div class="side-label">CASE WORKSPACES</div><button class="nav-btn active" type="button" data-view="overview">▤ Overview</button><button class="nav-btn" type="button" data-view="activity">↔ Activity & transfers</button><button class="nav-btn" type="button" data-view="analytics">▥ Analytics & graphs</button><button class="nav-btn" type="button" data-view="controls">⌘ Contract controls</button><button class="nav-btn" type="button" data-view="evidence">▧ Evidence & sources</button><button class="nav-btn" type="button" data-view="notes">✎ Investigator notes</button><button class="nav-btn" type="button" data-view="export">⇩ Export report</button><div class="sidebar-foot">Evidence-first analysis · Read-only</div></nav><main class="main-pane"><div class="pane-head"><div><div class="kicker" id="pane-kicker">CASE SUMMARY / 01</div><h3 id="pane-title">Investigation overview</h3><p id="pane-description">A concise view of the current address and the evidence VERA returned.</p></div><span class="readonly">READ-ONLY EVIDENCE</span></div><div id="pane-content"></div></main></div>
 <div class="disclosure">Coverage is partial. An unavailable check is not a clean result. Token metadata and bytecode do not establish safety; holder concentration, liquidity, transfer restrictions, arbitrary privileged functions, verified source, complete native-asset history and independent threat intelligence may not be available.</div>
 </section>
 <footer class="footer"><a href="/">Return to VERA ↗</a></footer>
@@ -110,6 +141,112 @@ function renderTransfers() {
   const table = rows.length ? '<div class="transfer-table-wrap"><table class="transfer-table"><thead><tr><th>Token contract</th><th>From</th><th>To</th><th>Raw amount</th><th>Transaction</th></tr></thead><tbody>' + rows.map(t => '<tr><td>' + esc(short(t.token)) + '</td><td>' + esc(short(t.from)) + '</td><td>' + esc(short(t.to)) + '</td><td>' + esc(t.rawAmount ?? 'Not returned') + '</td><td>' + esc(short(t.transactionHash)) + '</td></tr>').join('') + '</tbody></table></div>' : '<div class="empty">No decoded ERC-20 transfer rows were returned for this investigation. The current adapter does not provide a complete native-transfer or full account history.</div>';
   $('pane-content').innerHTML = '<div class="metrics">' + metric('Transfer rows', rows.length, 'Rows returned in evidence metadata') + metric('Transfer evidence items', transferEvidence.length, 'Evidence records containing transfer arrays') + metric('History scope', 'Bounded', 'Recent window only; not a complete history') + metric('Network', report.chainId, 'Selected EVM network') + '</div>' + card('ACTIVITY / TRANSFER EVENTS', 'Observed ERC-20 transfers', 'Amounts are raw token units where decimals have not been resolved. Addresses and hashes are linked to no identity or intent.', table, true) + card('COVERAGE LIMIT', 'What this activity view excludes', 'The current adapter does not retrieve a complete native-asset history, all internal calls or older token events.', '<div class="finding-list"><div class="finding"><i></i><div><strong>Bounded recent window</strong><small>Only recent standard ERC-20 Transfer events are queried.</small></div></div><div class="finding"><i></i><div><strong>Native transfers and internal calls</strong><small>These are not represented in this transfer table.</small></div></div></div>', true);
 }
+
+function renderAnalytics() {
+  const transferRecord = evidence().find(item => item.id === 'evm-address-token-transfer-history');
+  const transfers = Array.isArray(transferRecord?.metadata?.transfers) ? transferRecord.metadata.transfers : [];
+  const unavailable = evidence().find(item => item.id === 'evm-address-token-transfer-history-unavailable');
+  const target = String(report.input || '').toLowerCase();
+  const incoming = transfers.filter(item => String(item.to || '').toLowerCase() === target);
+  const outgoing = transfers.filter(item => String(item.from || '').toLowerCase() === target);
+  const counterparties = new Set(transfers.map(item => {
+    const from = String(item.from || '').toLowerCase(), to = String(item.to || '').toLowerCase();
+    return from === target ? to : to === target ? from : null;
+  }).filter(Boolean));
+  const nonce = metaFor('evm-transaction-count','transactionCount');
+  const balanceWei = metaFor('evm-native-balance','balanceWei');
+  const symbol = metaFor('evm-native-balance','symbol');
+  const rangeFrom = transferRecord?.metadata?.fromBlock;
+  const rangeTo = transferRecord?.metadata?.toBlock;
+  const baseStats = '<div class="analytics-statline">' +
+    '<div class="analytics-stat"><span>Observed transfers</span><strong>' + transfers.length + '</strong><small>Decoded standard ERC-20 events</small></div>' +
+    '<div class="analytics-stat"><span>Incoming events</span><strong>' + incoming.length + '</strong><small>To the investigated address</small></div>' +
+    '<div class="analytics-stat"><span>Outgoing events</span><strong>' + outgoing.length + '</strong><small>From the investigated address</small></div>' +
+    '<div class="analytics-stat"><span>Unique counterparties</span><strong>' + counterparties.size + '</strong><small>Distinct addresses in returned events</small></div></div>';
+  if (type !== 'ADDRESS') {
+    $('pane-content').innerHTML = '<div class="analytics-empty">The current ' + esc(type.toLowerCase()) + ' adapter returns contract metadata and bytecode observations, but no address activity series. No transaction graph or activity trend can be calculated from this response. The metrics below are limited to the evidence actually returned.</div><div class="analytics-statline" style="margin-top:12px">' +
+      '<div class="analytics-stat"><span>Evidence records</span><strong>' + evidence().length + '</strong><small>Current response</small></div>' +
+      '<div class="analytics-stat"><span>Verified</span><strong>' + countState('VERIFIED') + '</strong><small>Observed or validated</small></div>' +
+      '<div class="analytics-stat"><span>Supported</span><strong>' + countState('SUPPORTED') + '</strong><small>Evidence-backed signals</small></div>' +
+      '<div class="analytics-stat"><span>Unknown</span><strong>' + countState('UNKNOWN') + '</strong><small>Unavailable or incomplete</small></div></div>' +
+      '<div class="analytics-grid">' + analyticsCard('EVIDENCE DISTRIBUTION','Returned evidence by state','Counts of the actual evidence records returned.',stateDistributionSvg()) + '</div>';
+    return;
+  }
+  if (!transferRecord || !transfers.length) {
+    $('pane-content').innerHTML = '<div class="analytics-statline">' +
+      '<div class="analytics-stat"><span>Account nonce</span><strong>' + esc(nonce ?? '—') + '</strong><small>RPC transaction count; not a transfer count</small></div>' +
+      '<div class="analytics-stat"><span>Native balance</span><strong>' + esc(balanceWei !== undefined ? formatNative(balanceWei,symbol) : '—') + '</strong><small>Latest balance observation</small></div>' +
+      '<div class="analytics-stat"><span>Transfer events</span><strong>0</strong><small>None returned in this response</small></div>' +
+      '<div class="analytics-stat"><span>Counterparties</span><strong>0</strong><small>No relationships to plot</small></div></div>' +
+      '<div class="analytics-empty">' + (unavailable ? 'The RPC could not retrieve the bounded recent ERC-20 transfer window. ' : 'No standard ERC-20 transfer events were returned in the bounded recent window. ') + 'VERA will not draw empty or inferred transaction relationships. Native transfers, internal calls and older activity are outside this adapter’s current coverage.</div>' +
+      '<div class="analytics-grid" style="margin-top:12px">' + analyticsCard('EVIDENCE DISTRIBUTION','Returned evidence by state','Counts of the actual evidence records returned.',stateDistributionSvg()) + '</div>';
+    return;
+  }
+  const timeline = timelineSvg(transfers);
+  const graph = relationshipSvg(transfers,target);
+  $('pane-content').innerHTML = baseStats +
+    '<div class="analytics-grid">' +
+    analyticsCard('ACTIVITY / BLOCK WINDOW','Observed transfer activity','Events grouped into relative block-range buckets from the returned bounded sample. This is not a time-based or complete transaction history.',timeline,true) +
+    analyticsCard('ADDRESS RELATIONSHIPS','Observed counterparties','Only counterparties present in the decoded transfer records are shown. Lines represent returned ERC-20 Transfer events.',graph,true) +
+    analyticsCard('ACCOUNT CONTEXT','Current RPC observations','The account nonce and native balance are separate RPC observations, not activity totals.', '<div class="fact-list">' + fact('Account nonce', nonce ?? 'Not returned') + fact('Native balance', balanceWei !== undefined ? formatNative(balanceWei,symbol) : 'Not returned') + fact('Observed block range', rangeFrom && rangeTo ? rangeFrom + ' – ' + rangeTo : 'Not returned') + fact('Transfer sample', transferRecord.metadata.truncated ? 'Truncated at adapter limit' : 'Returned sample') + '</div>') +
+    analyticsCard('DATA COVERAGE','What these graphs represent','The graphs describe only decoded standard ERC-20 Transfer events in the bounded recent block window.', '<div class="finding-list"><div class="finding"><i></i><div><strong>Included</strong><small>Incoming and outgoing standard ERC-20 transfer events returned by the selected RPC.</small></div></div><div class="finding"><i></i><div><strong>Not included</strong><small>Native-asset transfers, internal calls, non-standard token events, older history, or verified real-world identity.</small></div></div></div>') +
+    '</div>';
+}
+function analyticsCard(kicker,title,description,body,full=false) {
+  return '<section class="analytics-card' + (full?' full':'') + '"><div class="analytics-card-head"><div><span class="card-kicker">' + esc(kicker) + '</span><h4>' + esc(title) + '</h4><p>' + esc(description) + '</p></div></div>' + body + '</section>';
+}
+function stateDistributionSvg() {
+  const states = ['VERIFIED','SUPPORTED','UNKNOWN'];
+  const counts = states.map(state => evidence().filter(item => item.state === state).length);
+  const max = Math.max(1,...counts);
+  const colors = ['#cbd0d8','#8393a8','#9b805d'];
+  const bars = states.map((state,index) => {
+    const y=24+index*42, width=260*counts[index]/max;
+    return '<text x="0" y="' + (y+11) + '">' + state + '</text><rect x="92" y="' + y + '" width="260" height="13" rx="3" fill="#252b33"/><rect x="92" y="' + y + '" width="' + width + '" height="13" rx="3" fill="' + colors[index] + '"/><text x="365" y="' + (y+11) + '">' + counts[index] + '</text>';
+  }).join('');
+  return '<svg class="chart-svg" viewBox="0 0 390 160" role="img" aria-label="Evidence counts by state">' + bars + '</svg>';
+}
+function timelineSvg(rows) {
+  const blocks = rows.map(row => { try{return BigInt(row.blockNumber)}catch{return null} }).filter(value=>value!==null);
+  if (!blocks.length) return '<div class="analytics-empty">Block numbers were not returned for these events.</div>';
+  const min=blocks.reduce((a,b)=>a<b?a:b), max=blocks.reduce((a,b)=>a>b?a:b);
+  const span=max-min;
+  const bins=Array.from({length:8},()=>({in:0,out:0}));
+  rows.forEach(row=>{
+    let block; try{block=BigInt(row.blockNumber)}catch{return;}
+    const ratio=span===0n?1:Number(block-min)/Number(span);
+    const index=Math.min(7,Math.max(0,Math.floor(ratio*8)));
+    if(String(row.to||'').toLowerCase()===targetAddress()) bins[index].in++;
+    else if(String(row.from||'').toLowerCase()===targetAddress()) bins[index].out++;
+  });
+  const maxCount=Math.max(1,...bins.map(bin=>Math.max(bin.in,bin.out)));
+  const bars=bins.map((bin,index)=>{
+    const x=40+index*57, hIn=76*bin.in/maxCount, hOut=76*bin.out/maxCount;
+    return '<rect x="'+x+'" y="'+(112-hIn)+'" width="17" height="'+hIn+'" rx="2" fill="#cbd0d8"/><rect x="'+(x+19)+'" y="'+(112-hOut)+'" width="17" height="'+hOut+'" rx="2" fill="#78889d"/><text x="'+(x+17)+'" y="132" text-anchor="middle">'+(index+1)+'</text>';
+  }).join('');
+  return '<div class="chart-legend"><span><i></i>Incoming</span><span><i class="out"></i>Outgoing</span></div><svg class="chart-svg" viewBox="0 0 520 150" role="img" aria-label="Incoming and outgoing transfer events grouped across the observed block range"><line class="chart-gridline" x1="30" y1="36" x2="500" y2="36"/><line class="chart-gridline" x1="30" y1="74" x2="500" y2="74"/><line class="chart-axis" x1="30" y1="112" x2="500" y2="112"/>'+bars+'</svg><p class="analytics-caption">Bucket 1 is the oldest returned block range; bucket 8 is the newest. Each bar counts events, not token value. Range: '+esc(min.toString())+' – '+esc(max.toString())+'.</p>';
+}
+function targetAddress(){return String(report.input||'').toLowerCase();}
+function relationshipSvg(rows,target) {
+  const partners=[...new Set(rows.map(row=>{const from=String(row.from||'').toLowerCase(),to=String(row.to||'').toLowerCase();return from===target?to:to===target?from:null;}).filter(Boolean))].slice(0,10);
+  if(!partners.length)return '<div class="analytics-empty">No distinct counterparties in the returned events.</div>';
+  const width=620,height=300,cx=310,cy=148,rx=225,ry=108;
+  const nodes=partners.map((address,index)=>{
+    const angle=(-Math.PI/2)+(Math.PI*2*index/partners.length);
+    return {address,x:cx+Math.cos(angle)*rx,y:cy+Math.sin(angle)*ry};
+  });
+  const edges=rows.map(row=>{
+    const from=String(row.from||'').toLowerCase(),to=String(row.to||'').toLowerCase();
+    const other=from===target?to:to===target?from:null;
+    const node=nodes.find(item=>item.address===other);
+    if(!node)return '';
+    const incoming=to===target;
+    return '<line class="graph-edge '+(incoming?'incoming':'outgoing')+'" x1="'+(incoming?node.x:cx)+'" y1="'+(incoming?node.y:cy)+'" x2="'+(incoming?cx:node.x)+'" y2="'+(incoming?cy:node.y)+'"/>';
+  }).join('');
+  const labels=nodes.map((node,index)=>'<g><circle class="graph-node" cx="'+node.x+'" cy="'+node.y+'" r="13"/><text class="graph-label" x="'+node.x+'" y="'+(node.y+29)+'" text-anchor="middle">'+esc(node.address.slice(0,6)+'…'+node.address.slice(-4))+'</text></g>').join('');
+  return '<svg class="chart-svg" viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Relationship graph of the investigated address and up to ten observed transfer counterparties">'+edges+'<circle class="graph-node main" cx="'+cx+'" cy="'+cy+'" r="22"/><text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" style="fill:#101317;font-weight:700">YOU</text>'+labels+'</svg><p class="analytics-caption">Showing up to 10 unique counterparties from '+rows.length+' returned transfer events. Repeated lines indicate repeated observed events; they do not imply identity, trust or intent.</p>';
+}
+
 function renderControls() {
   const keys = ['implementation','admin','beacon'];
   const rows = keys.map(key => {
@@ -141,10 +278,11 @@ function renderExport() {
 const views = {
   overview: ['CASE SUMMARY / 01','Investigation overview','A concise view of the current address and the evidence VERA returned.',renderOverview],
   activity: ['TRANSACTION RECORDS / 02','Activity & transfers','Inspect transfer events actually returned by the EVM adapter.',renderTransfers],
-  controls: ['CONTRACT REVIEW / 03','Contract controls','Review available bytecode, owner-interface and standard proxy-slot evidence.',renderControls],
-  evidence: ['SOURCE RECORD / 04','Evidence & sources','Inspect each record, its source, status, detail and available metadata.',renderEvidence],
-  notes: ['CASE TOOLS / 05','Investigator notes','Keep your working notes separate from the evidence record.',renderNotes],
-  export: ['CASE HANDOFF / 06','Export report','Prepare a structured copy of the current investigation.',renderExport]
+  analytics: ['ON-CHAIN METRICS / 03','Analytics & graphs','Explore measurable activity and address relationships derived from this response.',renderAnalytics],
+  controls: ['CONTRACT REVIEW / 04','Contract controls','Review available bytecode, owner-interface and standard proxy-slot evidence.',renderControls],
+  evidence: ['SOURCE RECORD / 05','Evidence & sources','Inspect each record, its source, status, detail and available metadata.',renderEvidence],
+  notes: ['CASE TOOLS / 06','Investigator notes','Keep your working notes separate from the evidence record.',renderNotes],
+  export: ['CASE HANDOFF / 07','Export report','Prepare a structured copy of the current investigation.',renderExport]
 };
 function setView(view) {
   activeView = view;
