@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08090b">
+<meta name="description" content="Investigate EVM wallets, tokens and smart contracts across supported networks with VERA's read-only, evidence-first analysis.">
+<link rel="canonical" href="https://vera-build.site/evm-investigation.html">
+<link rel="icon" type="image/jpeg" href="/vera-logo.jpg">
+<link rel="apple-touch-icon" href="/vera-logo.jpg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VERA">
+<meta property="og:title" content="EVM Investigation Terminal | VERA">
+<meta property="og:description" content="Investigate wallets, tokens and smart contracts across supported EVM networks with evidence-first analysis.">
+<meta property="og:url" content="https://vera-build.site/evm-investigation.html">
+<meta property="og:image" content="https://vera-build.site/vera-logo.jpg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="EVM Investigation Terminal | VERA">
+<meta name="twitter:description" content="Read-only EVM wallet, token and smart-contract investigation.">
+<meta name="twitter:image" content="https://vera-build.site/vera-logo.jpg">
+<title>EVM Investigation Terminal | VERA</title>
+<style>
+:root{color-scheme:dark;--bg:#08090b;--panel:#101216;--panel2:#14171c;--line:#292d34;--muted:#9299a4;--text:#f1f2f4;--silver:#cbd0d8;--soft:#aeb6c2;--amber:#d6b77b;--red:#d98f8f;--green:#9db9a6;--serif:Georgia,"Times New Roman",serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -18%,#292d35 0,transparent 48%),radial-gradient(ellipse at 92% 40%,#141922 0,transparent 35%),var(--bg);background-attachment:fixed;color:var(--text);font:14px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #cbd0d8;outline-offset:3px}
+.shell{width:min(1440px,100% - 48px);margin:auto}.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:11px;text-decoration:none}.brand img{width:37px;height:37px;object-fit:contain;border-radius:50%;filter:drop-shadow(0 0 12px #cbd0d822)}.brand strong{display:block;font-size:13px;letter-spacing:.2em}.brand small{display:block;color:#7f8792;font-size:8px;letter-spacing:.19em;margin-top:1px}.back{display:flex;align-items:center;gap:8px;color:#a5acb6;text-decoration:none;font-size:12px}.back:hover{color:#fff}
+.hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:40px;align-items:center;padding:65px 0 48px;overflow:hidden}.eyebrow,.kicker{font-size:10px;letter-spacing:.17em;color:#9ca4b0;text-transform:uppercase}.eyebrow{display:flex;align-items:center;gap:10px}.eyebrow:before{content:"";width:23px;height:1px;background:#aeb6c2}.hero h1{font:400 clamp(44px,6vw,76px)/.99 var(--serif);letter-spacing:-.055em;margin:18px 0}.hero h1 em{font-style:normal;color:#bdc4ce}.hero p{max-width:670px;color:#a5acb6;font-size:14px;line-height:1.85;margin:0}.assurances{display:flex;flex-wrap:wrap;gap:18px;margin-top:24px}.assurances span{display:flex;align-items:center;gap:7px;color:#b8bec7;font-size:10px;letter-spacing:.05em}.assurances i,.live-dot{width:6px;height:6px;border-radius:50%;background:#c5ccd6;box-shadow:0 0 12px #c5ccd688}.hero-mark{width:230px;height:230px;border:1px solid #c5ccd61c;border-radius:50%;display:grid;place-items:center;position:relative;margin:auto;box-shadow:0 0 0 28px #c5ccd608,0 0 0 58px #c5ccd604}.hero-mark:before,.hero-mark:after{content:"";position:absolute;inset:20px;border:1px solid #c5ccd61b;border-radius:50%;animation:orbit 18s linear infinite}.hero-mark:after{inset:43px;animation-direction:reverse;animation-duration:24s}.hero-mark img{width:82px;height:82px;object-fit:contain;filter:drop-shadow(0 0 22px #cbd0d833)}@keyframes orbit{to{transform:rotate(360deg)}}
+.intake{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:18px;margin-bottom:38px}.panel{position:relative;background:linear-gradient(145deg,#15181d,#0e1013);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 24px 80px #0005;overflow:hidden}.panel:before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,#c5cbd655,transparent)}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:17px;border-bottom:1px solid var(--line);margin-bottom:20px}.panel-head strong{font-size:10px;letter-spacing:.15em;color:#d5d9df}.status{display:flex;align-items:center;gap:8px;color:#a8b0bb;font-size:9px;letter-spacing:.12em}.status:before{content:"";width:6px;height:6px;border-radius:50%;background:#c0c8d2;box-shadow:0 0 10px #c0c8d2}.field{display:grid;gap:8px;margin-bottom:18px}.field label{font-size:10px;letter-spacing:.12em;color:#a2aab5;text-transform:uppercase}.field select,.field input,.field textarea{width:100%;min-height:48px;border:1px solid #343a44;border-radius:8px;background:#090b0e;color:#f0f1f3;padding:12px 14px;outline:none}.field textarea{min-height:105px;resize:vertical}.field select:focus,.field input:focus,.field textarea:focus{border-color:#9da7b5;box-shadow:0 0 0 3px #aeb8c018}.mode-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.mode-tabs button{min-height:58px;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid #343a44;background:#15181d;color:#aab1bc;border-radius:8px;font-size:12px;transition:.2s}.mode-tabs button:hover{border-color:#7c8592;color:#fff}.mode-tabs button.active{background:#e5e7eb;color:#101216;border-color:#e5e7eb;font-weight:650}.mode-tabs button span{font-size:9px;opacity:.75}.input-row{display:flex;gap:9px}.input-row input{flex:1;min-width:0}.run{width:100%;min-height:50px;display:flex;align-items:center;justify-content:center;gap:10px;background:#e4e7eb;color:#111318;border:1px solid #e4e7eb;border-radius:8px;font-weight:700;letter-spacing:.015em;transition:transform .2s,box-shadow .2s}.run:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 28px #cbd0d51c}.run:disabled{opacity:.55;cursor:wait}.note{margin:13px 0 0;color:#7f8792;font-size:11px;line-height:1.7}.error{margin-top:13px;padding:11px 13px;border:1px solid #704747;background:#261515;color:#e8b2b2;border-radius:7px;font-size:12px;display:none}.method{display:flex;flex-direction:column}.method-index{font-size:9px;letter-spacing:.15em;color:#818995}.method h2{font:400 28px/1.1 var(--serif);letter-spacing:-.035em;margin:20px 0 10px}.method>p{color:#929aa5;font-size:12px;line-height:1.8;margin:0 0 18px}.method-step{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:13px 0;border-top:1px solid #272b32}.method-step b{font:10px ui-monospace,monospace;color:#9ca4af}.method-step strong{display:block;font-size:11px;color:#d4d8de;font-weight:600}.method-step small{display:block;color:#818995;font-size:10px;line-height:1.6;margin-top:3px}.method-warning{display:flex;gap:9px;margin-top:auto;padding:13px;background:#17140f;border-left:2px solid #8e7955;color:#c5b99f;font-size:10px;line-height:1.7}
+.workspace{margin:48px 0 70px;display:none;animation:rise .35s ease both}.workspace.visible{display:block}@keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}.workspace-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:18px}.workspace-head h2{font:400 clamp(30px,4vw,43px)/1.05 var(--serif);letter-spacing:-.045em;margin:10px 0 7px}.workspace-head p{margin:0;color:#8f97a2;font-size:12px}.head-actions{display:flex;gap:8px;flex-wrap:wrap}.subtle-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid #383e48;background:#14171c;color:#c3c9d1;border-radius:7px;padding:10px 12px;font-size:11px}.subtle-btn:hover{border-color:#818a98;color:#fff}
+.casebar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 18px;background:#111419;border:1px solid #2b3038;border-radius:10px;margin-bottom:15px}.case-ident{display:flex;align-items:center;gap:11px;min-width:0}.case-ident .live-dot{flex:none}.case-ident strong{display:block;font-size:12px}.case-ident small{display:block;color:#858e9a;font-size:10px;overflow-wrap:anywhere}.case-stats{display:flex;gap:22px;flex-wrap:wrap}.case-stats span{font-size:10px;color:#929aa5}.case-stats b{color:#e3e6ea;font-size:14px;margin-right:5px;font-variant-numeric:tabular-nums}
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:15px;align-items:start}.sidebar{position:sticky;top:18px;padding:13px;background:#101317;border:1px solid #292e36;border-radius:10px}.side-label{padding:7px 9px 10px;color:#6f7884;font-size:8px;letter-spacing:.16em}.nav-btn{width:100%;display:flex;align-items:center;gap:10px;padding:11px 10px;margin:2px 0;border:1px solid transparent;border-radius:7px;background:transparent;color:#929aa5;text-align:left;font-size:11px;transition:.18s}.nav-btn:hover{background:#1a1e24;color:#e2e5e9}.nav-btn.active{background:linear-gradient(100deg,#272c34,#1a1e24);border-color:#3b424d;color:#f1f3f5}.nav-btn.active:before{content:"";width:3px;height:18px;background:#cbd0d8;border-radius:3px;margin-left:-7px}.sidebar-foot{border-top:1px solid #292e36;margin-top:12px;padding:13px 8px 4px;color:#818a95;font-size:9px}.sidebar-toggle{display:none}
+.main-pane{min-width:0;background:#0e1115;border:1px solid #292e36;border-radius:10px;padding:20px}.pane-head{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;padding-bottom:16px;border-bottom:1px solid #292e36;margin-bottom:17px}.pane-head h3{font:400 26px/1.1 var(--serif);margin:5px 0 5px;letter-spacing:-.03em}.pane-head p{margin:0;color:#8e97a2;font-size:11px;line-height:1.7}.readonly{display:inline-flex;align-items:center;gap:7px;border:1px solid #343b45;border-radius:30px;padding:6px 9px;color:#adb5c0;font-size:8px;letter-spacing:.1em;white-space:nowrap}.readonly:before{content:"";width:5px;height:5px;border-radius:50%;background:#aeb8c5}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:15px}.metric{min-width:0;padding:15px;border:1px solid #2b3038;border-radius:8px;background:linear-gradient(145deg,#15191f,#101317)}.metric span{display:block;color:#828b97;font-size:8px;letter-spacing:.13em;text-transform:uppercase}.metric strong{display:block;color:#e7e9ec;font-size:23px;font-weight:500;letter-spacing:-.04em;margin:7px 0 4px;overflow-wrap:anywhere}.metric small{display:block;color:#777f8a;font-size:9px;line-height:1.55}
+.overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{min-width:0;border:1px solid #2b3038;background:#12161b;border-radius:8px;padding:17px}.card.full{grid-column:1/-1}.card-kicker{color:#7e8793;font-size:8px;letter-spacing:.14em}.card h4{font:400 21px/1.15 var(--serif);margin:7px 0 6px}.card>p{font-size:10px;color:#858e99;line-height:1.7;margin:0 0 12px}.fact-list{display:grid;gap:0}.fact{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid #292e36;font-size:10px}.fact span{color:#89929d}.fact strong{color:#d9dde2;text-align:right;overflow-wrap:anywhere;font-weight:550}.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid #3a424d;border-radius:30px;padding:5px 8px;color:#c1c8d1;font-size:8px;letter-spacing:.06em}.pill.unknown{color:#d9bd8c;border-color:#66563b}.pill.high{color:#e1a1a1;border-color:#684040}
+.evidence-list{display:grid;gap:9px}.evidence{border:1px solid #2b3038;background:#12161b;border-radius:8px;padding:14px}.evidence-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.evidence h4{font:500 13px/1.45 Inter,system-ui,sans-serif;margin:0;color:#e0e4e9}.evidence p{font-size:11px;color:#9ba3ae;line-height:1.75;margin:8px 0}.evidence small{font-size:9px;color:#747e8a}.evidence-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}.meta-cell{min-width:0;padding:8px;background:#0c0f13;border-radius:5px}.meta-cell span{display:block;color:#707a87;font-size:8px;letter-spacing:.1em;text-transform:uppercase}.meta-cell strong{display:block;color:#c6cbd3;font-size:10px;font-weight:500;overflow-wrap:anywhere;margin-top:3px}
+.transfer-table-wrap{overflow-x:auto;border:1px solid #2b3038;border-radius:7px}.transfer-table{width:100%;border-collapse:collapse;min-width:650px}.transfer-table th,.transfer-table td{padding:11px 12px;border-bottom:1px solid #272d35;text-align:left;font-size:9px;vertical-align:top}.transfer-table th{color:#7e8793;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:#15191f}.transfer-table td{color:#c2c8d0;overflow-wrap:anywhere}.transfer-table tr:last-child td{border-bottom:0}.transfer-table a{color:#cbd2dc;text-decoration:underline;text-decoration-color:#626b78;text-underline-offset:3px}.empty{padding:22px;border:1px dashed #3a414b;border-radius:8px;color:#838c98;text-align:center;font-size:11px;line-height:1.7}
+.finding-list{display:grid;gap:8px}.finding{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #2b3038;border-radius:7px;background:#12161b}.finding i{width:7px;height:7px;border-radius:50%;background:#aeb7c2;margin-top:6px;flex:none}.finding strong{display:block;color:#d7dce2;font-size:10px}.finding small{display:block;color:#858e99;font-size:9px;line-height:1.65;margin-top:3px}
+.notes{width:100%;min-height:190px;resize:vertical;background:#090c10;border:1px solid #343a44;border-radius:7px;padding:13px;color:#dce0e5;line-height:1.7}.note-foot{color:#79828d;font-size:9px;margin-top:8px}
+.disclosure{padding:13px 15px;margin-top:13px;border-left:2px solid #8e7955;background:#17140f;color:#c4b99f;font-size:10px;line-height:1.75}.loading{display:none;margin:16px 0 0;padding:17px;border:1px solid #343a44;background:#11151a;border-radius:8px}.loading.visible{display:block}.loading-top{display:flex;justify-content:space-between;gap:10px;color:#d5dae0;font-size:10px;letter-spacing:.08em}.loading-track{height:2px;background:#303640;margin:13px 0;overflow:hidden}.loading-track span{display:block;width:38%;height:100%;background:#d3d8e0;animation:load 1.3s ease-in-out infinite}@keyframes load{0%{transform:translateX(-110%)}100%{transform:translateX(290%)}}.loading small{color:#818a95;font-size:9px}.footer{display:flex;justify-content:space-between;gap:15px;padding:23px 0 30px;border-top:1px solid #292e36;color:#747d88;font-size:9px;letter-spacing:.08em}.footer a{color:#aab2bc;text-decoration:none}
+@media(max-width:900px){.hero{grid-template-columns:1fr 200px;gap:15px}.hero-mark{width:170px;height:170px}.intake{grid-template-columns:1fr}.method{min-height:300px}.layout{grid-template-columns:190px minmax(0,1fr)}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.shell{width:min(100% - 28px,100%)}.topbar{height:66px}.brand img{width:31px;height:31px}.hero{grid-template-columns:1fr;padding:45px 0 32px}.hero-mark{display:none}.hero h1{font-size:clamp(42px,12vw,60px)}.intake{gap:12px}.panel{padding:17px}.mode-tabs button{flex-direction:column;gap:2px;font-size:10px;min-height:56px}.workspace{margin-top:35px}.workspace-head{align-items:flex-start;flex-direction:column}.head-actions{width:100%}.casebar{align-items:flex-start;flex-direction:column}.case-stats{gap:14px}.layout{grid-template-columns:1fr}.sidebar{position:relative;top:auto;display:flex;gap:5px;overflow-x:auto;padding:8px;scrollbar-width:thin}.side-label,.sidebar-foot{display:none}.nav-btn{width:auto;white-space:nowrap;flex:none;padding:9px 10px;font-size:10px}.nav-btn.active:before{display:none}.main-pane{padding:14px}.pane-head{flex-direction:column}.overview-grid{grid-template-columns:1fr}.card.full{grid-column:auto}.evidence-meta{grid-template-columns:1fr}.footer{flex-direction:column}.method{min-height:0}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+.case-hero{position:relative;padding:48px 0 28px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;overflow:hidden}
+.case-hero:after{content:"";position:absolute;right:3%;top:4px;width:280px;height:150px;border:1px solid #cbd0d810;border-radius:50%;transform:rotate(-24deg);box-shadow:0 0 0 24px #cbd0d806,0 0 0 48px #cbd0d804;pointer-events:none}
+.case-hero h1{font:400 clamp(38px,5vw,62px)/1 var(--serif);letter-spacing:-.055em;margin:13px 0 9px}
+.case-hero p{max-width:650px;margin:0;color:#929ba7;font-size:12px;line-height:1.8}
+.case-hero .case-hero-mark{width:74px;height:74px;object-fit:contain;filter:drop-shadow(0 0 18px #cbd0d833);flex:none;animation:markFloat 6s ease-in-out infinite}
+@keyframes markFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.workspace.visible{margin-top:12px}
+.case-page .workspace-head h2{font-size:clamp(32px,4vw,46px)}
+.case-page .main-pane{box-shadow:0 24px 90px #0003}
+.case-page .nav-btn{min-height:42px}
+@media(max-width:680px){.case-hero{padding:36px 0 20px}.case-hero .case-hero-mark{width:48px;height:48px}}
+</style>
+</head>
+<body>
+
+<div class="shell case-page">
+<header class="topbar"><a class="brand" href="/" aria-label="VERA home"><img src="/vera-logo.jpg" alt="VERA emblem"><span><strong>VERA</strong><small>INTELLIGENCE TERMINAL</small></span></a><a class="back" href="/evm-investigation.html">← New investigation</a></header>
+<section class="case-hero"><div><div class="eyebrow">VERA / EVM CASE FILE</div><h1>Investigation<br><em>workspace.</em></h1><p>A dedicated case record for the evidence returned by the selected network. Review observations, activity and source records in a focused workspace.</p></div><img class="case-hero-mark" src="/vera-logo.jpg" alt="VERA emblem"></section>
+<section class="workspace visible" id="workspace" aria-live="polite">
+<div class="workspace-head"><div><div class="kicker">INVESTIGATION WORKSPACE / CURRENT CASE</div><h2>Evidence, clearly arranged.</h2><p id="workspace-subtitle">Review the evidence returned for this case.</p></div><div class="head-actions"><a class="subtle-btn" id="new-case" href="/evm-investigation.html">＋ New investigation</a><button class="subtle-btn" id="export-top" type="button">↓ Export JSON</button></div></div>
+<div class="casebar"><div class="case-ident"><span class="live-dot"></span><div><strong id="case-title">Current case</strong><small id="case-meta"></small></div></div><div class="case-stats"><span><b id="stat-checks">0</b> evidence records</span><span><b id="stat-verified">0</b> verified</span><span><b id="stat-unknown">0</b> unavailable</span></div></div>
+<div class="layout"><nav class="sidebar" aria-label="Investigation workspace"><div class="side-label">CASE WORKSPACES</div><button class="nav-btn active" type="button" data-view="overview">▤ Overview</button><button class="nav-btn" type="button" data-view="activity">↔ Activity & transfers</button><button class="nav-btn" type="button" data-view="controls">⌘ Contract controls</button><button class="nav-btn" type="button" data-view="evidence">▧ Evidence & sources</button><button class="nav-btn" type="button" data-view="notes">✎ Investigator notes</button><button class="nav-btn" type="button" data-view="export">⇩ Export report</button><div class="sidebar-foot">Evidence-first analysis · Read-only</div></nav><main class="main-pane"><div class="pane-head"><div><div class="kicker" id="pane-kicker">CASE SUMMARY / 01</div><h3 id="pane-title">Investigation overview</h3><p id="pane-description">A concise view of the current address and the evidence VERA returned.</p></div><span class="readonly">READ-ONLY EVIDENCE</span></div><div id="pane-content"></div></main></div>
+<div class="disclosure">Coverage is partial. An unavailable check is not a clean result. Token metadata and bytecode do not establish safety; holder concentration, liquidity, transfer restrictions, arbitrary privileged functions, verified source, complete native-asset history and independent threat intelligence may not be available.</div>
+</section>
+<footer class="footer"><span>VERA / EVM INVESTIGATION TERMINAL</span><span>Public-chain evidence only · No financial execution</span><a href="/">Return to VERA ↗</a></footer>
+</div>
+<script>
+
+(() => {
+const $ = (id) => document.getElementById(id);
+const navButtons = [...document.querySelectorAll('[data-view]')];
+let type = 'ADDRESS', report = null, activeView = 'overview', notes = '';
+let savedCase = null;
+try { savedCase = JSON.parse(sessionStorage.getItem('vera:evm-case') || 'null'); } catch { savedCase = null; }
+const esc = (value) => String(value ?? 'Not returned').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const short = (value) => typeof value === 'string' && value.length > 25 ? value.slice(0, 12) + '…' + value.slice(-8) : value;
+const evidence = () => report?.assessment?.evidence ?? [];
+const metaFor = (id, key) => evidence().find((item) => item.id === id)?.metadata?.[key];
+const countState = (state) => evidence().filter((item) => item.state === state).length;
+const statusPill = (item) => '<span class="pill ' + (item.state === 'UNKNOWN' ? 'unknown' : item.severity === 'high' ? 'high' : '') + '">' + esc(item.state) + '</span>';
+const formatNative = (wei, unit) => { try { const value = BigInt(wei); const whole = value / 1000000000000000000n; const fraction = (value % 1000000000000000000n).toString().padStart(18,'0').slice(0,6).replace(/0+$/,''); return whole.toString() + (fraction ? '.' + fraction : '') + ' ' + (unit || 'native units'); } catch { return 'Not returned'; } };
+const fact = (label, value) => '<div class="fact"><span>' + esc(label) + '</span><strong>' + esc(value) + '</strong></div>';
+const metric = (label, value, hint) => '<article class="metric"><span>' + esc(label) + '</span><strong>' + esc(value) + '</strong><small>' + esc(hint) + '</small></article>';
+const card = (kicker, title, description, body, full = false) => '<section class="card' + (full ? ' full' : '') + '"><span class="card-kicker">' + esc(kicker) + '</span><h4>' + esc(title) + '</h4><p>' + esc(description) + '</p>' + body + '</section>';
+function renderOverview() {
+  const checks = evidence(), unknown = countState('UNKNOWN'), verified = countState('VERIFIED');
+  const balanceWei = metaFor('evm-native-balance','balanceWei');
+  const symbol = metaFor('evm-native-balance','symbol');
+  const txCount = metaFor('evm-transaction-count','transactionCount');
+  const bytecode = metaFor('evm-contract-code-present','bytecodeBytes');
+  const name = metaFor('evm-token-name','value'), tokenSymbol = metaFor('evm-token-symbol','value');
+  const decimals = metaFor('evm-token-decimals','value'), supply = metaFor('evm-token-totalSupply','value');
+  const details = type === 'ADDRESS'
+    ? fact('Native balance', balanceWei !== undefined ? formatNative(balanceWei, symbol) : 'Not returned') + fact('Transaction count', txCount ?? 'Not returned') + fact('Contract code', bytecode !== undefined ? bytecode + ' bytes observed' : 'No bytecode metric returned')
+    : type === 'TOKEN'
+      ? fact('Token name', name ?? 'Not returned') + fact('Token symbol', tokenSymbol ?? 'Not returned') + fact('Decimals', decimals ?? 'Not returned') + fact('Raw total supply', supply ?? 'Not returned')
+      : fact('Runtime bytecode', bytecode !== undefined ? bytecode + ' bytes observed' : 'Not returned') + fact('Owner response', metaFor('evm-contract-owner','owner') ?? 'Not returned') + fact('Proxy implementation', metaFor('evm-eip1967-implementation','value') ?? 'Not returned');
+  const warning = unknown ? '<div class="disclosure">' + unknown + ' evidence record(s) are marked UNKNOWN. These checks could not establish a result and must not be interpreted as safe.</div>' : '';
+  $('pane-content').innerHTML = '<div class="metrics">' + metric('Evidence records', checks.length, 'Returned by the EVM adapter') + metric('Verified records', verified, 'Observed or validated evidence') + metric('Unknown records', unknown, 'Unavailable or inconclusive checks') + metric('High-severity records', checks.filter(x => x.severity === 'high' && x.state !== 'UNKNOWN').length, 'Severity assigned by the evidence adapter') + '</div><div class="overview-grid">' +
+    card('ADDRESS / NETWORK PROFILE', type === 'ADDRESS' ? 'Wallet observations' : type === 'TOKEN' ? 'Token profile' : 'Contract profile', 'Values below are read directly from the evidence metadata. Missing values are not inferred.', '<div class="fact-list">' + details + '</div>') +
+    card('ASSESSMENT / REVIEW', report.assessment.headline, report.assessment.explanation, '<div class="fact-list">' + fact('Assessment state', report.assessment.state) + fact('Verdict', report.assessment.verdict || 'Not assigned') + fact('Confidence', report.assessment.confidence || 'Not assigned') + fact('Recommended action', report.assessment.action) + '</div>') +
+    card('EVIDENCE COVERAGE', 'What remains unknown', 'VERA keeps gaps visible instead of converting missing data into a positive result.', '<div class="finding-list">' + checks.filter(x => x.state === 'UNKNOWN').slice(0,5).map(x => '<div class="finding"><i></i><div><strong>' + esc(x.title) + '</strong><small>' + esc(x.detail) + '</small></div></div>').join('') + (unknown ? '' : '<div class="empty">No UNKNOWN records were returned in this response. This does not make the address safe.</div>') + '</div>', true) +
+    '</div>' + warning;
+}
+function renderTransfers() {
+  const transferEvidence = evidence().filter(x => x.metadata && Array.isArray(x.metadata.transfers));
+  const rows = transferEvidence.flatMap(item => item.metadata.transfers.map(t => ({...t, source:item.source, id:item.id})));
+  const table = rows.length ? '<div class="transfer-table-wrap"><table class="transfer-table"><thead><tr><th>Token contract</th><th>From</th><th>To</th><th>Raw amount</th><th>Transaction</th></tr></thead><tbody>' + rows.map(t => '<tr><td>' + esc(short(t.token)) + '</td><td>' + esc(short(t.from)) + '</td><td>' + esc(short(t.to)) + '</td><td>' + esc(t.rawAmount ?? 'Not returned') + '</td><td>' + esc(short(t.transactionHash)) + '</td></tr>').join('') + '</tbody></table></div>' : '<div class="empty">No decoded ERC-20 transfer rows were returned for this investigation. The current adapter does not provide a complete native-transfer or full account history.</div>';
+  $('pane-content').innerHTML = '<div class="metrics">' + metric('Transfer rows', rows.length, 'Rows returned in evidence metadata') + metric('Transfer evidence items', transferEvidence.length, 'Evidence records containing transfer arrays') + metric('History scope', 'Bounded', 'Recent window only; not a complete history') + metric('Network', report.chainId, 'Selected EVM network') + '</div>' + card('ACTIVITY / TRANSFER EVENTS', 'Observed ERC-20 transfers', 'Amounts are raw token units where decimals have not been resolved. Addresses and hashes are linked to no identity or intent.', table, true) + card('COVERAGE LIMIT', 'What this activity view excludes', 'The current adapter does not retrieve a complete native-asset history, all internal calls or older token events.', '<div class="finding-list"><div class="finding"><i></i><div><strong>Bounded recent window</strong><small>Only recent standard ERC-20 Transfer events are queried.</small></div></div><div class="finding"><i></i><div><strong>Native transfers and internal calls</strong><small>These are not represented in this transfer table.</small></div></div></div>', true);
+}
+function renderControls() {
+  const keys = ['implementation','admin','beacon'];
+  const rows = keys.map(key => {
+    const item = evidence().find(x => x.id === 'evm-eip1967-' + key || x.id === 'evm-eip1967-' + key + '-unavailable');
+    return item ? '<div class="finding"><i></i><div><strong>' + esc(item.title) + '</strong><small>' + esc(item.detail) + '</small></div></div>' : '';
+  }).join('');
+  const owner = evidence().find(x => x.id.includes('contract-owner'));
+  const bytecode = evidence().find(x => x.id === 'evm-contract-code-present' || x.id === 'evm-account-no-contract-code');
+  $('pane-content').innerHTML = '<div class="overview-grid">' +
+    card('RUNTIME / BYTECODE', 'Contract code observation', bytecode?.detail || 'No contract bytecode evidence was returned for this address.', '<div class="fact-list">' + fact('Record state', bytecode?.state || 'Not returned') + fact('Source', bytecode?.source || 'Not returned') + fact('Bytecode size', bytecode?.metadata?.bytecodeBytes !== undefined ? bytecode.metadata.bytecodeBytes + ' bytes' : 'Not returned') + '</div>') +
+    card('OWNER INTERFACE', 'Standard owner() response', owner?.detail || 'No owner() evidence was returned.', '<div class="fact-list">' + fact('Owner address', owner?.metadata?.owner || 'Not returned') + fact('Record state', owner?.state || 'Not returned') + fact('Source', owner?.source || 'Not returned') + '</div>') +
+    card('EIP-1967 / PROXY SIGNALS', 'Standard storage slots', 'These checks cover standard EIP-1967 slots only. Empty slots do not rule out custom proxy patterns.', '<div class="finding-list">' + (rows || '<div class="empty">No EIP-1967 slot evidence was returned for this investigation.</div>') + '</div>', true) +
+    card('ANALYSIS BOUNDARY', 'Deep contract review is not complete', 'The baseline adapter does not perform full source verification, arbitrary privileged-function analysis, custom proxy detection or independent audit retrieval.', '<div class="pill unknown">PARTIAL CONTRACT COVERAGE</div><p>Do not interpret the absence of a detected standard slot or owner response as proof that a contract has no privileged controls.</p>', true) + '</div>';
+}
+function renderEvidence() {
+  $('pane-content').innerHTML = '<div class="metrics">' + metric('Evidence items', evidence().length, 'Records returned by this request') + metric('Sources', new Set(evidence().map(x => x.source)).size, 'Distinct source labels') + metric('Unknown', countState('UNKNOWN'), 'Unresolved evidence records') + metric('Observed at', new Date(report.createdAt).toLocaleTimeString(), 'Local browser time') + '</div><div class="evidence-list">' + evidence().map(item => {
+    const meta = item.metadata && typeof item.metadata === 'object' ? Object.entries(item.metadata).filter(([key,value]) => !Array.isArray(value) && value !== null && typeof value !== 'object').slice(0,8) : [];
+    return '<article class="evidence"><div class="evidence-top"><h4>' + esc(item.title) + '</h4>' + statusPill(item) + '</div><p>' + esc(item.detail) + '</p><small>' + esc(item.source) + ' · ' + esc(item.observedAt ? new Date(item.observedAt).toLocaleString() : 'Observation time not supplied') + '</small>' + (meta.length ? '<div class="evidence-meta">' + meta.map(([key,value]) => '<div class="meta-cell"><span>' + esc(key) + '</span><strong>' + esc(value) + '</strong></div>').join('') + '</div>' : '') + '</article>';
+  }).join('') + '</div>';
+}
+function renderNotes() {
+  $('pane-content').innerHTML = card('ANALYST WORKSPACE', 'Investigator notes', 'Keep hypotheses and follow-up tasks separate from on-chain observations. Notes stay in this browser session and are included only when you export the report.', '<textarea class="notes" id="case-notes" placeholder="Record questions, hypotheses and next verification steps…">' + esc(notes) + '</textarea><div class="note-foot">Notes are not sent to VERA or stored on the server.</div>', true);
+  $('case-notes').addEventListener('input', (event) => { notes = event.target.value; });
+}
+function renderExport() {
+  $('pane-content').innerHTML = card('CASE HANDOFF', 'Export investigation report', 'Download the complete API response with the evidence array and assessment. Investigator notes are appended locally.', '<div class="fact-list">' + fact('Network', report.chainId) + fact('Investigation type', report.inputType) + fact('Address', report.input) + fact('Evidence records', evidence().length) + fact('Generated', new Date(report.createdAt).toLocaleString()) + '</div><button class="run" id="download-report" type="button" style="margin-top:16px">Download JSON report ↓</button>', true);
+  $('download-report').addEventListener('click', downloadReport);
+}
+const views = {
+  overview: ['CASE SUMMARY / 01','Investigation overview','A concise view of the current address and the evidence VERA returned.',renderOverview],
+  activity: ['TRANSACTION RECORDS / 02','Activity & transfers','Inspect transfer events actually returned by the EVM adapter.',renderTransfers],
+  controls: ['CONTRACT REVIEW / 03','Contract controls','Review available bytecode, owner-interface and standard proxy-slot evidence.',renderControls],
+  evidence: ['SOURCE RECORD / 04','Evidence & sources','Inspect each record, its source, status, detail and available metadata.',renderEvidence],
+  notes: ['CASE TOOLS / 05','Investigator notes','Keep your working notes separate from the evidence record.',renderNotes],
+  export: ['CASE HANDOFF / 06','Export report','Prepare a structured copy of the current investigation.',renderExport]
+};
+function setView(view) {
+  activeView = view;
+  navButtons.forEach(button => button.classList.toggle('active', button.dataset.view === view));
+  const [kicker,title,description,render] = views[view];
+  $('pane-kicker').textContent = kicker; $('pane-title').textContent = title; $('pane-description').textContent = description;
+  render();
+}
+navButtons.forEach(button => button.addEventListener('click', () => setView(button.dataset.view)));
+function downloadReport() {
+  if (!report) return;
+  const payload = {...report, investigatorNotes: notes.trim() || null, exportedAt: new Date().toISOString()};
+  const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob), link = document.createElement('a');
+  link.href=url; link.download='vera-evm-case-' + report.chainId + '-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+}
+$('export-top').addEventListener('click', downloadReport);
+$('new-case').addEventListener('click', (event) => { event.preventDefault(); window.location.assign('/evm-investigation.html'); });
+
+if (savedCase && savedCase.report && savedCase.report.assessment && Array.isArray(savedCase.report.assessment.evidence)) {
+  report = savedCase.report;
+  type = savedCase.type || report.inputType || 'ADDRESS';
+  notes = savedCase.notes || '';
+  $('case-title').textContent = report.assessment.headline || 'EVM investigation';
+  $('case-meta').textContent = (savedCase.chainLabel || report.chainId) + ' · ' + type + ' · ' + (savedCase.address || report.input || '') + ' · Generated ' + new Date(report.createdAt).toLocaleString();
+  $('stat-checks').textContent = evidence().length;
+  $('stat-verified').textContent = countState('VERIFIED');
+  $('stat-unknown').textContent = countState('UNKNOWN');
+  setView('overview');
+} else {
+  $('case-title').textContent = 'No active case';
+  $('case-meta').textContent = 'Start a new investigation to open a case file.';
+  $('pane-content').innerHTML = '<div class="empty">This case page has no active investigation in this browser session. <a href="/evm-investigation.html">Start a new investigation</a>.</div>';
+}
+})();
+</script>
+</body>
+</html>
