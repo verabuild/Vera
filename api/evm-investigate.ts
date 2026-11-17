@@ -66,7 +66,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!userId) return json(res, 401, { error: 'Your sign-in session could not be verified.' });
     }
 
-    const period = userId ? new Date().toISOString().slice(0, 10) : 'lifetime';
+    // Keep EVM and general investigations on the same per-subject 24-hour window.
+    const period = 'rolling-24h';
     const subject = userId ? `privy:${userId}` : (() => {
       const anonymous = getAnonymousSubject(req, res);
       return anonymous ? `anonymous:${anonymous}` : null;
