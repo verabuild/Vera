@@ -47,6 +47,14 @@
   ],
   "rewrites": [
     {
+      "source": "/evm-investigation",
+      "destination": "/evm-investigation.html"
+    },
+    {
+      "source": "/evm-case",
+      "destination": "/evm-case.html"
+    },
+    {
       "source": "/contact",
       "destination": "/contact/index.html"
     },
@@ -97,6 +105,18 @@
     {
       "source": "/disclosures",
       "destination": "/disclosures/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/evm-investigation.html",
+      "destination": "/evm-investigation",
+      "permanent": true
+    },
+    {
+      "source": "/evm-case.html",
+      "destination": "/evm-case",
+      "permanent": true
     }
   ]
 }
