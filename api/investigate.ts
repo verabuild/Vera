@@ -199,8 +199,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!quota.allowed) {
       return json(res, 429, authenticatedUserId
-        ? { error: 'You have used your ten investigations for today. Your allowance resets at 00:00 UTC.', remaining: 0, signupRequired: false }
-        : { error: 'You have used your five free investigations. Sign in to continue with ten investigations per day.', remaining: 0, signupRequired: true });
+        ? { error: 'You have used your ten investigations in this 24-hour window. Your allowance resets 24 hours after your first investigation in this window.', remaining: 0, signupRequired: false }
+        : { error: 'You have used your five free investigations in this 24-hour window. Your allowance resets 24 hours after your first investigation.', remaining: 0, signupRequired: true });
     }
 
     let assessment = localSignals(inputType, input.trim());
