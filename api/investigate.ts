@@ -169,9 +169,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     let quota: { allowed: boolean; remaining: number; degraded?: boolean };
-    const periodKey = authenticatedUserId
-      ? new Date().toISOString().slice(0, 10)
-      : 'lifetime';
+    // A user's allowance is a fixed 24-hour window beginning with their first
+    // investigation, not a UTC calendar day or a lifetime counter.
+    const periodKey = 'rolling-24h';
     const subjectId = authenticatedUserId
       ? `privy:${authenticatedUserId}`
       : (() => {
