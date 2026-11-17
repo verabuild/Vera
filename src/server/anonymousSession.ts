@@ -89,7 +89,11 @@ export function consumeFallbackQuota(
   const cookies = parseCookies(req);
   const raw = cookies.find((part) => part.startsWith(QUOTA_COOKIE_NAME + "="))?.slice(QUOTA_COOKIE_NAME.length + 1);
 
+  const now = Date.now();
+  const windowMs = 24 * 60 * 60 * 1000;
   let count = 0;
+  let windowStartedAt = now;
+
   if (raw) {
     const separator = raw.lastIndexOf(".");
     if (separator > 0) {
@@ -100,20 +104,27 @@ export function consumeFallbackQuota(
       const b = Buffer.from(expected);
       if (a.length === b.length && timingSafeEqual(a, b)) {
         const payload = decodePayload(payloadEncoded);
+        const storedWindowStart = Number(payload?.windowStartedAt);
         if (
           payload?.subjectHash === subjectHash &&
           payload?.periodKey === periodKey &&
           Number.isInteger(payload?.count) &&
-          Number(payload.count) >= 0
+          Number(payload.count) >= 0 &&
+          Number.isFinite(storedWindowStart) &&
+          storedWindowStart > 0 &&
+          now - storedWindowStart < windowMs &&
+          now >= storedWindowStart
         ) {
           count = Number(payload.count);
+          windowStartedAt = storedWindowStart;
         }
       }
     }
   }
 
   if (count >= limit) {
-    return { allowed: false, remaining: 0, degraded: true };
+    const retryAfter = Math.max(1, Math.ceil((windowStartedAt + windowMs - now) / 1000));
+    return { allowed: false, remaining: 0, degraded: true, retryAfter };
   }
 
   const nextCount = count + 1;
@@ -121,12 +132,11 @@ export function consumeFallbackQuota(
     subjectHash,
     periodKey,
     count: nextCount,
-    updatedAt: Date.now()
+    windowStartedAt,
+    updatedAt: now
   });
   const value = `${payload}.${sign(payload, secret)}`;
-  const maxAge = periodKey === "lifetime"
-    ? 31536000
-    : Math.max(60, Math.ceil((Date.parse(periodKey + "T23:59:59.999Z") - Date.now()) / 1000));
+  const maxAge = Math.max(1, Math.ceil((windowStartedAt + windowMs - now) / 1000));
 
   setCookie(res, QUOTA_COOKIE_NAME, value, maxAge);
   return { allowed: true, remaining: Math.max(0, limit - nextCount), degraded: true };
