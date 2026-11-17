@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#08090b">
 <meta name="description" content="Investigate EVM wallets, tokens and smart contracts across supported networks with VERA's read-only, evidence-first analysis.">
-<link rel="canonical" href="https://vera-build.site/evm-investigation.html">
+<link rel="canonical" href="https://vera-build.site/evm-investigation">
 <link rel="icon" type="image/jpeg" href="/vera-logo.jpg">
 <link rel="apple-touch-icon" href="/vera-logo.jpg">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="VERA">
 <meta property="og:title" content="EVM Investigation Terminal | VERA">
 <meta property="og:description" content="Investigate wallets, tokens and smart contracts across supported EVM networks with evidence-first analysis.">
-<meta property="og:url" content="https://vera-build.site/evm-investigation.html">
+<meta property="og:url" content="https://vera-build.site/evm-investigation">
 <meta property="og:image" content="https://vera-build.site/vera-logo.jpg">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="EVM Investigation Terminal | VERA">
@@ -270,7 +270,7 @@
       } catch {
         throw new Error('This browser could not preserve the investigation report for the case page. Enable session storage and try again.');
       }
-      window.location.assign('/evm-case.html');
+      window.location.assign('/evm-case');
     } catch (error) {
       $('error').textContent = error instanceof Error ? error.message : 'Investigation failed.';
       $('error').style.display = 'block';
