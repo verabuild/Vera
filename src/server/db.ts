@@ -48,10 +48,13 @@ async function ensureUsageSchema(db: Pool) {
     'subject_id TEXT NOT NULL, ' +
     'period_key TEXT NOT NULL, ' +
     'usage_count INTEGER NOT NULL DEFAULT 0 CHECK (usage_count >= 0), ' +
+    'window_started_at TIMESTAMPTZ NOT NULL DEFAULT now(), ' +
     'updated_at TIMESTAMPTZ NOT NULL DEFAULT now(), ' +
     'PRIMARY KEY(subject_id, period_key)' +
     ')'
-  ).then(() => undefined).catch((error) => {
+  ).then(() => db.query(
+    'ALTER TABLE usage_counters ADD COLUMN IF NOT EXISTS window_started_at TIMESTAMPTZ NOT NULL DEFAULT now()'
+  )).then(() => undefined).catch((error) => {
     usageSchemaPromise = null;
     throw error;
   });
@@ -66,10 +69,20 @@ export async function consumeUsageQuota(subjectId: string, periodKey: string, li
   await ensureUsageSchema(db);
 
   const result = await db.query(
-    `INSERT INTO usage_counters(subject_id, period_key, usage_count) VALUES($1,$2,1)
+    `INSERT INTO usage_counters(subject_id, period_key, usage_count, window_started_at)
+     VALUES($1,$2,1,now())
      ON CONFLICT(subject_id, period_key) DO UPDATE
-       SET usage_count = usage_counters.usage_count + 1, updated_at = now()
-       WHERE usage_counters.usage_count < $3
+       SET usage_count = CASE
+             WHEN usage_counters.window_started_at <= now() - interval '24 hours' THEN 1
+             ELSE usage_counters.usage_count + 1
+           END,
+           window_started_at = CASE
+             WHEN usage_counters.window_started_at <= now() - interval '24 hours' THEN now()
+             ELSE usage_counters.window_started_at
+           END,
+           updated_at = now()
+       WHERE usage_counters.window_started_at <= now() - interval '24 hours'
+          OR usage_counters.usage_count < $3
      RETURNING usage_count`,
     [subjectId, periodKey, limit]
   );
