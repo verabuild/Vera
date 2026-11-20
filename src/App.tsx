@@ -334,7 +334,7 @@ function RoadmapSection() {
       </div>
     </div>
 
-    <div className="roadmap-principle"><ShieldCheck size={14} /><span>Evergreen by design</span><p>New intelligence becomes a module, new evidence improves decisions, and continuous monitoring creates the reason to return. Phase 07 is a research track only: no token launch, contract, network, supply, allocation or date has been confirmed.</p><a className="roadmap-token-link" href="/vera-token">Explore $VERA ecosystem research <ArrowUpRight size={12} /></a><a href="/vera-token">View the full roadmap <ArrowUpRight size={11} /></a><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener">GitHub roadmap <ExternalLink size={11} /></a></div>
+    <div className="roadmap-principle"><ShieldCheck size={14} /><span>Evergreen by design</span><p>New intelligence becomes a module, new evidence improves decisions, and continuous monitoring creates the reason to return. Phase 07 remains a proposal: Solana is the intended network and 1,000,000 $VERA is the working supply proposal; no contract, launch platform, allocation or date has been confirmed.</p><a className="roadmap-token-link" href="/vera-token">Explore $VERA ecosystem research <ArrowUpRight size={12} /></a><a href="/vera-token">View the full roadmap <ArrowUpRight size={11} /></a><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener">GitHub roadmap <ExternalLink size={11} /></a></div>
   </section>;
 }
 
@@ -459,7 +459,7 @@ export default function App() {
       "/about": { title: "About VERA | Know before you act", description: "Learn why VERA exists, what it investigates, and how it helps people assess digital risk with evidence rather than assumptions." },
       "/how-it-works": { title: "How VERA Works | Know before you act", description: "Understand VERA's evidence-first investigation process, threat-intelligence checks, coverage limits and risk assessments." },
       "/faq": { title: "Frequently Asked Questions | VERA", description: "Clear answers about VERA investigations, results, Solana tracing, privacy, safety and limitations." },
-      "/vera-token": { title: "$VERA Ecosystem Research | VERA", description: "Explore VERA’s proposed ecosystem token research, potential utility, tokenomics questions, decision criteria and the parameters that remain undecided." },
+      "/vera-token": { title: "$VERA Ecosystem Research | VERA", description: "Explore the proposed $VERA token framework, intended Solana network, 1,000,000-token working supply, potential utility and development roadmap." },
       "/project": { title: "Project Transparency | VERA", description: "Explore VERA's scope, current capabilities, public source code and project status." },
       "/contact": { title: "Contact VERA | Know before you act", description: "Contact the VERA project about privacy requests, investigation corrections, feedback or potential security issues." },
       "/privacy": { title: "Privacy Policy | VERA", description: "Read how VERA processes investigation inputs, uses service providers, stores records and supports privacy requests." },
