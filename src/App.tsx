@@ -334,7 +334,7 @@ function RoadmapSection() {
       </div>
     </div>
 
-    <div className="roadmap-principle"><ShieldCheck size={14} /><span>Evergreen by design</span><p>New intelligence becomes a module, new evidence improves decisions, and continuous monitoring creates the reason to return. Phase 07 remains a proposal: Solana is the intended network and 1,000,000 $VERA is the working supply proposal; no contract, launch platform, allocation or date has been confirmed.</p><a className="roadmap-token-link" href="/vera-token">Explore $VERA ecosystem research <ArrowUpRight size={12} /></a><a href="/vera-token">View the full roadmap <ArrowUpRight size={11} /></a><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener">GitHub roadmap <ExternalLink size={11} /></a></div>
+    <div className="roadmap-principle"><ShieldCheck size={14} /><span>Evergreen by design</span><p>New intelligence becomes a module, new evidence improves decisions, and continuous monitoring creates the reason to return. $VERA is scheduled to launch on Robinhood Chain on November 28, 2026 at 11 AM UTC, with an announced total supply of 1,000,000,000 tokens. Contract and allocation details remain to be verified.</p><a className="roadmap-token-link" href="/vera-token">Explore $VERA tokenomics <ArrowUpRight size={12} /></a><a href="/vera-token">View the full roadmap <ArrowUpRight size={11} /></a><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener">GitHub roadmap <ExternalLink size={11} /></a></div>
   </section>;
 }
 
@@ -392,6 +392,36 @@ function AssessmentPanel({ assessment }: { assessment: Assessment }) {
       <div className="evidence-main"><div className="evidence-title"><strong>{item.title}</strong><span>{item.state}</span></div><p>{item.detail}</p><small>{item.source}</small>{Array.isArray(item.metadata?.reports) && <div className="evidence-links">{item.metadata.reports.map((report, index) => { if (typeof report !== "object" || report === null) return null; const link = report as Record<string, unknown>; if (typeof link.url !== "string" || !(link.url.startsWith("https://") || link.url.startsWith("http://"))) return null; return <a href={link.url} target="_blank" rel="noreferrer noopener" key={link.url + index}>{typeof link.title === "string" ? link.title : link.url}<ExternalLink size={11} /></a>; })}</div>}{Array.isArray(item.metadata?.results) && <div className="evidence-links">{item.metadata.results.map((report, index) => { if (typeof report !== "object" || report === null) return null; const link = report as Record<string, unknown>; if (typeof link.url !== "string" || !(link.url.startsWith("https://") || link.url.startsWith("http://"))) return null; return <a href={link.url} target="_blank" rel="noreferrer noopener" key={link.url + index}>{typeof link.title === "string" ? link.title : link.url}<ExternalLink size={11} /></a>; })}</div>}</div>
     </div>)}</div>
   </section>;
+}
+
+const VERA_LAUNCH_AT = Date.parse("2026-11-28T11:00:00Z");
+
+function LaunchCountdown() {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const tick = () => setNow(Date.now());
+    const timer = window.setInterval(tick, 1000);
+    document.addEventListener("visibilitychange", tick);
+    return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", tick); };
+  }, []);
+  const remaining = Math.max(0, Math.ceil((VERA_LAUNCH_AT - now) / 1000));
+  const units = [
+    [Math.floor(remaining / 3600), "HRS"],
+    [Math.floor(remaining / 60) % 60, "MIN"],
+    [remaining % 60, "SEC"]
+  ] as const;
+  const localLaunch = new Intl.DateTimeFormat(undefined, {
+    month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short"
+  }).format(VERA_LAUNCH_AT);
+  return <aside className="vera-launch-strip" aria-label="VERA token launch countdown">
+    <span className="vera-launch-dot" aria-hidden="true" />
+    <strong>{remaining > 0 ? "$VERA launches in" : "$VERA launch confirmation pending"}</strong>
+    {remaining > 0 && <span className="vera-launch-clock" role="timer" aria-live="off" aria-label={units.map(([value, label]) => value + " " + label).join(", ")}>
+      {units.map(([value, label]) => <span key={label}><b>{String(value).padStart(2, "0")}</b><small>{label}</small></span>)}
+    </span>}
+    <span className="vera-launch-local">{localLaunch} (your time) · 11 AM UTC</span>
+    <a href="/vera-token">Launch details <ArrowUpRight size={13} aria-hidden="true" /></a>
+  </aside>;
 }
 
 export default function App() {
@@ -459,7 +489,7 @@ export default function App() {
       "/about": { title: "About VERA | Know before you act", description: "Learn why VERA exists, what it investigates, and how it helps people assess digital risk with evidence rather than assumptions." },
       "/how-it-works": { title: "How VERA Works | Know before you act", description: "Understand VERA's evidence-first investigation process, threat-intelligence checks, coverage limits and risk assessments." },
       "/faq": { title: "Frequently Asked Questions | VERA", description: "Clear answers about VERA investigations, results, Solana tracing, privacy, safety and limitations." },
-      "/vera-token": { title: "$VERA Ecosystem Research | VERA", description: "Explore the proposed $VERA token framework, intended Solana network, 1,000,000-token working supply, potential utility and development roadmap." },
+      "/vera-token": { title: "$VERA Tokenomics | VERA", description: "Official $VERA tokenomics: Robinhood Chain, one billion tokens, scheduled November 28, 2026 at 11 AM UTC, planned utility and development roadmap." },
       "/project": { title: "Project Transparency | VERA", description: "Explore VERA's scope, current capabilities, public source code and project status." },
       "/contact": { title: "Contact VERA | Know before you act", description: "Contact the VERA project about privacy requests, investigation corrections, feedback or potential security issues." },
       "/privacy": { title: "Privacy Policy | VERA", description: "Read how VERA processes investigation inputs, uses service providers, stores records and supports privacy requests." },
@@ -628,6 +658,21 @@ export default function App() {
   if (isInvestigationsPage) return <InvestigationHistoryPage scans={history} onBack={() => window.location.assign("/")} onOpen={(item) => window.location.assign(`/investigation/${encodeURIComponent(item.id)}`)} onInvestigate={() => window.location.assign("/")} onLookup={(id) => window.location.assign(`/investigation/${encodeURIComponent(id)}`)} />;
 
   return <main onMouseMove={(event) => { const r = event.currentTarget.getBoundingClientRect(); setCursor({ x: ((event.clientX-r.left)/r.width)*100, y: ((event.clientY-r.top)/r.height)*100 }); }} style={{ "--mx": `${cursor.x}%`, "--my": `${cursor.y}%` } as React.CSSProperties}>
+    <style>{`
+      .vera-launch-strip { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; padding:12px 16px; background:#111719; color:#f4f7f6; border-bottom:1px solid #293630; font-size:12px; line-height:1.5; letter-spacing:.035em; text-align:center; }
+      .vera-launch-strip .vera-launch-dot { width:8px; height:8px; flex:0 0 8px; border-radius:50%; background:#48dc96; animation:veraLaunchPulse 2s ease-out infinite; }
+      .vera-launch-strip strong { font-weight:650; color:#f4f7f6; }
+      .vera-launch-strip a { color:#c1d7cb; display:inline-flex; align-items:center; gap:4px; text-decoration:underline; text-underline-offset:3px; }
+      .vera-launch-strip a:focus-visible { outline:2px solid #48dc96; outline-offset:4px; }
+      .vera-launch-clock { display:inline-flex; gap:5px; font-variant-numeric:tabular-nums; }
+      .vera-launch-clock > span { display:inline-flex; align-items:baseline; gap:4px; background:#202b27; border:1px solid #34463d; border-radius:5px; padding:3px 7px; }
+      .vera-launch-clock b { font-size:15px; min-width:2ch; }
+      .vera-launch-clock small { font-size:9px; color:#c1d7cb; }
+      .vera-launch-local { color:#c1d7cb; font-size:11px; }
+      @keyframes veraLaunchPulse { 0% { box-shadow:0 0 0 0 rgba(72,220,150,.5); } 70%,100% { box-shadow:0 0 0 7px rgba(72,220,150,0); } }
+      @media (prefers-reduced-motion: reduce) { .vera-launch-strip .vera-launch-dot { animation:none; } }
+    `}</style>
+    <LaunchCountdown />
     <nav className="nav">
       <div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div>
       <div className="nav-center"><span className="nav-live" /><strong>DECISION INTELLIGENCE</strong></div>
@@ -682,7 +727,7 @@ export default function App() {
     <RoadmapSection />
 
 
-    <footer className="site-footer"><div className="footer-brand"><div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div><p>Know before you act.</p><small>Evidence before action. No financial execution.</small></div><nav className="footer-links" aria-label="Project links"><a href="https://vera-build.site/" rel="noreferrer"><ExternalLink size={14} /> VERA <span>Live beta</span></a><a href="/about"><ExternalLink size={14} /> About <span>Why VERA exists</span></a><a href="/faq"><ExternalLink size={14} /> FAQ <span>Answers and limitations</span></a><a href="/vera-token"><ExternalLink size={14} /> $VERA <span>Proposed ecosystem research</span></a><a href="/how-it-works"><ExternalLink size={14} /> Methodology <span>How evidence is assessed</span></a><a href="/project"><ExternalLink size={14} /> Project <span>Transparency and source</span></a><a href="/contact"><ExternalLink size={14} /> Contact <span>Questions and reports</span></a><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> GitHub <span>Source code</span></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> X <span>Official project account</span></a><a href="mailto:verabuild1@gmail.com"><ExternalLink size={14} /> Email <span>verabuild1@gmail.com</span></a><a href="#roadmap"><ExternalLink size={14} /> Roadmap <span>Product direction</span></a><a href="https://github.com/verabuild/Vera/blob/main/README.md" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Documentation <span>Project overview</span></a></nav><div className="footer-legal"><nav className="legal-links" aria-label="Legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/cookies">Cookies</a><a href="/disclosures">Risk disclosures</a></nav><div className={`theme-switch theme-switch--${themeMode}`} role="group" aria-label="Colour theme">{(["light", "dark", "auto"] as const).map((theme) => <button key={theme} type="button" className={themeMode === theme ? "active" : ""} aria-pressed={themeMode === theme} onClick={() => setThemeMode(theme)}>{theme[0].toUpperCase() + theme.slice(1)}</button>)}</div><small className="footer-copyright">VERA · Decision intelligence</small></div></footer>
+    <footer className="site-footer"><div className="footer-brand"><div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div><p>Know before you act.</p><small>Evidence before action. No financial execution.</small></div><nav className="footer-links" aria-label="Project links"><a href="https://vera-build.site/" rel="noreferrer"><ExternalLink size={14} /> VERA <span>Live beta</span></a><a href="/about"><ExternalLink size={14} /> About <span>Why VERA exists</span></a><a href="/faq"><ExternalLink size={14} /> FAQ <span>Answers and limitations</span></a><a href="/vera-token"><ExternalLink size={14} /> $VERA <span>Tokenomics and launch details</span></a><a href="/how-it-works"><ExternalLink size={14} /> Methodology <span>How evidence is assessed</span></a><a href="/project"><ExternalLink size={14} /> Project <span>Transparency and source</span></a><a href="/contact"><ExternalLink size={14} /> Contact <span>Questions and reports</span></a><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> GitHub <span>Source code</span></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> X <span>Official project account</span></a><a href="mailto:verabuild1@gmail.com"><ExternalLink size={14} /> Email <span>verabuild1@gmail.com</span></a><a href="#roadmap"><ExternalLink size={14} /> Roadmap <span>Product direction</span></a><a href="https://github.com/verabuild/Vera/blob/main/README.md" target="_blank" rel="noreferrer noopener"><ExternalLink size={14} /> Documentation <span>Project overview</span></a></nav><div className="footer-legal"><nav className="legal-links" aria-label="Legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/cookies">Cookies</a><a href="/disclosures">Risk disclosures</a></nav><div className={`theme-switch theme-switch--${themeMode}`} role="group" aria-label="Colour theme">{(["light", "dark", "auto"] as const).map((theme) => <button key={theme} type="button" className={themeMode === theme ? "active" : ""} aria-pressed={themeMode === theme} onClick={() => setThemeMode(theme)}>{theme[0].toUpperCase() + theme.slice(1)}</button>)}</div><small className="footer-copyright">VERA · Decision intelligence</small></div></footer>
     <button type="button" className={`vera-return-orb ${showReturnOrb ? "is-visible" : ""}`} aria-label="Back to investigation" aria-hidden={!showReturnOrb} tabIndex={showReturnOrb ? 0 : -1} onClick={() => document.querySelector(".scanner-shell")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" })}>
       <span className="vera-return-orb-halo" aria-hidden="true" />
       <span className="vera-return-orb-glass"><img className="vera-return-orb-mark" src={OFFICIAL_VERA_LOGO} alt="" style={{ maskImage: `url("${OFFICIAL_VERA_LOGO}")`, WebkitMaskImage: `url("${OFFICIAL_VERA_LOGO}")`, maskMode: "luminance", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", maskPosition: "center", WebkitMaskPosition: "center", maskSize: "contain", WebkitMaskSize: "contain" }} /></span>
