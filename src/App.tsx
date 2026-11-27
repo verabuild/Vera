@@ -628,6 +628,20 @@ export default function App() {
   if (isInvestigationsPage) return <InvestigationHistoryPage scans={history} onBack={() => window.location.assign("/")} onOpen={(item) => window.location.assign(`/investigation/${encodeURIComponent(item.id)}`)} onInvestigate={() => window.location.assign("/")} onLookup={(id) => window.location.assign(`/investigation/${encodeURIComponent(id)}`)} />;
 
   return <main onMouseMove={(event) => { const r = event.currentTarget.getBoundingClientRect(); setCursor({ x: ((event.clientX-r.left)/r.width)*100, y: ((event.clientY-r.top)/r.height)*100 }); }} style={{ "--mx": `${cursor.x}%`, "--my": `${cursor.y}%` } as React.CSSProperties}>
+    <style>{`
+      .vera-launch-strip { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; padding:12px 16px; background:#111719; color:#f4f7f6; border-bottom:1px solid #293630; font-size:12px; line-height:1.5; letter-spacing:.035em; text-align:center; }
+      .vera-launch-strip .vera-launch-dot { width:8px; height:8px; flex:0 0 8px; border-radius:50%; background:#48dc96; animation:veraLaunchPulse 2s ease-out infinite; }
+      .vera-launch-strip strong { font-weight:650; color:#f4f7f6; }
+      .vera-launch-strip a { color:#c1d7cb; display:inline-flex; align-items:center; gap:4px; text-decoration:underline; text-underline-offset:3px; }
+      .vera-launch-strip a:focus-visible { outline:2px solid #48dc96; outline-offset:4px; }
+      @keyframes veraLaunchPulse { 0% { box-shadow:0 0 0 0 rgba(72,220,150,.5); } 70%,100% { box-shadow:0 0 0 7px rgba(72,220,150,0); } }
+      @media (prefers-reduced-motion: reduce) { .vera-launch-strip .vera-launch-dot { animation:none; } }
+    `}</style>
+    <aside className="vera-launch-strip" aria-label="VERA token launch announcement">
+      <span className="vera-launch-dot" aria-hidden="true" />
+      <strong>$VERA launches November 28 at 11 AM UTC</strong>
+      <a href="/vera-token">Launch details <ArrowUpRight size={13} aria-hidden="true" /></a>
+    </aside>
     <nav className="nav">
       <div className="brand"><img className="brand-logo" src={OFFICIAL_VERA_LOGO} alt="VERA" /></div>
       <div className="nav-center"><span className="nav-live" /><strong>DECISION INTELLIGENCE</strong></div>
