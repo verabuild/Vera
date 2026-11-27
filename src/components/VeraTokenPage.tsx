@@ -19,12 +19,12 @@ const researchTracks = [
     id: "economics",
     number: "02",
     label: "Supply & economics",
-    title: "A clear proposal. Details still under review.",
-    summary: "The current working proposal is a one-million-token supply on Solana. Distribution, vesting, liquidity and treasury arrangements have not been finalised.",
+    title: "Defined launch parameters. Transparent economics.",
+    summary: "The announced supply is one billion $VERA on Robinhood Chain. Distribution, vesting, liquidity and treasury arrangements have not been finalised.",
     points: [
-      ["Proposed total supply", "1,000,000 $VERA is the current working supply proposal. The final mint configuration must be validated against the selected launch mechanism before deployment."],
+      ["Proposed total supply", "1,000,000,000 $VERA is the announced total supply. On-chain supply must be verified against the official contract after deployment."],
       ["Distribution and vesting", "Allocation percentages, team or contributor vesting, public distribution and treasury arrangements remain to be determined and disclosed."],
-      ["Liquidity and market risks", "Liquidity arrangements and launch mechanics remain undecided. Liquidity is not backing, and no price, volume or return is promised."]
+      ["Liquidity and market risks", "Liquidity arrangements and launch mechanics have not been publicly confirmed. Liquidity is not backing, and no price, volume or return is promised."]
     ]
   },
   {
@@ -49,10 +49,10 @@ const gates = [
 ];
 
 const questions = [
-  ["Has $VERA launched?", "No. This page describes a working proposal and roadmap, not a token launch announcement. No contract address or launch date has been published."],
-  ["What is the proposed supply?", "The current working proposal is 1,000,000 $VERA. The final mint configuration has not been deployed and must be checked against the selected launch mechanism."],
-  ["Which network is planned?", "Solana is the intended network direction. The final deployment details and token contract have not been confirmed."],
-  ["Which launch platform will be used?", "The launch platform has not been announced. The route may change as the supply design, launch mechanics and liquidity arrangements are evaluated."],
+  ["Has $VERA launched?", "Launch is scheduled for November 28, 2026 at 11 AM UTC. This schedule does not confirm deployment. Verify the official contract through Vera's official channels before interacting."],
+  ["What is the announced supply?", "The announced total supply is 1,000,000,000 $VERA. The on-chain supply has not yet been verified."],
+  ["Which network is planned?", "Robinhood Chain is the announced launch network. The official token contract has not yet been published."],
+  ["Which launch platform will be used?", "Launch venue details will be shared through Vera's official channels."],
   ["What will $VERA do?", "Potential utility areas under evaluation include optional advanced-investigation credits, validated threat-intelligence contributions and ecosystem participation. None of these utilities is live or guaranteed."],
   ["Will users need $VERA to use Vera safely?", "No token should be required to access essential safety information. Any future utility must preserve access to core safety features."],
   ["Is there a price or promised return?", "No. This page makes no price, profit, backing, trading-volume or future-value promise."]
@@ -71,10 +71,10 @@ export default function VeraTokenPage() {
 
     <section className="token-hero">
       <div className="token-hero-copy">
-        <div className="token-status"><span /> WORKING PROPOSAL <i>·</i> NOT A LAUNCH ANNOUNCEMENT</div>
-        <p className="token-eyebrow">THE $VERA TOKEN BRIEF / 001</p>
+        <div className="token-status"><span /> LAUNCH SCHEDULED <i>·</i> NOV 28 / 11 AM UTC</div>
+        <p className="token-eyebrow">THE $VERA TOKEN BRIEF / 002</p>
         <h1>A stronger ecosystem.<br /><em>A clear path forward.</em></h1>
-        <p className="token-lead">A proposed Solana ecosystem token designed around Vera's long-term security mission, with a working supply proposal and a roadmap focused on sustainable product growth.</p>
+        <p className="token-lead">$VERA is scheduled to launch on Robinhood Chain on November 28, 2026 at 11 AM UTC, with an announced total supply of one billion tokens and a roadmap focused on sustainable security infrastructure.</p>
         <div className="token-hero-actions">
           <a className="token-primary" href="#tokenomics">Explore tokenomics <ArrowUpRight size={15} /></a>
           <a className="token-secondary" href="#roadmap">Development roadmap <ChevronDown size={15} /></a>
@@ -86,24 +86,24 @@ export default function VeraTokenPage() {
         <div className="token-orbit-node node-top"><Sparkles size={15} /><span>UTILITY</span></div>
         <div className="token-orbit-node node-right"><Scale size={15} /><span>GOVERNANCE</span></div>
         <div className="token-orbit-node node-bottom"><ShieldCheck size={15} /><span>TRUST</span></div>
-        <div className="token-orbit-core"><img src={OFFICIAL_VERA_LOGO} alt="" /><strong>$VERA</strong><small>WORKING PROPOSAL</small></div>
-        <div className="token-orbit-caption">DESIGN IS NOT A COMMITMENT</div>
+        <div className="token-orbit-core"><img src={OFFICIAL_VERA_LOGO} alt="" /><strong>$VERA</strong><small>ROBINHOOD CHAIN</small></div>
+        <div className="token-orbit-caption">NOVEMBER 28 / 11 AM UTC</div>
       </div>
-      <div className="token-hero-index"><span>VERA / ECOSYSTEM</span><span>STATUS 01 — PROPOSAL</span></div>
+      <div className="token-hero-index"><span>VERA / ECOSYSTEM</span><span>STATUS 02 — LAUNCH SCHEDULED</span></div>
     </section>
 
     <section className="token-notice" aria-label="Important token status disclosure">
       <div className="token-notice-icon"><CircleHelp size={19} /></div>
-      <div><strong>$VERA is a working proposal, not a live token.</strong><p>Solana is the intended network and 1,000,000 tokens is the proposed supply. The launch platform, contract, distribution, allocations, vesting, liquidity and final utility have not been confirmed. Nothing here is an offer to buy or an investment recommendation.</p></div>
-      <span className="token-notice-tag">IN DEVELOPMENT</span>
+      <div><strong>$VERA launch: November 28, 2026 at 11 AM UTC.</strong><p>Robinhood Chain is the announced network and 1,000,000,000 $VERA is the announced supply. Deployment and contract details have not been independently verified. Distribution, allocations, vesting, liquidity and final utility remain undisclosed or under review. Nothing here is an offer to buy or an investment recommendation.</p></div>
+      <span className="token-notice-tag">SCHEDULED</span>
     </section>
 
     <section className="token-gates" id="tokenomics">
-      <div className="token-section-heading"><div><span className="token-kicker">01 / TOKENOMICS</span><h2>A defined starting point.<br /><em>Transparent details.</em></h2></div><p>The current proposal establishes the intended network and supply while leaving launch-dependent decisions open until they can be responsibly verified.</p></div>
+      <div className="token-section-heading"><div><span className="token-kicker">01 / TOKENOMICS</span><h2>A defined starting point.<br /><em>Transparent details.</em></h2></div><p>The announced launch parameters are presented below. Contract and distribution details must be verified separately.</p></div>
       <div className="token-gate-grid">
-        <article><div className="token-gate-top"><span>NETWORK</span><Layers3 size={15} /></div><h3>Solana</h3><p>Intended network direction for the $VERA token.</p><div className="token-gate-line"><span /></div></article>
-        <article><div className="token-gate-top"><span>PROPOSED TOTAL SUPPLY</span><Scale size={15} /></div><h3>1,000,000 $VERA</h3><p>Working supply proposal; final mint configuration is subject to launch-mechanism validation.</p><div className="token-gate-line"><span /></div></article>
-        <article><div className="token-gate-top"><span>LAUNCH PLATFORM</span><Compass size={15} /></div><h3>To be announced</h3><p>Venue and launch mechanics remain under evaluation.</p><div className="token-gate-line"><span /></div></article>
+        <article><div className="token-gate-top"><span>NETWORK</span><Layers3 size={15} /></div><h3>Robinhood Chain</h3><p>Announced network for the $VERA token launch.</p><div className="token-gate-line"><span /></div></article>
+        <article><div className="token-gate-top"><span>ANNOUNCED TOTAL SUPPLY</span><Scale size={15} /></div><h3>1,000,000,000 $VERA</h3><p>One billion tokens; verify the final on-chain supply after deployment.</p><div className="token-gate-line"><span /></div></article>
+        <article><div className="token-gate-top"><span>LAUNCH SCHEDULE</span><Compass size={15} /></div><h3>November 28</h3><p>2026 · 11 AM UTC. Deployment is not yet verified.</p><div className="token-gate-line"><span /></div></article>
         <article><div className="token-gate-top"><span>DISTRIBUTION & LIQUIDITY</span><LockKeyhole size={15} /></div><h3>To be finalised</h3><p>Allocations, vesting and liquidity arrangements will be disclosed before any launch.</p><div className="token-gate-line"><span /></div></article>
       </div>
       <div className="token-gate-note"><ShieldCheck size={17} /><p><strong>No artificial certainty</strong> No allocation percentages, liquidity amounts, price targets or returns are being presented as confirmed.</p></div>
@@ -127,7 +127,7 @@ export default function VeraTokenPage() {
     <section className="token-gates" id="roadmap">
       <div className="token-section-heading"><div><span className="token-kicker">03 / DEVELOPMENT ROADMAP</span><h2>Build the product.<br /><em>Grow the ecosystem.</em></h2></div><p>The token roadmap follows Vera's product development. Each stage depends on delivery, evidence and responsible review.</p></div>
       <div className="token-gate-grid">
-        <article><div className="token-gate-top"><span>PHASE / 01</span><Check size={15} /></div><h3>Launch & community growth</h3><p>Introduce the token proposal, publish transparent terms and grow an informed community around Vera.</p><div className="token-gate-line"><span /></div></article>
+        <article><div className="token-gate-top"><span>PHASE / 01</span><Check size={15} /></div><h3>Launch & community growth</h3><p>Publish verified launch details and transparent terms, and grow an informed community around Vera.</p><div className="token-gate-line"><span /></div></article>
         <article><div className="token-gate-top"><span>PHASE / 02</span><Check size={15} /></div><h3>Security infrastructure</h3><p>Expand investigation capabilities, threat-intelligence coverage and multi-chain security infrastructure.</p><div className="token-gate-line"><span /></div></article>
         <article><div className="token-gate-top"><span>PHASE / 03</span><Check size={15} /></div><h3>Utility development</h3><p>Evaluate practical token utility, optional advanced features and accountable ecosystem contributions.</p><div className="token-gate-line"><span /></div></article>
         <article><div className="token-gate-top"><span>PHASE / 04</span><Check size={15} /></div><h3>Long-term expansion</h3><p>Explore integrations, sustainable development funding and a broader security ecosystem.</p><div className="token-gate-line"><span /></div></article>
@@ -142,15 +142,15 @@ export default function VeraTokenPage() {
     </section>
 
     <section className="token-faq" id="questions">
-      <div className="token-section-heading"><div><span className="token-kicker">05 / COMMON QUESTIONS</span><h2>Clear answers.<br /><em>No speculation.</em></h2></div><p>What is currently proposed, what remains open and what users should not assume.</p></div>
+      <div className="token-section-heading"><div><span className="token-kicker">05 / COMMON QUESTIONS</span><h2>Clear answers.<br /><em>No speculation.</em></h2></div><p>Announced launch details, planned utility and what users should verify.</p></div>
       <div className="token-faq-list">{questions.map(([question, answer], index) => <article className={openQuestion === index ? "open" : ""} key={question}><button type="button" aria-expanded={openQuestion === index} onClick={() => setOpenQuestion(openQuestion === index ? null : index)}><span>{String(index + 1).padStart(2, "0")}</span><strong>{question}</strong><ChevronDown size={17} /></button>{openQuestion === index && <div className="token-faq-answer"><p>{answer}</p></div>}</article>)}</div>
     </section>
 
     <section className="token-bottom-cta">
       <span className="token-kicker">THE MISSION REMAINS THE SAME</span><h2>Know before you act.<br /><em>Build what comes next.</em></h2><p>$VERA is being explored as part of a wider vision for a more accessible, evidence-led crypto security ecosystem. Product value comes first; token decisions must support it.</p>
-      <div><a href="/" className="token-primary">Return to VERA <ArrowUpRight size={15} /></a><a href="https://github.com/verabuild/Vera/blob/main/ROADMAP.md" target="_blank" rel="noreferrer noopener" className="token-secondary">Read the public roadmap <ExternalLink size={14} /></a></div>
+      <div><a href="/" className="token-primary">Return to VERA <ArrowUpRight size={15} /></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener" className="token-secondary">Follow official launch updates <ExternalLink size={14} /></a></div>
     </section>
 
-    <footer className="token-footer"><a href="/" className="token-footer-brand"><img src={OFFICIAL_VERA_LOGO} alt="VERA" /><span>VERA <i>⇴</i> Know before you act.</span></a><span>$VERA / WORKING PROPOSAL</span><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener">PUBLIC SOURCE <ExternalLink size={12} /></a></footer>
+    <footer className="token-footer"><a href="/" className="token-footer-brand"><img src={OFFICIAL_VERA_LOGO} alt="VERA" /><span>VERA <i>⇴</i> Know before you act.</span></a><span>$VERA / LAUNCH SCHEDULED</span><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener">PUBLIC SOURCE <ExternalLink size={12} /></a></footer>
   </main>;
 }
