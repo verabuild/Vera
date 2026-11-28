@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { ArrowUpRight } from "lucide-react";
 import ReactDOM from "react-dom/client";
 import { PrivyProvider } from "@privy-io/react-auth";
@@ -7,25 +7,7 @@ import App from "./App";
 import OrbitalBackdrop from "./components/OrbitalBackdrop";
 import "./styles.css";
 
-const VERA_LAUNCH_AT = Date.parse("2026-11-28T11:00:00Z");
-
 function LaunchCountdown() {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const tick = () => setNow(Date.now());
-    const timer = window.setInterval(tick, 1000);
-    document.addEventListener("visibilitychange", tick);
-    return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", tick); };
-  }, []);
-  const remaining = Math.max(0, Math.ceil((VERA_LAUNCH_AT - now) / 1000));
-  const units = [
-    [Math.floor(remaining / 3600), "HRS"],
-    [Math.floor(remaining / 60) % 60, "MIN"],
-    [remaining % 60, "SEC"]
-  ] as const;
-  const localLaunch = new Intl.DateTimeFormat(undefined, {
-    month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short"
-  }).format(VERA_LAUNCH_AT);
   return <>
     <style>{`
       .vera-launch-strip { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; padding:12px 16px; background:#111719; color:#f4f7f6; border-bottom:1px solid #293630; font-size:12px; line-height:1.5; letter-spacing:.035em; text-align:center; }
@@ -41,15 +23,7 @@ function LaunchCountdown() {
       @keyframes veraLaunchPulse { 0% { box-shadow:0 0 0 0 rgba(72,220,150,.5); } 70%,100% { box-shadow:0 0 0 7px rgba(72,220,150,0); } }
       @media (prefers-reduced-motion: reduce) { .vera-launch-strip .vera-launch-dot { animation:none; } }
     `}</style>
-    <aside className="vera-launch-strip" aria-label="VERA token launch countdown">
-    <span className="vera-launch-dot" aria-hidden="true" />
-    <strong>{remaining > 0 ? "$VERA launches in" : "$VERA launch confirmation pending"}</strong>
-    {remaining > 0 && <span className="vera-launch-clock" role="timer" aria-live="off" aria-label={units.map(([value, label]) => value + " " + label).join(", ")}>
-      {units.map(([value, label]) => <span key={label}><b>{String(value).padStart(2, "0")}</b><small>{label}</small></span>)}
-    </span>}
-    <span className="vera-launch-local">{localLaunch} (your time) · 11 AM UTC</span>
-    <a href="/vera-token">Launch details <ArrowUpRight size={13} aria-hidden="true" /></a>
-  </aside></>;
+    <aside className="vera-launch-strip" aria-label="VERA token live"><span className="vera-launch-dot" aria-hidden="true" /><a href="https://ponsfamily.com/launchpad/0xbaf6033ccd41734acc7e14038c9b06910543650e" target="_blank" rel="noopener noreferrer"><strong>$VERA IS LIVE</strong> · Buy $VERA <ArrowUpRight size={13} aria-hidden="true" /></a></aside></>;
 }
 
 const appId = import.meta.env.VITE_PRIVY_APP_ID;
