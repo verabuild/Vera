@@ -49,10 +49,10 @@ const gates = [
 ];
 
 const questions = [
-  ["Has $VERA launched?", "Launch is scheduled for November 28, 2026 at 11 AM UTC. This schedule does not confirm deployment. Verify the official contract through Vera's official channels before interacting."],
+  ["Has $VERA launched?", "$VERA is live on Robinhood Chain. Official contract: 0xbaf6033ccd41734acc7e14038c9b06910543650e. Verify before interacting."],
   ["What is the announced supply?", "The announced total supply is 1,000,000,000 $VERA. The on-chain supply has not yet been verified."],
-  ["Which network is planned?", "Robinhood Chain is the announced launch network. The official token contract has not yet been published."],
-  ["Which launch platform will be used?", "Launch venue details will be shared through Vera's official channels."],
+  ["Which network is $VERA on?", "Robinhood Chain. Official contract: 0xbaf6033ccd41734acc7e14038c9b06910543650e."],
+  ["Which launch platform will be used?", "The official purchase link is available above."],
   ["What will $VERA do?", "The utility roadmap focuses on advanced investigation credits, validated threat-intelligence contributions and ecosystem participation. These token-linked features are planned development milestones, distinct from Vera's existing investigation product."],
   ["Will users need $VERA to use Vera safely?", "No. Essential safety information remains accessible without token ownership. Token-linked features are intended to extend the experience."],
   ["Is there a price or promised return?", "No. This page makes no price, profit, backing, trading-volume or future-value promise."]
@@ -71,12 +71,12 @@ export default function VeraTokenPage() {
 
     <section className="token-hero">
       <div className="token-hero-copy">
-        <div className="token-status"><span /> LAUNCH SCHEDULED <i>·</i> NOV 28 / 11 AM UTC</div>
+        <div className="token-status"><span /> LIVE <i>·</i> ROBINHOOD CHAIN</div>
         <p className="token-eyebrow">THE VERA SECURITY ECOSYSTEM</p>
         <h1>Security before action.<br /><em>Utility with purpose.</em></h1>
         <p className="token-lead">$VERA is the ecosystem token for Vera, a Web2 and Web3 security intelligence platform. Our mission is to make risk assessment accessible before users click, connect, sign or pay. The token utility roadmap extends that mission through advanced investigations, validated intelligence and ecosystem participation.</p>
         <div className="token-hero-actions">
-          <a className="token-primary" href="#tokenomics">Explore tokenomics <ArrowUpRight size={15} /></a>
+          <a className="token-primary" href="https://ponsfamily.com/launchpad/0xbaf6033ccd41734acc7e14038c9b06910543650e" target="_blank" rel="noopener noreferrer">Buy $VERA <ArrowUpRight size={15} /></a>
           <a className="token-secondary" href="#roadmap">Development roadmap <ChevronDown size={15} /></a>
         </div>
         <div className="token-principles"><span><ShieldCheck size={14} /> Product-led utility</span><span><LockKeyhole size={14} /> Safety without token ownership</span><span><Fingerprint size={14} /> Transparent by design</span></div>
@@ -87,26 +87,27 @@ export default function VeraTokenPage() {
         <div className="token-orbit-node node-right"><Scale size={15} /><span>INTELLIGENCE</span></div>
         <div className="token-orbit-node node-bottom"><ShieldCheck size={15} /><span>TRUST</span></div>
         <div className="token-orbit-core"><img src={OFFICIAL_VERA_LOGO} alt="" /><strong>$VERA</strong><small>ROBINHOOD CHAIN</small></div>
-        <div className="token-orbit-caption">NOVEMBER 28 / 11 AM UTC</div>
+        <div className="token-orbit-caption">LIVE / ROBINHOOD CHAIN</div>
       </div>
-      <div className="token-hero-index"><span>VERA / ECOSYSTEM</span><span>STATUS 02 — LAUNCH SCHEDULED</span></div>
+      <div className="token-hero-index"><span>VERA / ECOSYSTEM</span><span>STATUS 03 — LIVE</span></div>
     </section>
 
     <section className="token-notice" aria-label="Important token status disclosure">
       <div className="token-notice-icon"><CircleHelp size={19} /></div>
-      <div><strong>$VERA launch: November 28, 2026 at 11 AM UTC.</strong><p>Robinhood Chain · 1,000,000,000 $VERA. Follow official Vera channels for the verified contract address and launch access.</p></div>
-      <span className="token-notice-tag">SCHEDULED</span>
+      <div><strong>$VERA is live on Robinhood Chain.</strong><p>Robinhood Chain · 1,000,000,000 $VERA. Verify the official contract below before trading.</p></div>
+      <span className="token-notice-tag">LIVE</span>
     </section>
 
+    <section className="token-gates" aria-label="Official token contract"><div className="token-gate-note" style={{flexWrap:"wrap"}}><ShieldCheck size={17}/><div style={{minWidth:0}}><strong>Official contract · Robinhood Chain</strong><p style={{overflowWrap:"anywhere"}}>0xbaf6033ccd41734acc7e14038c9b06910543650e</p><button type="button" className="token-secondary" onClick={async (event) => { const button = event.currentTarget; try { await navigator.clipboard.writeText("0xbaf6033ccd41734acc7e14038c9b06910543650e"); button.textContent="Copied"; } catch { button.textContent="Select and copy address above"; } }}>Copy contract</button></div><a className="token-primary" href="https://ponsfamily.com/launchpad/0xbaf6033ccd41734acc7e14038c9b06910543650e" target="_blank" rel="noopener noreferrer">Buy $VERA</a><a className="token-secondary" href="https://dexscreener.com/search?q=0xbaf6033ccd41734acc7e14038c9b06910543650e" target="_blank" rel="noopener noreferrer">DEX Screener search</a><a className="token-secondary" href="https://www.geckoterminal.com/search?query=0xbaf6033ccd41734acc7e14038c9b06910543650e" target="_blank" rel="noopener noreferrer">GeckoTerminal search</a></div></section>
     <section className="token-gates" id="tokenomics">
-      <div className="token-section-heading"><div><span className="token-kicker">01 / TOKENOMICS</span><h2>$VERA at a glance.<br /><em>Built for the ecosystem.</em></h2></div><p>The official launch schedule, network and announced token supply.</p></div>
+      <div className="token-section-heading"><div><span className="token-kicker">01 / TOKENOMICS</span><h2>$VERA at a glance.<br /><em>Built for the ecosystem.</em></h2></div><p>The official launch date, network and announced token supply.</p></div>
       <div className="token-gate-grid">
         <article><div className="token-gate-top"><span>NETWORK</span><Layers3 size={15} /></div><h3>Robinhood Chain</h3><p>Announced network for the $VERA token launch.</p><div className="token-gate-line"><span /></div></article>
         <article><div className="token-gate-top"><span>ANNOUNCED TOTAL SUPPLY</span><Scale size={15} /></div><h3>1,000,000,000 $VERA</h3><p>One billion tokens announced for the ecosystem.</p><div className="token-gate-line"><span /></div></article>
         <article><div className="token-gate-top"><span>LAUNCH SCHEDULE</span><Compass size={15} /></div><h3>November 28</h3><p>2026 · 11 AM UTC.</p><div className="token-gate-line"><span /></div></article>
         <article><div className="token-gate-top"><span>TOKEN PURPOSE</span><LockKeyhole size={15} /></div><h3>Ecosystem utility</h3><p>Advanced investigations, intelligence contributions and ecosystem participation are the planned utility pillars.</p><div className="token-gate-line"><span /></div></article>
       </div>
-      <div className="token-gate-note"><ShieldCheck size={17} /><p><strong>Official token information</strong> Contract, distribution, vesting and liquidity details will be published when confirmed. No trading volume or financial return is promised.</p></div>
+      <div className="token-gate-note"><ShieldCheck size={17} /><p><strong>Official token information</strong> The official contract is published above. Distribution, vesting and liquidity details remain subject to verification. No trading volume or financial return is promised.</p></div>
     </section>
 
     <section className="token-gates" id="product">
@@ -162,6 +163,6 @@ export default function VeraTokenPage() {
       <div><a href="/" className="token-primary">Explore VERA <ArrowUpRight size={15} /></a><a href="https://x.com/verabuild" target="_blank" rel="noreferrer noopener" className="token-secondary">Follow official launch updates <ExternalLink size={14} /></a></div>
     </section>
 
-    <footer className="token-footer"><a href="/" className="token-footer-brand"><img src={OFFICIAL_VERA_LOGO} alt="VERA" /><span>VERA <i>⇴</i> Know before you act.</span></a><span>$VERA / LAUNCH SCHEDULED</span><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener">PUBLIC SOURCE <ExternalLink size={12} /></a></footer>
+    <footer className="token-footer"><a href="/" className="token-footer-brand"><img src={OFFICIAL_VERA_LOGO} alt="VERA" /><span>VERA <i>⇴</i> Know before you act.</span></a><span>$VERA / LIVE</span><a href="https://github.com/verabuild/Vera" target="_blank" rel="noreferrer noopener">PUBLIC SOURCE <ExternalLink size={12} /></a></footer>
   </main>;
 }
