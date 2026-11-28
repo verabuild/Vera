@@ -125,7 +125,7 @@ export const CHAIN_REGISTRY: Readonly<Record<ChainId, ChainConfig>> = {
     name: 'Elysium Mainnet',
     chainId: 99901,
     nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
-    explorerUrl: 'https://elyscan.live',
+    explorerUrl: 'https://elysium.kinetiq.xyz/explorer',
     rpcEnvVar: 'EVM_ELYSIUM_RPC_URL',
     availability: 'available',
     enabledForInvestigation: true,
