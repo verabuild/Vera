@@ -97,7 +97,7 @@ export async function getPersistedScan(scanId: string) {
 
   scanReportSchemaPromise ||= db.query(
     'ALTER TABLE scans ADD COLUMN IF NOT EXISTS report_json JSONB'
-  ).then(() => db.query("ALTER TABLE scans ADD COLUMN IF NOT EXISTS chain_id TEXT NOT NULL DEFAULT 'solana' CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood'))")).then(() => db.query('ALTER TABLE scans DROP CONSTRAINT IF EXISTS scans_chain_id_check')).then(() => db.query("ALTER TABLE scans ADD CONSTRAINT scans_chain_id_check CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood'))")).then(() => undefined).catch((error) => {
+  ).then(() => db.query("ALTER TABLE scans ADD COLUMN IF NOT EXISTS chain_id TEXT NOT NULL DEFAULT 'solana' CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood','elysium'))")).then(() => db.query('ALTER TABLE scans DROP CONSTRAINT IF EXISTS scans_chain_id_check')).then(() => db.query("ALTER TABLE scans ADD CONSTRAINT scans_chain_id_check CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood','elysium'))")).then(() => undefined).catch((error) => {
     scanReportSchemaPromise = null;
     throw error;
   });
@@ -124,7 +124,7 @@ export async function persistScan(
   const db = getPool();
   if (!db) return;
 
-  scanReportSchemaPromise ||= db.query('ALTER TABLE scans ADD COLUMN IF NOT EXISTS report_json JSONB').then(() => db.query("ALTER TABLE scans ADD COLUMN IF NOT EXISTS chain_id TEXT NOT NULL DEFAULT 'solana' CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood'))")).then(() => db.query('ALTER TABLE scans DROP CONSTRAINT IF EXISTS scans_chain_id_check')).then(() => db.query("ALTER TABLE scans ADD CONSTRAINT scans_chain_id_check CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood'))")).then(() => undefined).catch((error) => { scanReportSchemaPromise = null; throw error; });
+  scanReportSchemaPromise ||= db.query('ALTER TABLE scans ADD COLUMN IF NOT EXISTS report_json JSONB').then(() => db.query("ALTER TABLE scans ADD COLUMN IF NOT EXISTS chain_id TEXT NOT NULL DEFAULT 'solana' CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood','elysium'))")).then(() => db.query('ALTER TABLE scans DROP CONSTRAINT IF EXISTS scans_chain_id_check')).then(() => db.query("ALTER TABLE scans ADD CONSTRAINT scans_chain_id_check CHECK (chain_id IN ('solana','ethereum','base','bsc','arbitrum','polygon','robinhood','elysium'))")).then(() => undefined).catch((error) => { scanReportSchemaPromise = null; throw error; });
   await scanReportSchemaPromise;
 
   const client = await db.connect();
