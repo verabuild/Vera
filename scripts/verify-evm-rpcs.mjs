@@ -5,6 +5,7 @@ const chains = [
   { id: 'arbitrum', chainId: 42161, rpcEnvVar: 'EVM_ARBITRUM_RPC_URL' },
   { id: 'polygon', chainId: 137, rpcEnvVar: 'EVM_POLYGON_RPC_URL' },
   { id: 'robinhood', chainId: 4663, rpcEnvVar: 'EVM_ROBINHOOD_RPC_URL' },
+  { id: 'elysium', chainId: 99901, rpcEnvVar: 'EVM_ELYSIUM_RPC_URL' },
 ];
 const strict = process.argv.includes('--strict');
 let failures = 0;
