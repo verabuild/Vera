@@ -40,6 +40,7 @@ const chainLabels: Record<ChainId, string> = {
   arbitrum: "Arbitrum One",
   polygon: "Polygon PoS",
   robinhood: "Robinhood Chain",
+  elysium: "Elysium Mainnet",
 };
 
 function verdictConfig(assessment: Assessment) {
