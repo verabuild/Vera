@@ -15,7 +15,8 @@ export type EvmChainId =
   | 'bsc'
   | 'arbitrum'
   | 'polygon'
-  | 'robinhood';
+  | 'robinhood'
+  | 'elysium';
 
 export type ChainId = 'solana' | EvmChainId;
 
@@ -118,6 +119,17 @@ export const CHAIN_REGISTRY: Readonly<Record<ChainId, ChainConfig>> = {
     availability: 'available',
     enabledForInvestigation: true,
   },
+  elysium: {
+    id: 'elysium',
+    family: 'evm',
+    name: 'Elysium Mainnet',
+    chainId: 99901,
+    nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
+    explorerUrl: 'https://elysium.kinetiq.xyz/explorer',
+    rpcEnvVar: 'EVM_ELYSIUM_RPC_URL',
+    availability: 'available',
+    enabledForInvestigation: true,
+  },
 };
 
 export function getChainConfig(chainId: ChainId): ChainConfig {
@@ -130,7 +142,8 @@ export function isEvmChainId(value: string): value is EvmChainId {
     || value === 'bsc'
     || value === 'arbitrum'
     || value === 'polygon'
-    || value === 'robinhood';
+    || value === 'robinhood'
+    || value === 'elysium';
 }
 
 /**
